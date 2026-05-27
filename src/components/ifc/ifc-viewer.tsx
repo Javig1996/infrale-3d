@@ -14,8 +14,6 @@ export function IFCViewer({ fileUrl, modelName }: Props) {
         src={src}
         className="w-full h-full"
         title={`Visor IFC — ${modelName}`}
-        allow="accelerometer; autoplay"
-        sandbox="allow-scripts allow-same-origin"
       />
     </div>
   );

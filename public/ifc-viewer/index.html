@@ -12,14 +12,14 @@
     #overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #050d1a; z-index: 10; }
     .spinner { width: 36px; height: 36px; border: 3px solid #1e3a5f; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #overlay p  { font-size: 14px; color: #94a3b8; }
+    #overlay p     { font-size: 14px; color: #94a3b8; }
     #overlay small { font-size: 12px; color: #475569; }
-    .progress-bar  { width: 220px; height: 3px; background: #1e3a5f; border-radius: 2px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #2563eb; border-radius: 2px; transition: width 0.5s ease; width: 0%; }
+    .pb  { width: 220px; height: 3px; background: #1e3a5f; border-radius: 2px; overflow: hidden; }
+    .pf  { height: 100%; background: #2563eb; border-radius: 2px; transition: width 0.5s ease; width: 0%; }
     #error-box { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #050d1a; padding: 32px; text-align: center; }
     #error-box svg { width: 42px; height: 42px; color: #ef4444; }
     #error-box h3  { font-size: 15px; color: #ef4444; }
-    #error-box p   { font-size: 12px; color: #64748b; max-width: 400px; line-height: 1.7; }
+    #error-box p   { font-size: 12px; color: #64748b; max-width: 420px; line-height: 1.75; }
     #error-box button { background: #1e3a5f; border: 1px solid #2563eb55; color: #94a3b8; padding: 8px 20px; border-radius: 8px; font-size: 12px; cursor: pointer; margin-top: 4px; }
     #error-box button:hover { color: #e2e8f0; background: #0f2035; }
     #controls  { position: absolute; top: 12px; right: 12px; display: none; gap: 6px; }
@@ -28,14 +28,24 @@
     #statusbar { position: absolute; bottom: 12px; left: 12px; display: none; align-items: center; gap: 8px; background: rgba(5,13,26,0.88); border: 1px solid #1e3a5f; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #94a3b8; pointer-events: none; }
     #statusbar .dot { width: 6px; height: 6px; border-radius: 50%; background: #2563eb; flex-shrink: 0; }
   </style>
+
+  <!-- Import map: fija three@0.149.0 para que todas las dependencias usen la misma instancia -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.149.0",
+      "three/examples/jsm/controls/OrbitControls.js": "https://esm.sh/three@0.149.0/examples/jsm/controls/OrbitControls.js"
+    }
+  }
+  </script>
 </head>
 <body>
 <div id="container">
   <div id="overlay">
     <div class="spinner"></div>
     <p id="msg">Cargando visor...</p>
-    <small id="sub">Iniciando Three.js</small>
-    <div class="progress-bar"><div class="progress-fill" id="bar"></div></div>
+    <small id="sub">Descargando Three.js</small>
+    <div class="pb"><div class="pf" id="bar"></div></div>
   </div>
 
   <div id="error-box">
@@ -61,51 +71,47 @@
   </div>
 </div>
 
-<!-- Three.js r149: última versión con examples/js/ (OrbitControls global) -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/examples/js/controls/OrbitControls.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-<script>
-(async function () {
-  const params    = new URLSearchParams(location.search);
-  const fileUrl   = params.get('url');
-  const modelName = params.get('name') || 'Modelo IFC';
+const params    = new URLSearchParams(location.search);
+const fileUrl   = params.get('url');
+const modelName = params.get('name') || 'Modelo IFC';
 
-  const overlay  = document.getElementById('overlay');
-  const errorBox = document.getElementById('error-box');
+const overlay  = document.getElementById('overlay');
+const errorBox = document.getElementById('error-box');
 
-  function prog(pct, m, s) {
-    document.getElementById('bar').style.width = pct + '%';
-    if (m) document.getElementById('msg').textContent  = m;
-    if (s) document.getElementById('sub').textContent  = s;
-  }
-  function showError(text) {
-    overlay.style.display  = 'none';
-    errorBox.style.display = 'flex';
-    document.getElementById('err-msg').textContent = text;
-  }
+function prog(pct, m, s) {
+  document.getElementById('bar').style.width = pct + '%';
+  if (m) document.getElementById('msg').textContent = m;
+  if (s) document.getElementById('sub').textContent = s;
+}
+function showError(text) {
+  overlay.style.display  = 'none';
+  errorBox.style.display = 'flex';
+  document.getElementById('err-msg').textContent = text;
+}
 
-  if (!fileUrl) { showError('No se especificó la URL del modelo.'); return; }
+if (!fileUrl) { showError('No se especificó la URL del modelo.'); }
+else {
   document.getElementById('model-label').textContent = modelName;
-
   const timer = setTimeout(() =>
     showError('Tiempo de espera agotado (4 min). El archivo puede ser muy grande o hay un problema de red.'),
     4 * 60 * 1000
   );
+  run(timer);
+}
 
+async function run(timer) {
   try {
-    prog(8, 'Iniciando visor 3D...', 'Configurando escena Three.js');
+    prog(10, 'Iniciando visor 3D...', 'Configurando escena Three.js');
 
-    if (typeof THREE === 'undefined')
-      throw new Error('Three.js no cargó. Verifica tu conexión a internet.');
-    if (typeof THREE.OrbitControls === 'undefined')
-      throw new Error('OrbitControls no cargó correctamente.');
-
-    // ── Escena ──────────────────────────────────────────────────────
+    // ── Escena ─────────────────────────────────────────────────────────
     const scene  = new THREE.Scene();
     scene.background = new THREE.Color(0x050d1a);
 
-    const cont = document.getElementById('container');
+    const cont   = document.getElementById('container');
     const camera = new THREE.PerspectiveCamera(60, cont.clientWidth / cont.clientHeight, 0.1, 10000);
     camera.position.set(20, 20, 20);
 
@@ -114,9 +120,9 @@
     renderer.setSize(cont.clientWidth, cont.clientHeight);
     cont.appendChild(renderer.domElement);
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping  = true;
-    controls.dampingFactor  = 0.05;
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.8));
     const sun = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -131,46 +137,46 @@
     });
     (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
 
-    // ── Descargar IFC ────────────────────────────────────────────────
-    prog(18, 'Descargando modelo...', 'Conectando con el servidor');
+    // ── Descargar IFC ──────────────────────────────────────────────────
+    prog(20, 'Descargando modelo...', 'Conectando con el servidor');
     let res;
-    try   { res = await fetch(fileUrl); }
-    catch (e) { throw new Error('No se pudo conectar al servidor. Verifica tu conexión. (' + e.message + ')'); }
-    if (!res.ok) throw new Error('Error al descargar el archivo: HTTP ' + res.status + '. Verifica que el modelo sea público.');
+    try { res = await fetch(fileUrl); }
+    catch (e) { throw new Error('Sin conexión al servidor. Verifica tu internet. (' + e.message + ')'); }
+    if (!res.ok) throw new Error('Error HTTP ' + res.status + ' al descargar el modelo. Verifica que sea público.');
 
-    prog(35, 'Descargando modelo...', 'Recibiendo datos del archivo');
+    prog(38, 'Descargando modelo...', 'Recibiendo datos del archivo');
     const buffer = await res.arrayBuffer();
 
-    // ── Cargar IFCLoader ─────────────────────────────────────────────
-    prog(50, 'Cargando motor IFC...', 'Importando web-ifc-three desde CDN');
+    // ── IFCLoader desde esm.sh con misma versión de three ─────────────
+    prog(52, 'Cargando motor IFC...', 'Importando web-ifc-three desde esm.sh');
     let IFCLoader;
     try {
-      const mod = await import('https://esm.sh/web-ifc-three@0.0.143');
+      // ?deps=three@0.149.0 garantiza que web-ifc-three use la misma instancia de THREE
+      const mod = await import('https://esm.sh/web-ifc-three@0.0.143?deps=three@0.149.0');
       IFCLoader  = mod.IFCLoader;
     } catch (e) {
-      throw new Error('No se pudo cargar el motor IFC desde CDN. (' + e.message + ')');
+      throw new Error('No se pudo cargar el motor IFC. (' + e.message + ')');
     }
 
-    prog(62, 'Inicializando WASM...', 'Cargando motor de geometría IFC');
+    prog(64, 'Inicializando WASM...', 'Cargando motor de geometría IFC');
     const loader = new IFCLoader();
     try {
       await loader.ifcManager.setWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.44/');
     } catch (e) {
-      throw new Error('Error al inicializar el motor WASM. (' + e.message + ')');
+      throw new Error('Error al inicializar WASM. (' + e.message + ')');
     }
 
-    // ── Parsear IFC ───────────────────────────────────────────────────
-    prog(74, 'Procesando geometría...', 'Parseando elementos del modelo IFC');
+    // ── Parsear IFC ────────────────────────────────────────────────────
+    prog(76, 'Procesando geometría...', 'Parseando elementos IFC');
     const blobUrl = URL.createObjectURL(new Blob([new Uint8Array(buffer)]));
     let model;
     try   { model = await loader.loadAsync(blobUrl); }
-    catch (e) { throw new Error('Error al parsear el IFC. El archivo puede estar dañado o ser incompatible. (' + e.message + ')'); }
+    catch (e) { throw new Error('Error al parsear el archivo IFC. Puede estar dañado. (' + e.message + ')'); }
     URL.revokeObjectURL(blobUrl);
-
     scene.add(model);
 
-    // ── Centrar cámara ────────────────────────────────────────────────
-    prog(92, 'Ajustando cámara...', 'Calculando encuadre óptimo');
+    // ── Centrar cámara ─────────────────────────────────────────────────
+    prog(93, 'Ajustando cámara...', 'Calculando encuadre');
     const box    = new THREE.Box3().setFromObject(model);
     const center = box.getCenter(new THREE.Vector3());
     const size   = box.getSize(new THREE.Vector3());
@@ -181,14 +187,13 @@
 
     prog(100, '¡Modelo cargado!', '');
     clearTimeout(timer);
-
     setTimeout(() => {
       overlay.style.display = 'none';
       document.getElementById('controls').style.display  = 'flex';
       document.getElementById('statusbar').style.display = 'flex';
     }, 400);
 
-    // ── Controles UI ──────────────────────────────────────────────────
+    // ── Botones ────────────────────────────────────────────────────────
     let wireframe = false;
     document.getElementById('btn-reset').onclick = () => {
       controls.target.copy(center);
@@ -198,10 +203,9 @@
     document.getElementById('btn-wire').onclick = () => {
       wireframe = !wireframe;
       model.traverse(c => {
-        if (c.isMesh && c.material) {
+        if (c.isMesh && c.material)
           (Array.isArray(c.material) ? c.material : [c.material])
             .forEach(m => { m.wireframe = wireframe; });
-        }
       });
     };
 
@@ -209,7 +213,7 @@
     clearTimeout(timer);
     showError(err.message || String(err));
   }
-})();
+}
 </script>
 </body>
 </html>

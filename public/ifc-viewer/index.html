@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visor IFC — Infrale 3D</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #050d1a; color: #e2e8f0; font-family: system-ui, sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+    #container { flex: 1; position: relative; }
+    canvas { display: block; width: 100% !important; height: 100% !important; }
+    #status { position: absolute; bottom: 12px; left: 12px; display: flex; align-items: center; gap: 8px; background: rgba(5,13,26,0.85); border: 1px solid #1e3a5f; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #94a3b8; pointer-events: none; }
+    #status .dot { width: 6px; height: 6px; border-radius: 50%; background: #00d4ff; flex-shrink: 0; }
+    #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #050d1a; z-index: 10; }
+    #loading .spinner { width: 32px; height: 32px; border: 3px solid #1e3a5f; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { font-size: 14px; color: #94a3b8; }
+    #loading small { font-size: 12px; color: #475569; }
+    #error { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: #050d1a; }
+    #error svg { width: 40px; height: 40px; color: #ef4444; }
+    #error p { font-size: 14px; color: #ef4444; }
+    #error small { font-size: 12px; color: #64748b; max-width: 300px; text-align: center; }
+    #controls { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
+    button.ctrl { background: rgba(5,13,26,0.85); border: 1px solid #1e3a5f; color: #94a3b8; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+    button.ctrl:hover { background: #0f2035; color: #e2e8f0; border-color: #2563eb; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Cargando modelo IFC...</p>
+      <small>Procesando geometría</small>
+    </div>
+    <div id="error">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <p>Error al cargar el modelo</p>
+      <small id="error-msg"></small>
+    </div>
+    <div id="controls" style="display:none">
+      <button class="ctrl" onclick="resetCamera()">⟳ Reset vista</button>
+      <button class="ctrl" onclick="toggleWireframe()">◻ Wireframe</button>
+    </div>
+    <div id="status" style="display:none">
+      <span class="dot"></span>
+      <span id="model-name">Modelo IFC</span>
+      <span style="color:#475569">·</span>
+      <span style="color:#64748b">Arrastra para rotar · Scroll para zoom</span>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.skypack.dev/three@0.152.2';
+    import { OrbitControls } from 'https://cdn.skypack.dev/three@0.152.2/examples/jsm/controls/OrbitControls.js';
+    import { IFCLoader } from 'https://cdn.skypack.dev/web-ifc-three@0.0.143';
+
+    const params = new URLSearchParams(window.location.search);
+    const fileUrl  = params.get('url');
+    const modelName = params.get('name') || 'Modelo IFC';
+
+    if (!fileUrl) {
+      document.getElementById('error').style.display = 'flex';
+      document.getElementById('error-msg').textContent = 'No se especificó URL del modelo';
+      document.getElementById('loading').style.display = 'none';
+    } else {
+      document.getElementById('model-name').textContent = modelName;
+      initViewer(fileUrl, modelName);
+    }
+
+    let scene, camera, renderer, controls, wireframeMode = false;
+
+    async function initViewer(url, name) {
+      const container = document.getElementById('container');
+
+      // Escena
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x050d1a);
+
+      // Cámara
+      camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 10000);
+      camera.position.set(20, 20, 20);
+
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      // Controles
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      // Iluminación
+      scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+      const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+      dir.position.set(30, 50, 30);
+      scene.add(dir);
+
+      // Grid
+      const grid = new THREE.GridHelper(200, 40, 0x1e3a5f, 0x0f2035);
+      scene.add(grid);
+
+      // Resize
+      window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
+
+      // Loop
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Cargar IFC
+      try {
+        const ifcLoader = new IFCLoader();
+        ifcLoader.ifcManager.setWasmPath('https://unpkg.com/web-ifc@0.0.44/');
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const buffer = await res.arrayBuffer();
+        const data = new Uint8Array(buffer);
+        const blob = new Blob([data]);
+        const blobUrl = URL.createObjectURL(blob);
+
+        const model = await ifcLoader.loadAsync(blobUrl);
+        scene.add(model);
+
+        // Centrar cámara
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const dist = Math.max(size.x, size.y, size.z) * 1.8;
+
+        controls.target.copy(center);
+        camera.position.set(center.x + dist, center.y + dist * 0.6, center.z + dist);
+        controls.update();
+
+        URL.revokeObjectURL(blobUrl);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('controls').style.display = 'flex';
+        document.getElementById('status').style.display = 'flex';
+
+        window.model = model;
+
+      } catch (err) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'flex';
+        document.getElementById('error-msg').textContent = String(err);
+      }
+    }
+
+    window.resetCamera = function() {
+      if (!window.model) return;
+      const box = new THREE.Box3().setFromObject(window.model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const dist = Math.max(size.x, size.y, size.z) * 1.8;
+      controls.target.copy(center);
+      camera.position.set(center.x + dist, center.y + dist * 0.6, center.z + dist);
+      controls.update();
+    };
+
+    window.toggleWireframe = function() {
+      if (!window.model) return;
+      wireframeMode = !wireframeMode;
+      window.model.traverse(child => {
+        if (child.isMesh && child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach(m => { m.wireframe = wireframeMode; });
+          } else {
+            child.material.wireframe = wireframeMode;
+          }
+        }
+      });
+    };
+  </script>
+</body>
+</html>

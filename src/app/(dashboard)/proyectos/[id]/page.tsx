@@ -1,10 +1,14 @@
 import { createClient }        from "@/lib/supabase/server";
 import { redirect, notFound }  from "next/navigation";
 import Link                    from "next/link";
-import { ArrowLeft, Box, Users, Calendar, FileText, Wrench, TrendingUp } from "lucide-react";
+import {
+  ArrowLeft, Box, Users, Calendar, FileText,
+  Wrench, TrendingUp, Eye,
+} from "lucide-react";
 import { formatDate, getProjectTypeBadge, getRoleBadge } from "@/lib/utils";
 import { ProjectActions }      from "@/components/proyectos/project-actions";
-import type { Project, IFCModel } from "@/types/database";
+import { IFCUpload }           from "@/components/ifc/ifc-upload";
+import type { Project }        from "@/types/database";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -14,10 +18,9 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 const MODULE_CARDS = [
-  { href: "planificacion",  label: "Planificación",     icon: Box,        desc: "Modelos IFC, hitos y cronograma",      color: "text-brand-200",  bg: "bg-brand-300/10 border-brand-300/20"   },
-  { href: "control-avance", label: "Control de Avance", icon: TrendingUp, desc: "Seguimiento de avance por elemento",   color: "text-green-400",  bg: "bg-green-400/10 border-green-400/20"   },
-  { href: "operacion",      label: "Operación",         icon: FileText,   desc: "Fichas técnicas y documentación",      color: "text-cyan-400",   bg: "bg-cyan-400/10 border-cyan-400/20"     },
-  { href: "mantenimiento",  label: "Mantenimiento",     icon: Wrench,     desc: "Registros, alertas y programación",    color: "text-orange-400", bg: "bg-orange-400/10 border-orange-400/20" },
+  { href: "planificacion", label: "Control de Avance", icon: TrendingUp, desc: "Seguimiento de progreso por elemento", color: "text-green-400",  bg: "bg-green-400/10 border-green-400/20"   },
+  { href: "operacion",     label: "Operación",          icon: FileText,   desc: "Fichas técnicas y documentación",    color: "text-cyan-400",   bg: "bg-cyan-400/10 border-cyan-400/20"     },
+  { href: "mantenimiento", label: "Mantenimiento",      icon: Wrench,     desc: "Registros, alertas y programación", color: "text-orange-400", bg: "bg-orange-400/10 border-orange-400/20" },
 ];
 
 const STATUS_DOT: Record<string, string> = {
@@ -39,7 +42,6 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   if (!projectRaw) notFound();
   const project = projectRaw as Project;
 
-  // Verificar acceso
   const isOwner = project.owner_id === user.id;
   if (!isOwner) {
     const { data: membership } = await supabase
@@ -52,23 +54,29 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     if (!membership) redirect("/proyectos");
   }
 
-  const [{ data: membersRaw }, { data: modelsRaw, count: modelCount }] = await Promise.all([
+  const [{ data: membersRaw }, { data: modelsRaw }] = await Promise.all([
     supabase
       .from("project_members")
       .select("id, email, role, status, invited_at, joined_at, user_id, profiles(full_name, avatar_url)")
       .eq("project_id", params.id)
       .order("invited_at", { ascending: true }),
-    supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
       .from("ifc_models")
-      .select("id, filename, size_bytes, uploaded_at", { count: "exact" })
+      .select("id, name, file_url, file_size, status, created_at")
       .eq("project_id", params.id)
-      .order("uploaded_at", { ascending: false })
-      .limit(3),
+      .order("created_at", { ascending: false }),
   ]);
 
-  type MemberWithProfile = { id: string; email: string; role: string; status: string; invited_at: string; joined_at: string | null; user_id: string | null; profiles: { full_name: string | null; avatar_url: string | null } | null };
-  const members  = (membersRaw  ?? []) as unknown as MemberWithProfile[];
-  const models   = (modelsRaw   ?? []) as unknown as Pick<IFCModel, "id" | "filename" | "size_bytes" | "uploaded_at">[];
+  type MemberWithProfile = {
+    id: string; email: string; role: string; status: string;
+    invited_at: string; joined_at: string | null; user_id: string | null;
+    profiles: { full_name: string | null; avatar_url: string | null } | null;
+  };
+  type IFCModelRow = { id: string; name: string; file_url: string; file_size: number | null; status: string; created_at: string };
+
+  const members = (membersRaw ?? []) as unknown as MemberWithProfile[];
+  const models  = (modelsRaw  ?? []) as IFCModelRow[];
 
   const typeMeta = getProjectTypeBadge(project.type);
   const canEdit  = isOwner || members.some(m => m.user_id === user.id && (m.role === "admin" || m.role === "editor") && m.status === "activo");
@@ -79,8 +87,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       <div className="flex items-start justify-between gap-4">
         <div>
           <Link href="/proyectos" className="btn-ghost -ml-2 mb-3 inline-flex text-xs">
-            <ArrowLeft className="w-3 h-3" />
-            Proyectos
+            <ArrowLeft className="w-3 h-3" /> Proyectos
           </Link>
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-slate-100">{project.name}</h1>
@@ -118,11 +125,11 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       {/* Módulos */}
       <div>
         <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">Módulos</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid sm:grid-cols-3 gap-3">
           {MODULE_CARDS.map(m => {
             const Icon = m.icon;
             return (
-              <Link key={m.href} href={`/proyectos/${params.id}/${m.href}`} className="glass-card-hover p-4 flex flex-col gap-3">
+              <Link key={m.href} href={`/proyectos/${params.id}/${m.href}`} className="glass-card glass-card-hover p-4 flex flex-col gap-3">
                 <div className={`w-9 h-9 rounded-lg border flex items-center justify-center ${m.bg}`}>
                   <Icon className={`w-4 h-4 ${m.color}`} />
                 </div>
@@ -139,37 +146,41 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Modelos IFC */}
         <div className="glass-card overflow-hidden">
-          <div className="px-5 py-4 border-b border-surface-border flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Box className="w-4 h-4 text-brand-200" />
-              <h3 className="text-sm font-semibold text-slate-200">Modelos IFC</h3>
-              <span className="text-xs text-slate-500 font-mono">({modelCount ?? 0})</span>
-            </div>
-            {canEdit && (
-              <Link href={`/proyectos/${params.id}/planificacion`} className="text-xs text-brand-200 hover:text-cyan-300 transition-colors">
-                Subir modelo →
-              </Link>
-            )}
+          <div className="px-5 py-4 border-b border-surface-border flex items-center gap-2">
+            <Box className="w-4 h-4 text-brand-200" />
+            <h3 className="text-sm font-semibold text-slate-200">Modelos IFC</h3>
+            <span className="text-xs text-slate-500 font-mono">({models.length})</span>
           </div>
+
+          {canEdit && (
+            <div className="p-4 border-b border-surface-border">
+              <IFCUpload projectId={params.id} />
+            </div>
+          )}
+
           {!models.length ? (
-            <div className="px-5 py-10 text-center">
+            <div className="px-5 py-8 text-center">
               <Box className="w-8 h-8 text-slate-600 mx-auto mb-2" />
               <p className="text-sm text-slate-500">Sin modelos cargados</p>
             </div>
           ) : (
             <div className="divide-y divide-surface-border">
               {models.map(m => (
-                <div key={m.id} className="px-5 py-3 flex items-center gap-3">
-                  <Box className="w-4 h-4 text-slate-500 shrink-0" />
+                <div key={m.id} className="px-5 py-3 flex items-center gap-3 group hover:bg-surface-hover transition-colors">
+                  <Box className="w-4 h-4 text-brand-200 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-200 truncate">{m.filename}</p>
-                    <p className="text-xs text-slate-500">{formatDate(m.uploaded_at)}</p>
+                    <p className="text-sm text-slate-200 truncate">{m.name}</p>
+                    <p className="text-xs text-slate-500">{formatDate(m.created_at)}</p>
                   </div>
-                  {m.size_bytes && (
+                  {m.file_size && (
                     <span className="text-xs text-slate-500 font-mono">
-                      {(m.size_bytes / 1_048_576).toFixed(1)} MB
+                      {(m.file_size / 1_048_576).toFixed(1)} MB
                     </span>
                   )}
+                  <Link href={`/proyectos/${params.id}/visor/${m.id}`}
+                    className="btn-ghost p-1.5 opacity-0 group-hover:opacity-100 transition-opacity text-brand-200">
+                    <Eye className="w-4 h-4" />
+                  </Link>
                 </div>
               ))}
             </div>

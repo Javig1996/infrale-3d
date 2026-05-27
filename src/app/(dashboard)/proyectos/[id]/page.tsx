@@ -78,8 +78,9 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   const members = (membersRaw ?? []) as unknown as MemberWithProfile[];
   const models  = (modelsRaw  ?? []) as IFCModelRow[];
 
-  const typeMeta = getProjectTypeBadge(project.type);
-  const canEdit  = isOwner || members.some(m => m.user_id === user.id && (m.role === "admin" || m.role === "editor") && m.status === "activo");
+  const typeMeta  = getProjectTypeBadge(project.type);
+  const canEdit   = isOwner || members.some(m => m.user_id === user.id && (m.role === "admin" || m.role === "editor") && m.status === "activo");
+  const canDelete = isOwner || members.some(m => m.user_id === user.id && m.role === "admin" && m.status === "activo");
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -101,7 +102,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
             <p className="text-sm text-slate-500 mt-2 max-w-2xl">{project.description}</p>
           )}
         </div>
-        {isOwner && <ProjectActions projectId={project.id} />}
+        {canDelete && <ProjectActions projectId={project.id} isOwner={isOwner} />}
       </div>
 
       {/* Fechas */}

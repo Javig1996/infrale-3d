@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useRef }  from "react";
-import { Upload, Loader2, FileBox, X, CheckCircle } from "lucide-react";
+import { Upload, Loader2, FileBox, CheckCircle, AlertCircle } from "lucide-react";
 import { createClient }      from "@/lib/supabase/client";
 import { useRouter }         from "next/navigation";
 
 interface Props {
   projectId: string;
 }
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
 export function IFCUpload({ projectId }: Props) {
   const router               = useRouter();
@@ -23,28 +25,62 @@ export function IFCUpload({ projectId }: Props) {
     if (!file.name.toLowerCase().endsWith(".ifc")) {
       setError("Solo se aceptan archivos .ifc"); return;
     }
-    setError(null); setUpl(true); setDone(false); setFile(file.name); setProg(10);
+    if (file.size > 500 * 1024 * 1024) {
+      setError("El archivo no puede superar 500 MB"); return;
+    }
+    setError(null); setUpl(true); setDone(false); setFile(file.name); setProg(2);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setError("No autenticado"); setUpl(false); return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setError("Sesión expirada. Recarga la página."); setUpl(false); return; }
 
-    // Upload directo al Storage desde el browser (sin pasar por la API route)
     const filePath = `${projectId}/${Date.now()}_${file.name}`;
-    setProg(30);
 
-    const { error: uploadErr } = await supabase.storage
-      .from("ifc-models")
-      .upload(filePath, file, { contentType: "application/octet-stream", upsert: false });
+    // Upload directo al Storage vía XHR para obtener progreso real
+    const uploadErr = await new Promise<string | null>((resolve) => {
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          // progreso del 2% al 80% durante la subida
+          setProg(Math.round(2 + (e.loaded / e.total) * 78));
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(null);
+        } else {
+          try {
+            const body = JSON.parse(xhr.responseText);
+            resolve(body.error ?? body.message ?? `Error ${xhr.status}`);
+          } catch {
+            resolve(`Error ${xhr.status}: ${xhr.statusText}`);
+          }
+        }
+      };
+
+      xhr.onerror = () => resolve("Error de conexión al subir el archivo. Verifica tu internet.");
+      xhr.ontimeout = () => resolve("Tiempo de espera agotado.");
+
+      xhr.open("POST", `${SUPABASE_URL}/storage/v1/object/ifc-models/${filePath}`);
+      xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
+      xhr.setRequestHeader("Content-Type", "application/octet-stream");
+      xhr.setRequestHeader("x-upsert", "false");
+      xhr.timeout = 10 * 60 * 1000; // 10 min para archivos grandes
+      xhr.send(file);
+    });
 
     if (uploadErr) {
-      setError(uploadErr.message); setUpl(false); return;
+      setError(uploadErr);
+      setUpl(false);
+      return;
     }
-    setProg(75);
+    setProg(85);
 
     const { data: urlData } = supabase.storage.from("ifc-models").getPublicUrl(filePath);
+    setProg(90);
 
-    // Registrar metadata en la DB
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: dbErr } = await (supabase as any).from("ifc_models").insert({
       project_id:  projectId,
@@ -52,10 +88,10 @@ export function IFCUpload({ projectId }: Props) {
       r2_key:      filePath,
       r2_url:      urlData.publicUrl,
       size_bytes:  file.size,
-      uploaded_by: user.id,
+      uploaded_by: session.user.id,
     });
 
-    if (dbErr) { setError(dbErr.message); setUpl(false); return; }
+    if (dbErr) { setError(`Error al guardar el modelo: ${dbErr.message}`); setUpl(false); return; }
 
     setProg(100); setDone(true); setUpl(false);
     setTimeout(() => { setDone(false); setFile(null); setProg(0); router.refresh(); }, 2000);
@@ -74,7 +110,7 @@ export function IFCUpload({ projectId }: Props) {
         onDragLeave={() => setDrag(false)}
         onDrop={onDrop}
         onClick={() => !uploading && inputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+        className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
           dragging  ? "border-brand-300 bg-brand-300/10" :
           done      ? "border-green-500/50 bg-green-500/5" :
           "border-surface-border hover:border-surface-active hover:bg-surface-hover"
@@ -90,12 +126,20 @@ export function IFCUpload({ projectId }: Props) {
           </div>
         ) : uploading ? (
           <div className="flex flex-col items-center gap-3">
-            <Loader2 className="w-8 h-8 text-brand-300 animate-spin" />
-            <p className="text-sm text-slate-300">{fileName}</p>
-            <div className="w-full max-w-xs bg-surface-border rounded-full h-1.5">
-              <div className="bg-brand-300 h-1.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+            <Loader2 className="w-7 h-7 text-brand-300 animate-spin" />
+            <p className="text-sm text-slate-300 truncate max-w-[240px]">{fileName}</p>
+            <div className="w-full max-w-xs">
+              <div className="bg-surface-border rounded-full h-1.5">
+                <div
+                  className="bg-brand-300 h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-500 mt-1.5 text-right">{progress}%</p>
             </div>
-            <p className="text-xs text-slate-500">{progress}%</p>
+            <p className="text-xs text-slate-600">
+              {progress < 80 ? "Subiendo archivo…" : progress < 95 ? "Registrando modelo…" : "Finalizando…"}
+            </p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
@@ -104,7 +148,7 @@ export function IFCUpload({ projectId }: Props) {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-200">Arrastra tu modelo IFC aquí</p>
-              <p className="text-xs text-slate-500 mt-1">o haz clic para seleccionar · Solo archivos .ifc</p>
+              <p className="text-xs text-slate-500 mt-1">o haz clic para seleccionar · Solo archivos .ifc · máx. 500 MB</p>
             </div>
             <button type="button" className="btn-secondary text-xs px-3 py-1.5">
               <Upload className="w-3.5 h-3.5" /> Seleccionar archivo
@@ -114,9 +158,12 @@ export function IFCUpload({ projectId }: Props) {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
-          <X className="w-4 h-4 shrink-0" />
-          {error}
+        <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium">Error al subir el modelo</p>
+            <p className="text-xs mt-0.5 text-red-300/80">{error}</p>
+          </div>
         </div>
       )}
     </div>

@@ -18,6 +18,8 @@ const schema = z.object({
 });
 type FormData = z.infer<typeof schema>;
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+
 export function ProjectForm() {
   const router              = useRouter();
   const fileInputRef        = useRef<HTMLInputElement>(null);
@@ -25,6 +27,7 @@ export function ProjectForm() {
   const [ifcFile, setIfc]   = useState<File | null>(null);
   const [ifcError, setIErr] = useState<string | null>(null);
   const [uploading, setUpl] = useState(false);
+  const [uploadPct, setPct] = useState(0);
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -38,8 +41,8 @@ export function ProjectForm() {
       setIErr("Solo se aceptan archivos .ifc");
       return;
     }
-    if (file.size > 200 * 1024 * 1024) {
-      setIErr("El archivo no puede superar 200 MB");
+    if (file.size > 500 * 1024 * 1024) {
+      setIErr("El archivo no puede superar 500 MB");
       return;
     }
     setIfc(file);
@@ -48,8 +51,9 @@ export function ProjectForm() {
   async function onSubmit(data: FormData) {
     setError(null);
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push("/login"); return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { router.push("/login"); return; }
+    const user = session.user;
 
     // 1. Crear proyecto
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -85,18 +89,35 @@ export function ProjectForm() {
       joined_at:  new Date().toISOString(),
     });
 
-    // 3. Subir modelo IFC directo al Storage (sin límite de body size)
+    // 3. Subir modelo IFC vía XHR directo al Storage
     if (ifcFile) {
-      setUpl(true);
+      setUpl(true); setPct(2);
       const filePath = `${project.id}/${Date.now()}_${ifcFile.name}`;
-      const { error: uploadErr } = await supabase.storage
-        .from("ifc-models")
-        .upload(filePath, ifcFile, { contentType: "application/octet-stream", upsert: false });
+
+      const uploadErr = await new Promise<string | null>((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) setPct(Math.round(2 + (e.loaded / e.total) * 78));
+        };
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) { resolve(null); return; }
+          try { resolve(JSON.parse(xhr.responseText)?.error ?? `Error ${xhr.status}`); }
+          catch { resolve(`Error ${xhr.status}`); }
+        };
+        xhr.onerror = () => resolve("Error de conexión al subir el archivo");
+        xhr.open("POST", `${SUPABASE_URL}/storage/v1/object/ifc-models/${filePath}`);
+        xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
+        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.setRequestHeader("x-upsert", "false");
+        xhr.timeout = 10 * 60 * 1000;
+        xhr.send(ifcFile);
+      });
 
       if (!uploadErr) {
+        setPct(90);
         const { data: urlData } = supabase.storage.from("ifc-models").getPublicUrl(filePath);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any).from("ifc_models").insert({
+        const { error: dbErr } = await (supabase as any).from("ifc_models").insert({
           project_id:  project.id,
           filename:    ifcFile.name.replace(/\.ifc$/i, ""),
           r2_key:      filePath,
@@ -104,8 +125,12 @@ export function ProjectForm() {
           size_bytes:  ifcFile.size,
           uploaded_by: user.id,
         });
+        if (dbErr) setError(`Proyecto creado, pero el modelo no se registró: ${dbErr.message}`);
+      } else {
+        setError(`Proyecto creado, pero el modelo no se subió: ${uploadErr}`);
       }
-      setUpl(false);
+
+      setPct(100); setUpl(false);
     }
 
     router.push(`/proyectos/${project.id}`);
@@ -194,7 +219,7 @@ export function ProjectForm() {
           >
             <Upload className="w-6 h-6 text-slate-500 mx-auto mb-2" />
             <p className="text-sm text-slate-400">Arrastra tu archivo <span className="text-brand-200 font-medium">.ifc</span> aquí</p>
-            <p className="text-xs text-slate-600 mt-1">o haz clic para seleccionar · máx. 200 MB</p>
+            <p className="text-xs text-slate-600 mt-1">o haz clic para seleccionar · máx. 500 MB</p>
           </div>
         ) : (
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-300/10 border border-brand-300/20">
@@ -216,9 +241,17 @@ export function ProjectForm() {
         {ifcError && <p className="mt-1.5 text-xs text-red-400">{ifcError}</p>}
 
         {uploading && (
-          <div className="mt-2 flex items-center gap-2 text-xs text-brand-200">
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            Subiendo modelo IFC...
+          <div className="mt-3 space-y-1.5">
+            <div className="flex items-center gap-2 text-xs text-brand-200">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              Subiendo modelo IFC… {uploadPct}%
+            </div>
+            <div className="bg-surface-border rounded-full h-1">
+              <div
+                className="bg-brand-300 h-1 rounded-full transition-all duration-300"
+                style={{ width: `${uploadPct}%` }}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -230,7 +263,7 @@ export function ProjectForm() {
         </button>
         <button type="submit" disabled={busy} className="btn-primary flex-1 justify-center">
           {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-          {uploading ? "Subiendo modelo..." : isSubmitting ? "Creando..." : "Crear proyecto"}
+          {uploading ? `Subiendo… ${uploadPct}%` : isSubmitting ? "Creando…" : "Crear proyecto"}
         </button>
       </div>
     </form>

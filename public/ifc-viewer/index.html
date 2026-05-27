@@ -12,14 +12,18 @@
     #status { position: absolute; bottom: 12px; left: 12px; display: flex; align-items: center; gap: 8px; background: rgba(5,13,26,0.85); border: 1px solid #1e3a5f; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #94a3b8; pointer-events: none; }
     #status .dot { width: 6px; height: 6px; border-radius: 50%; background: #00d4ff; flex-shrink: 0; }
     #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #050d1a; z-index: 10; }
-    #loading .spinner { width: 32px; height: 32px; border: 3px solid #1e3a5f; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    #loading .spinner { width: 36px; height: 36px; border: 3px solid #1e3a5f; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     #loading p { font-size: 14px; color: #94a3b8; }
     #loading small { font-size: 12px; color: #475569; }
-    #error { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: #050d1a; }
+    #loading .progress-bar { width: 220px; height: 3px; background: #1e3a5f; border-radius: 2px; overflow: hidden; }
+    #loading .progress-fill { height: 100%; background: #2563eb; border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+    #error { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: #050d1a; padding: 32px; }
     #error svg { width: 40px; height: 40px; color: #ef4444; }
-    #error p { font-size: 14px; color: #ef4444; }
-    #error small { font-size: 12px; color: #64748b; max-width: 300px; text-align: center; }
+    #error h3 { font-size: 15px; color: #ef4444; font-weight: 600; }
+    #error p { font-size: 12px; color: #64748b; max-width: 360px; text-align: center; line-height: 1.6; }
+    #error button { margin-top: 8px; background: #1e3a5f; border: 1px solid #2563eb44; color: #94a3b8; padding: 8px 18px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+    #error button:hover { background: #0f2035; color: #e2e8f0; }
     #controls { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
     button.ctrl { background: rgba(5,13,26,0.85); border: 1px solid #1e3a5f; color: #94a3b8; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
     button.ctrl:hover { background: #0f2035; color: #e2e8f0; border-color: #2563eb; }
@@ -29,13 +33,15 @@
   <div id="container">
     <div id="loading">
       <div class="spinner"></div>
-      <p>Cargando modelo IFC...</p>
-      <small>Procesando geometría</small>
+      <p id="loading-msg">Cargando modelo IFC...</p>
+      <small id="loading-sub">Iniciando visor</small>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
     </div>
     <div id="error">
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-      <p>Error al cargar el modelo</p>
-      <small id="error-msg"></small>
+      <h3>Error al cargar el modelo</h3>
+      <p id="error-msg"></p>
+      <button onclick="location.reload()">Reintentar</button>
     </div>
     <div id="controls" style="display:none">
       <button class="ctrl" onclick="resetCamera()">⟳ Reset vista</button>
@@ -54,23 +60,40 @@
     import { OrbitControls } from 'https://cdn.skypack.dev/three@0.152.2/examples/jsm/controls/OrbitControls.js';
     import { IFCLoader } from 'https://cdn.skypack.dev/web-ifc-three@0.0.143';
 
-    const params = new URLSearchParams(window.location.search);
-    const fileUrl  = params.get('url');
+    const params    = new URLSearchParams(window.location.search);
+    const fileUrl   = params.get('url');
     const modelName = params.get('name') || 'Modelo IFC';
 
-    if (!fileUrl) {
-      document.getElementById('error').style.display = 'flex';
-      document.getElementById('error-msg').textContent = 'No se especificó URL del modelo';
+    function setProgress(pct, msg, sub) {
+      document.getElementById('progress-fill').style.width = pct + '%';
+      if (msg) document.getElementById('loading-msg').textContent = msg;
+      if (sub) document.getElementById('loading-sub').textContent = sub;
+    }
+
+    function showError(msg) {
       document.getElementById('loading').style.display = 'none';
+      const el = document.getElementById('error');
+      el.style.display = 'flex';
+      document.getElementById('error-msg').textContent = msg;
+    }
+
+    if (!fileUrl) {
+      showError('No se especificó la URL del modelo. Vuelve a la página del proyecto.');
     } else {
       document.getElementById('model-name').textContent = modelName;
-      initViewer(fileUrl, modelName);
+      // Timeout global de 3 minutos
+      const timeout = setTimeout(() => {
+        showError('Tiempo de espera agotado (3 min). El archivo puede ser demasiado grande o hubo un problema de red. Intenta recargar.');
+      }, 3 * 60 * 1000);
+
+      initViewer(fileUrl, modelName).finally(() => clearTimeout(timeout));
     }
 
     let scene, camera, renderer, controls, wireframeMode = false;
 
-    async function initViewer(url, name) {
+    async function initViewer(url) {
       const container = document.getElementById('container');
+      setProgress(10, 'Iniciando visor 3D...', 'Configurando Three.js');
 
       // Escena
       scene = new THREE.Scene();
@@ -82,7 +105,7 @@
 
       // Renderer
       renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(container.clientWidth, container.clientHeight);
       renderer.shadowMap.enabled = true;
       container.appendChild(renderer.domElement);
@@ -110,58 +133,88 @@
       });
 
       // Loop
-      function animate() {
+      (function animate() {
         requestAnimationFrame(animate);
         controls.update();
         renderer.render(scene, camera);
-      }
-      animate();
+      })();
 
-      // Cargar IFC
+      setProgress(20, 'Descargando modelo...', 'Obteniendo archivo IFC');
+
       try {
-        const ifcLoader = new IFCLoader();
-        ifcLoader.ifcManager.setWasmPath('https://unpkg.com/web-ifc@0.0.44/');
+        // Descargar archivo
+        let res;
+        try {
+          res = await fetch(url);
+        } catch (e) {
+          throw new Error(`No se pudo descargar el modelo. Verifica tu conexión a internet. (${e.message})`);
+        }
 
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`Error al descargar el archivo: HTTP ${res.status}. Es posible que el modelo no sea público o haya expirado.`);
+        }
+
+        setProgress(40, 'Descargando modelo...', 'Recibiendo datos del archivo');
         const buffer = await res.arrayBuffer();
-        const data = new Uint8Array(buffer);
-        const blob = new Blob([data]);
+
+        setProgress(55, 'Cargando WASM...', 'Inicializando motor de geometría IFC');
+
+        const ifcLoader = new IFCLoader();
+        try {
+          await ifcLoader.ifcManager.setWasmPath('https://unpkg.com/web-ifc@0.0.44/');
+        } catch (e) {
+          throw new Error(`Error al cargar el motor IFC (WASM). Verifica tu conexión a internet. (${e.message})`);
+        }
+
+        setProgress(70, 'Procesando geometría...', 'Parseando elementos del modelo IFC');
+
+        const data   = new Uint8Array(buffer);
+        const blob   = new Blob([data]);
         const blobUrl = URL.createObjectURL(blob);
 
-        const model = await ifcLoader.loadAsync(blobUrl);
+        let model;
+        try {
+          model = await ifcLoader.loadAsync(blobUrl);
+        } catch (e) {
+          throw new Error(`Error al parsear el archivo IFC. El archivo puede estar dañado o en un formato no compatible. (${e.message})`);
+        }
+
+        URL.revokeObjectURL(blobUrl);
         scene.add(model);
 
+        setProgress(90, 'Ajustando cámara...', 'Calculando vista óptima');
+
         // Centrar cámara
-        const box = new THREE.Box3().setFromObject(model);
+        const box    = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-        const dist = Math.max(size.x, size.y, size.z) * 1.8;
+        const size   = box.getSize(new THREE.Vector3());
+        const dist   = Math.max(size.x, size.y, size.z) * 1.8;
 
         controls.target.copy(center);
         camera.position.set(center.x + dist, center.y + dist * 0.6, center.z + dist);
         controls.update();
 
-        URL.revokeObjectURL(blobUrl);
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('controls').style.display = 'flex';
-        document.getElementById('status').style.display = 'flex';
+        setProgress(100, '¡Modelo cargado!', '');
+
+        setTimeout(() => {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('controls').style.display = 'flex';
+          document.getElementById('status').style.display = 'flex';
+        }, 300);
 
         window.model = model;
 
       } catch (err) {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('error').style.display = 'flex';
-        document.getElementById('error-msg').textContent = String(err);
+        showError(String(err.message || err));
       }
     }
 
     window.resetCamera = function() {
       if (!window.model) return;
-      const box = new THREE.Box3().setFromObject(window.model);
+      const box    = new THREE.Box3().setFromObject(window.model);
       const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      const dist = Math.max(size.x, size.y, size.z) * 1.8;
+      const size   = box.getSize(new THREE.Vector3());
+      const dist   = Math.max(size.x, size.y, size.z) * 1.8;
       controls.target.copy(center);
       camera.position.set(center.x + dist, center.y + dist * 0.6, center.z + dist);
       controls.update();
@@ -172,11 +225,8 @@
       wireframeMode = !wireframeMode;
       window.model.traverse(child => {
         if (child.isMesh && child.material) {
-          if (Array.isArray(child.material)) {
-            child.material.forEach(m => { m.wireframe = wireframeMode; });
-          } else {
-            child.material.wireframe = wireframeMode;
-          }
+          const mats = Array.isArray(child.material) ? child.material : [child.material];
+          mats.forEach(m => { m.wireframe = wireframeMode; });
         }
       });
     };

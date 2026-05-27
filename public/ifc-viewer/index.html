@@ -12,17 +12,17 @@
     #overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #050d1a; z-index: 10; }
     .spinner { width: 36px; height: 36px; border: 3px solid #1e3a5f; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #overlay p { font-size: 14px; color: #94a3b8; }
+    #overlay p  { font-size: 14px; color: #94a3b8; }
     #overlay small { font-size: 12px; color: #475569; }
-    .progress-bar { width: 220px; height: 3px; background: #1e3a5f; border-radius: 2px; overflow: hidden; }
+    .progress-bar  { width: 220px; height: 3px; background: #1e3a5f; border-radius: 2px; overflow: hidden; }
     .progress-fill { height: 100%; background: #2563eb; border-radius: 2px; transition: width 0.5s ease; width: 0%; }
     #error-box { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #050d1a; padding: 32px; text-align: center; }
     #error-box svg { width: 42px; height: 42px; color: #ef4444; }
-    #error-box h3 { font-size: 15px; color: #ef4444; }
-    #error-box p { font-size: 12px; color: #64748b; max-width: 380px; line-height: 1.7; }
+    #error-box h3  { font-size: 15px; color: #ef4444; }
+    #error-box p   { font-size: 12px; color: #64748b; max-width: 400px; line-height: 1.7; }
     #error-box button { background: #1e3a5f; border: 1px solid #2563eb55; color: #94a3b8; padding: 8px 20px; border-radius: 8px; font-size: 12px; cursor: pointer; margin-top: 4px; }
     #error-box button:hover { color: #e2e8f0; background: #0f2035; }
-    #controls { position: absolute; top: 12px; right: 12px; display: none; gap: 6px; }
+    #controls  { position: absolute; top: 12px; right: 12px; display: none; gap: 6px; }
     .ctrl { background: rgba(5,13,26,0.88); border: 1px solid #1e3a5f; color: #94a3b8; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
     .ctrl:hover { background: #0f2035; color: #e2e8f0; border-color: #2563eb; }
     #statusbar { position: absolute; bottom: 12px; left: 12px; display: none; align-items: center; gap: 8px; background: rgba(5,13,26,0.88); border: 1px solid #1e3a5f; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #94a3b8; pointer-events: none; }
@@ -34,12 +34,15 @@
   <div id="overlay">
     <div class="spinner"></div>
     <p id="msg">Cargando visor...</p>
-    <small id="sub">Descargando Three.js</small>
+    <small id="sub">Iniciando Three.js</small>
     <div class="progress-bar"><div class="progress-fill" id="bar"></div></div>
   </div>
 
   <div id="error-box">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
     <h3>Error al cargar el modelo</h3>
     <p id="err-msg"></p>
     <button onclick="location.reload()">↺ Reintentar</button>
@@ -54,13 +57,13 @@
     <span class="dot"></span>
     <span id="model-label">Modelo IFC</span>
     <span style="color:#334155">·</span>
-    <span style="color:#475569">Arrastra para rotar · Scroll para zoom</span>
+    <span style="color:#475569">Arrastra · Scroll zoom · Clic derecho pan</span>
   </div>
 </div>
 
-<!-- Three.js desde jsDelivr (CDN más confiable) -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+<!-- Three.js r149: última versión con examples/js/ (OrbitControls global) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
 (async function () {
@@ -70,53 +73,50 @@
 
   const overlay  = document.getElementById('overlay');
   const errorBox = document.getElementById('error-box');
-  const bar      = document.getElementById('bar');
-  const msgEl    = document.getElementById('msg');
-  const subEl    = document.getElementById('sub');
 
   function prog(pct, m, s) {
-    bar.style.width = pct + '%';
-    if (m) msgEl.textContent = m;
-    if (s) subEl.textContent = s;
+    document.getElementById('bar').style.width = pct + '%';
+    if (m) document.getElementById('msg').textContent  = m;
+    if (s) document.getElementById('sub').textContent  = s;
   }
-
   function showError(text) {
-    overlay.style.display = 'none';
+    overlay.style.display  = 'none';
     errorBox.style.display = 'flex';
     document.getElementById('err-msg').textContent = text;
   }
 
   if (!fileUrl) { showError('No se especificó la URL del modelo.'); return; }
-
   document.getElementById('model-label').textContent = modelName;
 
-  // Timeout 4 minutos
-  const timer = setTimeout(() => showError('Tiempo de espera agotado (4 min). El modelo puede ser muy grande o hay un problema de red.'), 4 * 60 * 1000);
+  const timer = setTimeout(() =>
+    showError('Tiempo de espera agotado (4 min). El archivo puede ser muy grande o hay un problema de red.'),
+    4 * 60 * 1000
+  );
 
   try {
-    prog(8, 'Iniciando visor 3D...', 'Configurando escena');
+    prog(8, 'Iniciando visor 3D...', 'Configurando escena Three.js');
 
-    if (typeof THREE === 'undefined') throw new Error('Three.js no cargó. Verifica tu conexión a internet.');
+    if (typeof THREE === 'undefined')
+      throw new Error('Three.js no cargó. Verifica tu conexión a internet.');
+    if (typeof THREE.OrbitControls === 'undefined')
+      throw new Error('OrbitControls no cargó correctamente.');
 
-    // ── Escena ──
+    // ── Escena ──────────────────────────────────────────────────────
     const scene  = new THREE.Scene();
     scene.background = new THREE.Color(0x050d1a);
 
-    const container = document.getElementById('container');
-    const W = container.clientWidth, H = container.clientHeight;
-
-    const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 10000);
+    const cont = document.getElementById('container');
+    const camera = new THREE.PerspectiveCamera(60, cont.clientWidth / cont.clientHeight, 0.1, 10000);
     camera.position.set(20, 20, 20);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setSize(W, H);
-    renderer.shadowMap.enabled = true;
-    container.appendChild(renderer.domElement);
+    renderer.setSize(cont.clientWidth, cont.clientHeight);
+    cont.appendChild(renderer.domElement);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
+    controls.enableDamping  = true;
+    controls.dampingFactor  = 0.05;
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.8));
     const sun = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -125,62 +125,52 @@
     scene.add(new THREE.GridHelper(200, 40, 0x1e3a5f, 0x0f2035));
 
     window.addEventListener('resize', () => {
-      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.aspect = cont.clientWidth / cont.clientHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setSize(cont.clientWidth, cont.clientHeight);
     });
-
     (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
 
+    // ── Descargar IFC ────────────────────────────────────────────────
     prog(18, 'Descargando modelo...', 'Conectando con el servidor');
+    let res;
+    try   { res = await fetch(fileUrl); }
+    catch (e) { throw new Error('No se pudo conectar al servidor. Verifica tu conexión. (' + e.message + ')'); }
+    if (!res.ok) throw new Error('Error al descargar el archivo: HTTP ' + res.status + '. Verifica que el modelo sea público.');
 
-    // ── Descargar archivo IFC ──
-    let response;
-    try { response = await fetch(fileUrl); }
-    catch (e) { throw new Error(`No se pudo descargar el modelo. Verifica tu conexión. (${e.message})`); }
+    prog(35, 'Descargando modelo...', 'Recibiendo datos del archivo');
+    const buffer = await res.arrayBuffer();
 
-    if (!response.ok) throw new Error(`Error al obtener el archivo: HTTP ${response.status}. Verifica que el modelo sea público.`);
-
-    prog(35, 'Descargando modelo...', 'Recibiendo datos');
-    const buffer = await response.arrayBuffer();
-
-    prog(50, 'Cargando motor IFC...', 'Descargando web-ifc desde CDN');
-
-    // ── Cargar IFCLoader dinámicamente desde esm.sh ──
+    // ── Cargar IFCLoader ─────────────────────────────────────────────
+    prog(50, 'Cargando motor IFC...', 'Importando web-ifc-three desde CDN');
     let IFCLoader;
     try {
       const mod = await import('https://esm.sh/web-ifc-three@0.0.143');
-      IFCLoader = mod.IFCLoader;
+      IFCLoader  = mod.IFCLoader;
     } catch (e) {
-      throw new Error(`No se pudo cargar el motor IFC. (${e.message})`);
+      throw new Error('No se pudo cargar el motor IFC desde CDN. (' + e.message + ')');
     }
 
-    prog(62, 'Inicializando WASM...', 'Cargando motor de geometría');
-
+    prog(62, 'Inicializando WASM...', 'Cargando motor de geometría IFC');
     const loader = new IFCLoader();
     try {
       await loader.ifcManager.setWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.44/');
     } catch (e) {
-      throw new Error(`Error al inicializar el motor WASM. (${e.message})`);
+      throw new Error('Error al inicializar el motor WASM. (' + e.message + ')');
     }
 
+    // ── Parsear IFC ───────────────────────────────────────────────────
     prog(74, 'Procesando geometría...', 'Parseando elementos del modelo IFC');
-
-    const blob    = new Blob([new Uint8Array(buffer)]);
-    const blobUrl = URL.createObjectURL(blob);
-
+    const blobUrl = URL.createObjectURL(new Blob([new Uint8Array(buffer)]));
     let model;
-    try {
-      model = await loader.loadAsync(blobUrl);
-    } catch (e) {
-      throw new Error(`Error al parsear el archivo IFC. El archivo puede estar dañado. (${e.message})`);
-    }
+    try   { model = await loader.loadAsync(blobUrl); }
+    catch (e) { throw new Error('Error al parsear el IFC. El archivo puede estar dañado o ser incompatible. (' + e.message + ')'); }
     URL.revokeObjectURL(blobUrl);
 
     scene.add(model);
-    prog(92, 'Ajustando cámara...', 'Calculando encuadre');
 
-    // Centrar cámara en el modelo
+    // ── Centrar cámara ────────────────────────────────────────────────
+    prog(92, 'Ajustando cámara...', 'Calculando encuadre óptimo');
     const box    = new THREE.Box3().setFromObject(model);
     const center = box.getCenter(new THREE.Vector3());
     const size   = box.getSize(new THREE.Vector3());
@@ -194,11 +184,11 @@
 
     setTimeout(() => {
       overlay.style.display = 'none';
-      document.getElementById('controls').style.display = 'flex';
+      document.getElementById('controls').style.display  = 'flex';
       document.getElementById('statusbar').style.display = 'flex';
     }, 400);
 
-    // Controles
+    // ── Controles UI ──────────────────────────────────────────────────
     let wireframe = false;
     document.getElementById('btn-reset').onclick = () => {
       controls.target.copy(center);
@@ -209,7 +199,8 @@
       wireframe = !wireframe;
       model.traverse(c => {
         if (c.isMesh && c.material) {
-          (Array.isArray(c.material) ? c.material : [c.material]).forEach(m => { m.wireframe = wireframe; });
+          (Array.isArray(c.material) ? c.material : [c.material])
+            .forEach(m => { m.wireframe = wireframe; });
         }
       });
     };

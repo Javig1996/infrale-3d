@@ -56,8 +56,8 @@
 
 <!-- Three.js UMD — solo build/, sin examples/js/ -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
-<!-- web-ifc WASM API local -->
-<script src="/ifc-viewer/web-ifc-api-iife.js"></script>
+<!-- web-ifc WASM API — cargado desde CDN para que detecte su propio path del .wasm -->
+<script src="https://cdn.jsdelivr.net/npm/web-ifc@0.0.77/web-ifc-api-iife.js"></script>
 
 <script>
 // ── Controlador de órbita mínimo (sin OrbitControls externo) ──────────────
@@ -173,9 +173,8 @@ class OrbitCtrl {
     prog(36, 'Descargando modelo...', 'Recibiendo datos');
     const buffer = await res.arrayBuffer();
 
-    prog(50, 'Inicializando motor IFC...', 'Cargando WASM local');
+    prog(50, 'Inicializando motor IFC...', 'Cargando WASM');
     const ifcAPI = new WebIFC.IfcAPI();
-    ifcAPI.SetWasmPath('/ifc-viewer/');
     await ifcAPI.Init();
 
     prog(63, 'Procesando geometría...', 'Parseando el archivo IFC');

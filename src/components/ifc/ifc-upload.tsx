@@ -29,18 +29,33 @@ export function IFCUpload({ projectId }: Props) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setError("No autenticado"); setUpl(false); return; }
 
-    const form = new FormData();
-    form.append("file",       file);
-    form.append("project_id", projectId);
-    form.append("user_id",    user.id);
-    form.append("name",       file.name.replace(/\.ifc$/i, ""));
+    // Upload directo al Storage desde el browser (sin pasar por la API route)
+    const filePath = `${projectId}/${Date.now()}_${file.name}`;
+    setProg(30);
 
-    setProg(40);
-    const res  = await fetch("/api/ifc/upload", { method: "POST", body: form });
-    const json = await res.json();
-    setProg(90);
+    const { error: uploadErr } = await supabase.storage
+      .from("ifc-models")
+      .upload(filePath, file, { contentType: "application/octet-stream", upsert: false });
 
-    if (!res.ok) { setError(json.error || "Error al subir"); setUpl(false); return; }
+    if (uploadErr) {
+      setError(uploadErr.message); setUpl(false); return;
+    }
+    setProg(75);
+
+    const { data: urlData } = supabase.storage.from("ifc-models").getPublicUrl(filePath);
+
+    // Registrar metadata en la DB
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: dbErr } = await (supabase as any).from("ifc_models").insert({
+      project_id:  projectId,
+      filename:    file.name.replace(/\.ifc$/i, ""),
+      r2_key:      filePath,
+      r2_url:      urlData.publicUrl,
+      size_bytes:  file.size,
+      uploaded_by: user.id,
+    });
+
+    if (dbErr) { setError(dbErr.message); setUpl(false); return; }
 
     setProg(100); setDone(true); setUpl(false);
     setTimeout(() => { setDone(false); setFile(null); setProg(0); router.refresh(); }, 2000);
@@ -78,7 +93,7 @@ export function IFCUpload({ projectId }: Props) {
             <Loader2 className="w-8 h-8 text-brand-300 animate-spin" />
             <p className="text-sm text-slate-300">{fileName}</p>
             <div className="w-full max-w-xs bg-surface-border rounded-full h-1.5">
-              <div className="bg-brand-300 h-1.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+              <div className="bg-brand-300 h-1.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
             </div>
             <p className="text-xs text-slate-500">{progress}%</p>
           </div>

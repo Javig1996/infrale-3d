@@ -85,15 +85,26 @@ export function ProjectForm() {
       joined_at:  new Date().toISOString(),
     });
 
-    // 3. Subir modelo IFC si se seleccionó
+    // 3. Subir modelo IFC directo al Storage (sin límite de body size)
     if (ifcFile) {
       setUpl(true);
-      const form = new FormData();
-      form.append("file",       ifcFile);
-      form.append("project_id", project.id);
-      form.append("user_id",    user.id);
-      form.append("name",       ifcFile.name.replace(/\.ifc$/i, ""));
-      await fetch("/api/ifc/upload", { method: "POST", body: form });
+      const filePath = `${project.id}/${Date.now()}_${ifcFile.name}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("ifc-models")
+        .upload(filePath, ifcFile, { contentType: "application/octet-stream", upsert: false });
+
+      if (!uploadErr) {
+        const { data: urlData } = supabase.storage.from("ifc-models").getPublicUrl(filePath);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any).from("ifc_models").insert({
+          project_id:  project.id,
+          filename:    ifcFile.name.replace(/\.ifc$/i, ""),
+          r2_key:      filePath,
+          r2_url:      urlData.publicUrl,
+          size_bytes:  ifcFile.size,
+          uploaded_by: user.id,
+        });
+      }
       setUpl(false);
     }
 

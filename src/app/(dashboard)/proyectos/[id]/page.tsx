@@ -63,9 +63,9 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from("ifc_models")
-      .select("id, name, file_url, file_size, status, created_at")
+      .select("id, filename, r2_url, size_bytes, uploaded_at")
       .eq("project_id", params.id)
-      .order("created_at", { ascending: false }),
+      .order("uploaded_at", { ascending: false }),
   ]);
 
   type MemberWithProfile = {
@@ -73,7 +73,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     invited_at: string; joined_at: string | null; user_id: string | null;
     profiles: { full_name: string | null; avatar_url: string | null } | null;
   };
-  type IFCModelRow = { id: string; name: string; file_url: string; file_size: number | null; status: string; created_at: string };
+  type IFCModelRow = { id: string; filename: string; r2_url: string; size_bytes: number | null; uploaded_at: string };
 
   const members = (membersRaw ?? []) as unknown as MemberWithProfile[];
   const models  = (modelsRaw  ?? []) as IFCModelRow[];
@@ -169,12 +169,12 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                 <div key={m.id} className="px-5 py-3 flex items-center gap-3 group hover:bg-surface-hover transition-colors">
                   <Box className="w-4 h-4 text-brand-200 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-200 truncate">{m.name}</p>
-                    <p className="text-xs text-slate-500">{formatDate(m.created_at)}</p>
+                    <p className="text-sm text-slate-200 truncate">{m.filename}</p>
+                    <p className="text-xs text-slate-500">{formatDate(m.uploaded_at)}</p>
                   </div>
-                  {m.file_size && (
+                  {m.size_bytes && (
                     <span className="text-xs text-slate-500 font-mono">
-                      {(m.file_size / 1_048_576).toFixed(1)} MB
+                      {(m.size_bytes / 1_048_576).toFixed(1)} MB
                     </span>
                   )}
                   <Link href={`/proyectos/${params.id}/visor/${m.id}`}

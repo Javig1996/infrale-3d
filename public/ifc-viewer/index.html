@@ -6,26 +6,26 @@
   <title>Visor IFC — Infrale 3D</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #050d1a; color: #e2e8f0; font-family: system-ui, sans-serif; overflow: hidden; height: 100vh; }
+    body { background: #050d1a; overflow: hidden; height: 100vh; font-family: system-ui, sans-serif; color: #e2e8f0; }
     #container { width: 100%; height: 100vh; position: relative; }
     canvas { display: block; width: 100% !important; height: 100% !important; }
     #overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #050d1a; z-index: 10; }
-    .spinner { width: 36px; height: 36px; border: 3px solid #1e3a5f; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .spinner { width: 36px; height: 36px; border: 3px solid #1e3a5f; border-top-color: #2563eb; border-radius: 50%; animation: spin .8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     #overlay p     { font-size: 14px; color: #94a3b8; }
     #overlay small { font-size: 12px; color: #475569; }
-    .pb  { width: 220px; height: 3px; background: #1e3a5f; border-radius: 2px; overflow: hidden; }
-    .pf  { height: 100%; background: #2563eb; border-radius: 2px; transition: width 0.5s ease; }
-    #error-box { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #050d1a; padding: 32px; text-align: center; }
-    #error-box svg { width: 42px; height: 42px; color: #ef4444; }
-    #error-box h3  { font-size: 15px; color: #ef4444; }
-    #error-box p   { font-size: 12px; color: #64748b; max-width: 420px; line-height: 1.75; }
-    #error-box button { background: #1e3a5f; border: 1px solid #2563eb55; color: #94a3b8; padding: 8px 20px; border-radius: 8px; font-size: 12px; cursor: pointer; margin-top: 4px; }
-    #error-box button:hover { color: #e2e8f0; background: #0f2035; }
-    #controls  { position: absolute; top: 12px; right: 12px; display: none; gap: 6px; }
-    .ctrl { background: rgba(5,13,26,0.88); border: 1px solid #1e3a5f; color: #94a3b8; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+    .pb { width: 220px; height: 3px; background: #1e3a5f; border-radius: 2px; overflow: hidden; }
+    .pf { height: 100%; background: #2563eb; border-radius: 2px; transition: width .5s ease; }
+    #err { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #050d1a; padding: 32px; text-align: center; }
+    #err svg { width: 42px; height: 42px; color: #ef4444; }
+    #err h3  { font-size: 15px; color: #ef4444; }
+    #err p   { font-size: 12px; color: #64748b; max-width: 420px; line-height: 1.75; }
+    #err button { background: #1e3a5f; border: 1px solid #2563eb55; color: #94a3b8; padding: 8px 20px; border-radius: 8px; font-size: 12px; cursor: pointer; margin-top: 4px; }
+    #err button:hover { color: #e2e8f0; background: #0f2035; }
+    #controls { position: absolute; top: 12px; right: 12px; display: none; gap: 6px; }
+    .ctrl { background: rgba(5,13,26,.88); border: 1px solid #1e3a5f; color: #94a3b8; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all .15s; }
     .ctrl:hover { background: #0f2035; color: #e2e8f0; border-color: #2563eb; }
-    #statusbar { position: absolute; bottom: 12px; left: 12px; display: none; align-items: center; gap: 8px; background: rgba(5,13,26,0.88); border: 1px solid #1e3a5f; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #94a3b8; pointer-events: none; }
+    #bar2 { position: absolute; bottom: 12px; left: 12px; display: none; align-items: center; gap: 8px; background: rgba(5,13,26,.88); border: 1px solid #1e3a5f; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #94a3b8; pointer-events: none; }
     .dot { width: 6px; height: 6px; border-radius: 50%; background: #2563eb; flex-shrink: 0; }
   </style>
 </head>
@@ -37,92 +37,125 @@
     <small id="sub">Iniciando Three.js</small>
     <div class="pb"><div class="pf" id="bar" style="width:0%"></div></div>
   </div>
-  <div id="error-box">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-    </svg>
+  <div id="err">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
     <h3>Error al cargar el modelo</h3>
-    <p id="err-msg"></p>
+    <p id="errmsg"></p>
     <button onclick="location.reload()">↺ Reintentar</button>
   </div>
   <div id="controls">
-    <button class="ctrl" id="btn-reset">⟳ Reset vista</button>
-    <button class="ctrl" id="btn-wire">◻ Wireframe</button>
+    <button class="ctrl" id="btn-r">⟳ Reset</button>
+    <button class="ctrl" id="btn-w">◻ Wireframe</button>
   </div>
-  <div id="statusbar">
-    <span class="dot"></span>
-    <span id="model-label">Modelo IFC</span>
+  <div id="bar2">
+    <span class="dot"></span><span id="lbl">Modelo IFC</span>
     <span style="color:#334155">·</span>
     <span style="color:#475569">Arrastra · Scroll zoom · Clic derecho pan</span>
   </div>
 </div>
 
-<!-- Three.js desde jsDelivr (confiable) -->
+<!-- Three.js UMD — solo build/, sin examples/js/ -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
-<!-- OrbitControls standalone (compatible con THREE global) -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/examples/js/controls/OrbitControls.js"></script>
-<!-- web-ifc WASM API servido localmente (sin dependencia de CDN externo) -->
+<!-- web-ifc WASM API local -->
 <script src="/ifc-viewer/web-ifc-api-iife.js"></script>
 
 <script>
+// ── Controlador de órbita mínimo (sin OrbitControls externo) ──────────────
+class OrbitCtrl {
+  constructor(cam, el) {
+    this.cam = cam; this.el = el;
+    this.target = new THREE.Vector3();
+    this._r = 10; this._phi = Math.PI / 4; this._theta = Math.PI / 4;
+    this._down = false; this._btn = -1; this._px = 0; this._py = 0;
+    this._apply();
+    el.addEventListener('mousedown',  e => { this._down = true;  this._btn = e.button; this._px = e.clientX; this._py = e.clientY; e.preventDefault(); });
+    el.addEventListener('mouseup',    () => { this._down = false; });
+    el.addEventListener('mouseleave', () => { this._down = false; });
+    el.addEventListener('mousemove',  e => {
+      if (!this._down) return;
+      const dx = e.clientX - this._px, dy = e.clientY - this._py;
+      this._px = e.clientX; this._py = e.clientY;
+      if (this._btn === 0) this._orbit(dx, dy);
+      else this._pan(dx, dy);
+    });
+    el.addEventListener('wheel', e => { this._r = Math.max(0.5, this._r * (1 + e.deltaY * 0.001)); this._apply(); e.preventDefault(); }, { passive: false });
+    el.addEventListener('contextmenu', e => e.preventDefault());
+  }
+  _orbit(dx, dy) {
+    this._theta -= dx * 0.006;
+    this._phi = Math.max(0.05, Math.min(Math.PI - 0.05, this._phi - dy * 0.006));
+    this._apply();
+  }
+  _pan(dx, dy) {
+    const f = this._r * 0.001;
+    const right = new THREE.Vector3().crossVectors(
+      new THREE.Vector3().subVectors(this.cam.position, this.target).normalize(),
+      new THREE.Vector3(0, 1, 0)
+    ).normalize();
+    this.target.addScaledVector(right, -dx * f);
+    this.target.y += dy * f;
+    this._apply();
+  }
+  _apply() {
+    const sp = Math.sin(this._phi), cp = Math.cos(this._phi);
+    const st = Math.sin(this._theta), ct = Math.cos(this._theta);
+    this.cam.position.set(
+      this.target.x + this._r * sp * st,
+      this.target.y + this._r * cp,
+      this.target.z + this._r * sp * ct
+    );
+    this.cam.lookAt(this.target);
+  }
+  setView(center, dist) {
+    this.target.copy(center);
+    this._r = dist;
+    this._phi = Math.PI / 4; this._theta = Math.PI / 4;
+    this._apply();
+  }
+  update() {} // compatible con loop que llama update()
+}
+
+// ── Main ─────────────────────────────────────────────────────────────────
 (async function () {
-  const params    = new URLSearchParams(location.search);
-  const fileUrl   = params.get('url');
-  const modelName = params.get('name') || 'Modelo IFC';
+  const params = new URLSearchParams(location.search);
+  const fileUrl = params.get('url'), modelName = params.get('name') || 'Modelo IFC';
 
-  const overlay  = document.getElementById('overlay');
-  const errorBox = document.getElementById('error-box');
-
-  function prog(pct, m, s) {
-    document.getElementById('bar').style.width = pct + '%';
+  function prog(p, m, s) {
+    document.getElementById('bar').style.width = p + '%';
     if (m) document.getElementById('msg').textContent = m;
     if (s) document.getElementById('sub').textContent = s;
   }
-  function showError(text) {
-    overlay.style.display  = 'none';
-    errorBox.style.display = 'flex';
-    document.getElementById('err-msg').textContent = text;
+  function showErr(t) {
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('err').style.display = 'flex';
+    document.getElementById('errmsg').textContent = t;
   }
 
-  if (!fileUrl) { showError('No se especificó la URL del modelo.'); return; }
-  document.getElementById('model-label').textContent = modelName;
+  if (!fileUrl) { showErr('No se especificó la URL del modelo.'); return; }
+  if (typeof THREE === 'undefined')   { showErr('Three.js no cargó. Verifica tu conexión.'); return; }
+  if (typeof WebIFC === 'undefined')  { showErr('Motor IFC no cargó. Verifica tu conexión.'); return; }
 
-  // Validar que las librerías cargaron
-  if (typeof THREE === 'undefined') { showError('Three.js no cargó. Verifica tu conexión.'); return; }
-  if (typeof THREE.OrbitControls === 'undefined') { showError('OrbitControls no cargó. Verifica tu conexión.'); return; }
-  if (typeof WebIFC === 'undefined') { showError('Motor IFC no cargó. Verifica tu conexión.'); return; }
-
-  const timer = setTimeout(() =>
-    showError('Tiempo de espera agotado (5 min). El modelo es muy grande o hay problemas de red.'),
-    5 * 60 * 1000
-  );
+  document.getElementById('lbl').textContent = modelName;
+  const timer = setTimeout(() => showErr('Tiempo de espera agotado (5 min).'), 5 * 60 * 1000);
 
   try {
     prog(8, 'Iniciando visor 3D...', 'Configurando escena');
 
-    // ── Escena Three.js ───────────────────────────────────────────────
     const scene    = new THREE.Scene();
     scene.background = new THREE.Color(0x050d1a);
-
     const cont     = document.getElementById('container');
-    const camera   = new THREE.PerspectiveCamera(60, cont.clientWidth / cont.clientHeight, 0.01, 50000);
-    camera.position.set(20, 20, 20);
-
+    const camera   = new THREE.PerspectiveCamera(60, cont.clientWidth / cont.clientHeight, 0.01, 100000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setSize(cont.clientWidth, cont.clientHeight);
     cont.appendChild(renderer.domElement);
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
+    const controls = new OrbitCtrl(camera, renderer.domElement);
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.7));
     const sun = new THREE.DirectionalLight(0xffffff, 1.3);
-    sun.position.set(50, 80, 50);
-    scene.add(sun);
-    scene.add(new THREE.GridHelper(500, 50, 0x1e3a5f, 0x0f2035));
+    sun.position.set(50, 80, 50); scene.add(sun);
+    scene.add(new THREE.GridHelper(1000, 60, 0x1e3a5f, 0x0f2035));
 
     window.addEventListener('resize', () => {
       camera.aspect = cont.clientWidth / cont.clientHeight;
@@ -131,117 +164,83 @@
     });
     (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
 
-    // ── Descargar archivo IFC ─────────────────────────────────────────
     prog(18, 'Descargando modelo...', 'Conectando con el servidor');
     let res;
     try { res = await fetch(fileUrl); }
-    catch (e) { throw new Error('Sin conexión al servidor. (' + e.message + ')'); }
+    catch (e) { throw new Error('Error de red: ' + e.message); }
     if (!res.ok) throw new Error('Error HTTP ' + res.status + ' al descargar el modelo.');
 
     prog(36, 'Descargando modelo...', 'Recibiendo datos');
     const buffer = await res.arrayBuffer();
 
-    // ── Inicializar web-ifc WASM ──────────────────────────────────────
     prog(50, 'Inicializando motor IFC...', 'Cargando WASM local');
     const ifcAPI = new WebIFC.IfcAPI();
     ifcAPI.SetWasmPath('/ifc-viewer/');
-    try { await ifcAPI.Init(); }
-    catch (e) { throw new Error('Error al inicializar el motor IFC WASM. (' + e.message + ')'); }
+    await ifcAPI.Init();
 
-    // ── Parsear IFC ───────────────────────────────────────────────────
-    prog(62, 'Procesando geometría...', 'Parseando el archivo IFC');
-    const data    = new Uint8Array(buffer);
-    const modelID = ifcAPI.OpenModel(data, { COORDINATE_TO_ORIGIN: true, USE_FAST_BOOLS: true });
+    prog(63, 'Procesando geometría...', 'Parseando el archivo IFC');
+    const modelID = ifcAPI.OpenModel(new Uint8Array(buffer), { COORDINATE_TO_ORIGIN: true, USE_FAST_BOOLS: true });
 
-    prog(74, 'Construyendo mallas 3D...', 'Generando geometría Three.js');
+    prog(76, 'Construyendo mallas 3D...', 'Generando geometría Three.js');
 
-    // Paleta de colores para los elementos
-    const palette = [0x2563eb, 0x0ea5e9, 0x6366f1, 0x8b5cf6, 0x06b6d4,
-                     0x3b82f6, 0x64748b, 0x94a3b8, 0x475569, 0x334155];
-    const mats = palette.map(c => new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide }));
-
-    const group = new THREE.Group();
-    let meshCount = 0;
+    const colors = [0x2563eb,0x0ea5e9,0x6366f1,0x8b5cf6,0x06b6d4,0x3b82f6,0x64748b,0x94a3b8];
+    const mats   = colors.map(c => new THREE.MeshLambertMaterial({ color: c, side: THREE.DoubleSide }));
+    const group  = new THREE.Group();
+    let n = 0;
 
     ifcAPI.StreamAllMeshes(modelID, (flatMesh) => {
-      const geomCount = flatMesh.geometries.size();
-      for (let i = 0; i < geomCount; i++) {
-        const placed = flatMesh.geometries.get(i);
+      const gc = flatMesh.geometries.size();
+      for (let i = 0; i < gc; i++) {
+        const placed   = flatMesh.geometries.get(i);
         const geomData = ifcAPI.GetGeometry(modelID, placed.geometryExpressID);
+        const idxArr   = ifcAPI.GetIndexArray(geomData.GetIndexData(), geomData.GetIndexDataSize());
+        const vtxArr   = ifcAPI.GetVertexArray(geomData.GetVertexData(), geomData.GetVertexDataSize());
+        if (!vtxArr || !idxArr || vtxArr.length === 0 || idxArr.length === 0) { geomData.delete(); continue; }
 
-        const verts    = ifcAPI.GetRawLineData(modelID, placed.geometryExpressID);
-        const idxData  = ifcAPI.GetIndexArray(geomData.GetIndexData(), geomData.GetIndexDataSize());
-        const vtxData  = ifcAPI.GetVertexArray(geomData.GetVertexData(), geomData.GetVertexDataSize());
-
-        if (!vtxData || !idxData || vtxData.length === 0 || idxData.length === 0) continue;
-
-        // vtxData: interleaved [x,y,z, nx,ny,nz, ...]
-        const posArr = new Float32Array(vtxData.length / 2);
-        const nrmArr = new Float32Array(vtxData.length / 2);
-        for (let j = 0; j < vtxData.length; j += 6) {
-          const k = j / 2;
-          posArr[k]     = vtxData[j];     posArr[k + 1] = vtxData[j + 1]; posArr[k + 2] = vtxData[j + 2];
-          nrmArr[k]     = vtxData[j + 3]; nrmArr[k + 1] = vtxData[j + 4]; nrmArr[k + 2] = vtxData[j + 5];
+        const posArr = new Float32Array(vtxArr.length / 2);
+        const nrmArr = new Float32Array(vtxArr.length / 2);
+        for (let j = 0, k = 0; j < vtxArr.length; j += 6, k += 3) {
+          posArr[k] = vtxArr[j];   posArr[k+1] = vtxArr[j+1]; posArr[k+2] = vtxArr[j+2];
+          nrmArr[k] = vtxArr[j+3]; nrmArr[k+1] = vtxArr[j+4]; nrmArr[k+2] = vtxArr[j+5];
         }
 
-        const geo = new THREE.BufferGeometry();
+        const geo  = new THREE.BufferGeometry();
         geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
         geo.setAttribute('normal',   new THREE.BufferAttribute(nrmArr, 3));
-        geo.setIndex(new THREE.BufferAttribute(idxData, 1));
+        geo.setIndex(new THREE.BufferAttribute(idxArr, 1));
 
-        const m    = new THREE.Matrix4().fromArray(placed.flatTransformation);
-        const mesh = new THREE.Mesh(geo, mats[meshCount % mats.length]);
-        mesh.matrix.copy(m);
+        const mesh = new THREE.Mesh(geo, mats[n % mats.length]);
+        mesh.matrix.fromArray(placed.flatTransformation);
         mesh.matrixAutoUpdate = false;
-
-        group.add(mesh);
-        meshCount++;
-
+        group.add(mesh); n++;
         geomData.delete();
       }
     });
 
     ifcAPI.CloseModel(modelID);
-
-    if (meshCount === 0) throw new Error('El modelo IFC no contiene geometría visible.');
-
+    if (n === 0) throw new Error('El modelo no contiene geometría visible.');
     scene.add(group);
 
-    // ── Centrar cámara ────────────────────────────────────────────────
     prog(93, 'Ajustando cámara...', 'Calculando encuadre');
-    const box    = new THREE.Box3().setFromObject(group);
-    const center = box.getCenter(new THREE.Vector3());
-    const size   = box.getSize(new THREE.Vector3());
-    const dist   = Math.max(size.x, size.y, size.z) * 1.8;
-    controls.target.copy(center);
-    camera.position.set(center.x + dist, center.y + dist * 0.6, center.z + dist);
-    controls.update();
+    const box  = new THREE.Box3().setFromObject(group);
+    const ctr  = box.getCenter(new THREE.Vector3());
+    const sz   = box.getSize(new THREE.Vector3());
+    const dist = Math.max(sz.x, sz.y, sz.z) * 1.8;
+    controls.setView(ctr, dist);
 
-    prog(100, '¡Modelo cargado! (' + meshCount + ' elementos)', '');
+    prog(100, '¡Modelo cargado! (' + n + ' elementos)', '');
     clearTimeout(timer);
-
     setTimeout(() => {
-      overlay.style.display = 'none';
-      document.getElementById('controls').style.display  = 'flex';
-      document.getElementById('statusbar').style.display = 'flex';
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('controls').style.display = 'flex';
+      document.getElementById('bar2').style.display = 'flex';
     }, 400);
 
-    // ── Botones ───────────────────────────────────────────────────────
-    let wireframe = false;
-    document.getElementById('btn-reset').onclick = () => {
-      controls.target.copy(center);
-      camera.position.set(center.x + dist, center.y + dist * 0.6, center.z + dist);
-      controls.update();
-    };
-    document.getElementById('btn-wire').onclick = () => {
-      wireframe = !wireframe;
-      mats.forEach(m => { m.wireframe = wireframe; });
-    };
+    let wire = false;
+    document.getElementById('btn-r').onclick = () => controls.setView(ctr, dist);
+    document.getElementById('btn-w').onclick = () => { wire = !wire; mats.forEach(m => { m.wireframe = wire; }); };
 
-  } catch (err) {
-    clearTimeout(timer);
-    showError(err.message || String(err));
-  }
+  } catch (e) { clearTimeout(timer); showErr(e.message || String(e)); }
 })();
 </script>
 </body>

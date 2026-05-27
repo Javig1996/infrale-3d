@@ -68,7 +68,10 @@ export function ProjectForm() {
       .single();
 
     const project = projectRaw as { id: string } | null;
-    if (err || !project) { setError("Error al crear el proyecto."); return; }
+    if (err || !project) {
+      setError(err?.message ?? "Error al crear el proyecto. Inténtalo de nuevo.");
+      return;
+    }
 
     // 2. Agregar al owner como admin
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

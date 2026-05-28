@@ -434,6 +434,20 @@ class OrbitCtrl {
       cats.get(cat).push({expressID:eid,name:info.name});
     }
 
+    // ═══════════════════════════════════════════════════
+    //  SELECCIÓN — declaraciones de estado (antes de buildHierarchyTree)
+    // ═══════════════════════════════════════════════════
+    const H_SINGLE=new THREE.MeshLambertMaterial({color:0xfbbf24,side:THREE.DoubleSide,transparent:true,opacity:.85});
+    const H_MULTI =new THREE.MeshLambertMaterial({color:0xf97316,side:THREE.DoubleSide,transparent:true,opacity:.75});
+    const raycaster=new THREE.Raycaster();
+    const mouse=new THREE.Vector2();
+
+    let selectedIDs=new Set();
+    let prevMats=new Map();
+    let isolateMode=false;
+    const hiddenIDs=new Set();
+    const elemRowMap=new Map(); // expressID → .elem-row DOM element
+
     prog(98,'Renderizando árbol...');
     buildHierarchyTree(treeData,storeyOrder);
     buildCategoriesView(treeData);
@@ -444,20 +458,6 @@ class OrbitCtrl {
       document.getElementById('toolbar').style.display='flex';
       document.getElementById('sidebar').style.display='flex';
     },300);
-
-    // ═══════════════════════════════════════════════════
-    //  SELECCIÓN
-    // ═══════════════════════════════════════════════════
-    const H_SINGLE=new THREE.MeshLambertMaterial({color:0xfbbf24,side:THREE.DoubleSide,transparent:true,opacity:.85});
-    const H_MULTI =new THREE.MeshLambertMaterial({color:0xf97316,side:THREE.DoubleSide,transparent:true,opacity:.75});
-    const raycaster=new THREE.Raycaster();
-    const mouse=new THREE.Vector2();
-
-    let selectedIDs=new Set();
-    let prevMats=new Map();     // mesh → original mat
-    let isolateMode=false;
-    const hiddenIDs=new Set();
-    const elemRowMap=new Map(); // expressID → .elem-row DOM element
 
     function clearSelection(){
       for(const [mesh,mat] of prevMats) mesh.material=mat;

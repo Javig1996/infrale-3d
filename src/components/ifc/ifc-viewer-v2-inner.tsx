@@ -3,6 +3,7 @@
 // Este componente fue reemplazado por el visor iframe en public/ifc-viewer/index.html
 // Se mantiene el archivo vacío para no romper imports existentes
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function IFCViewerV2Inner(_props: { fileUrl: string; modelName: string }) {
   return null;
 }

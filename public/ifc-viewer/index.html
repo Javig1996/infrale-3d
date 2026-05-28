@@ -426,16 +426,20 @@ class OrbitCtrl {
       DEFAULT:'Sin categoría'
     };
 
-    // ── Leer nombre Y tipo real de cada elemento con geometría ──
+    // ── Leer nombre, tipo real y ObjectType de cada elemento ──
     prog(88,'Leyendo nombres y tipos...');
-    const elemNames=new Map(); // expressID → string
+    const elemNames=new Map();     // expressID → string
+    const elemObjType=new Map();   // expressID → ObjectType string (categoría Revit)
 
     for(const [eid] of meshMap){
       try{
         const ln=ifcAPI.GetLine(modelID,eid,false);
         const name=ln.Name?.value||ln.LongName?.value||('#'+eid);
         elemNames.set(eid,name);
-        // Si el tipo no fue capturado por el pre-mapeo, leerlo del TypeCode real
+        // ObjectType contiene la categoría Revit ("Equipos eléctricos", etc.)
+        const objType=ln.ObjectType?.value||'';
+        elemObjType.set(eid,objType);
+        // Completar typeOfID para elementos no cubiertos por el pre-mapeo
         if(!typeOfID.has(eid)){
           const rawName=codeToName.get(ln.type)||'DEFAULT';
           typeOfID.set(eid,rawName);
@@ -529,13 +533,14 @@ class OrbitCtrl {
       return pretty||ifcType;
     }
 
-    // ── treeData: nivel → categoría IFC → [{expressID, name}] ──
+    // ── treeData: nivel → categoría → [{expressID, name}] ──
+    // Categoría: ObjectType (Revit) si existe, si no → tipo IFC en español
     const treeData=new Map();
 
     for(const [eid,name] of elemNames){
       const storey=storeyOfID.get(eid)||'Sin nivel';
-      const ifcType=typeOfID.get(eid)||'DEFAULT';
-      const cat=resolveCategory(ifcType);
+      const objType=elemObjType.get(eid)||'';
+      const cat=objType||resolveCategory(typeOfID.get(eid)||'DEFAULT');
       if(!treeData.has(storey)) treeData.set(storey,new Map());
       const cats=treeData.get(storey);
       if(!cats.has(cat)) cats.set(cat,[]);

@@ -2,7 +2,7 @@ import { createClient }   from "@/lib/supabase/server";
 import { notFound }       from "next/navigation";
 import Link               from "next/link";
 import { ArrowLeft, Box } from "lucide-react";
-import { IFCViewerV2 }    from "@/components/ifc/ifc-viewer-v2";
+import { IFCViewer }      from "@/components/ifc/ifc-viewer";
 
 interface Props {
   params: { id: string; modelId: string };
@@ -41,7 +41,7 @@ export default async function VisorPage({ params }: Props) {
       </div>
 
       <div className="flex-1">
-        <IFCViewerV2 fileUrl={model.r2_url} modelName={model.filename} />
+        <IFCViewer fileUrl={model.r2_url} modelName={model.filename} />
       </div>
     </div>
   );

@@ -5,12 +5,26 @@ const nextConfig = {
     "@thatopen/fragments",
     "camera-controls",
   ],
-  webpack: (config) => {
+  webpack: (config, { dev }) => {
     config.experiments = { ...config.experiments, asyncWebAssembly: true };
-    // Resolver .mjs para paquetes ESM de @thatopen
-    config.resolve.extensionAlias = {
-      ".js": [".js", ".ts", ".tsx"],
-    };
+
+    // Tratar .mjs de @thatopen como ESM (evita error de Terser con worker.mjs)
+    config.module.rules.push({
+      test: /\.mjs$/,
+      include: /node_modules[\\/]@thatopen/,
+      type: "javascript/auto",
+    });
+
+    // Indicar a Terser que los archivos .mjs son módulos ES
+    if (!dev && config.optimization?.minimizer) {
+      config.optimization.minimizer.forEach((plugin) => {
+        if (plugin?.constructor?.name === "TerserPlugin") {
+          plugin.options.terserOptions ??= {};
+          plugin.options.terserOptions.module = true;
+        }
+      });
+    }
+
     return config;
   },
   async headers() {

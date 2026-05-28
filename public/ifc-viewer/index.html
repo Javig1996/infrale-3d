@@ -304,7 +304,7 @@ class OrbitCtrl {
 
     prog(34,'Procesando geometría...');
     const buffer=await res.arrayBuffer();
-    let ifcBuffer=buffer;
+    let ifcBuffer=buffer.slice(0); // copia independiente para reusar en propiedades
 
     prog(50,'Inicializando motor IFC...');
     const ifcAPI=new WebIFC.IfcAPI();
@@ -994,12 +994,12 @@ class OrbitCtrl {
         return;
       }
       try{
-        const a2=new WebIFC.IfcAPI();
-        await a2.Init();
-        const m2=a2.OpenModel(new Uint8Array(ifcBuffer),{COORDINATE_TO_ORIGIN:true,USE_FAST_BOOLS:true});
-        const props=a2.GetItemProperties(m2,eid,false);
-        const psets=a2.GetPropertySets(m2,eid);
-        a2.CloseModel(m2);
+        // Reutilizar la instancia ifcAPI ya inicializada; solo abrir un modelo temporal
+        const m2=ifcAPI.OpenModel(new Uint8Array(ifcBuffer),{COORDINATE_TO_ORIGIN:true,USE_FAST_BOOLS:true});
+        const props=ifcAPI.GetItemProperties(m2,eid,false);
+        let psets=[];
+        try{psets=ifcAPI.GetPropertySets(m2,eid)||[];}catch(_){}
+        ifcAPI.CloseModel(m2);
         content.innerHTML='';
 
         // Grupo "Parámetros IFC" con atributos básicos del elemento
@@ -1029,8 +1029,8 @@ class OrbitCtrl {
         if(!content.firstChild){
           content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">Sin propiedades disponibles.</div>';
         }
-      }catch(_){
-        content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">No se pudieron cargar las propiedades.</div>';
+      }catch(err){
+        content.innerHTML=`<div style="padding:8px;font-size:10px;color:#ef4444;">${err.message||String(err)}</div>`;
       }
     }
 

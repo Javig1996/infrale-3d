@@ -302,10 +302,25 @@ class OrbitCtrl {
 
     // ── Materiales por tipo ─────────────────────────────
     const COLORS={
-      IfcWall:0x4a90d9,IfcSlab:0x7fb3d3,IfcColumn:0x5b9bd5,
-      IfcBeam:0x6baed6,IfcDoor:0xf59e0b,IfcWindow:0x22d3ee,
-      IfcRoof:0x6366f1,IfcStair:0xa78bfa,IfcRailing:0x94a3b8,
-      IfcFurnishingElement:0x8b5cf6,IfcSite:0x064e3b,
+      // Estructura
+      IfcWall:0x4a90d9,IfcWallStandardCase:0x4a90d9,IfcCurtainWall:0x7ec8e3,
+      IfcSlab:0x7fb3d3,IfcColumn:0x5b9bd5,IfcBeam:0x6baed6,
+      IfcFooting:0x3a6f9f,IfcPile:0x2e5f8a,IfcPlate:0x5589c0,IfcMember:0x4a7db5,
+      // Arquitectura
+      IfcDoor:0xf59e0b,IfcWindow:0x22d3ee,IfcRoof:0x6366f1,
+      IfcStair:0xa78bfa,IfcStairFlight:0xa78bfa,IfcRamp:0x9b7fe8,
+      IfcRailing:0x94a3b8,IfcFurnishingElement:0x8b5cf6,IfcFurniture:0x8b5cf6,
+      // MEP — rojo/naranja para instalaciones
+      IfcFlowSegment:0xe05252,IfcPipeSegment:0xe05252,IfcDuctSegment:0xe8934a,
+      IfcCableSegment:0xf0c040,IfcFlowFitting:0xc43e3e,IfcPipeFitting:0xc43e3e,
+      IfcDuctFitting:0xd4783a,IfcFlowTerminal:0x52b0e0,IfcAirTerminal:0x52b0e0,
+      IfcLamp:0xf0e060,IfcSanitaryTerminal:0x40c0a0,IfcValve:0xb03030,
+      IfcDamper:0xc06030,IfcPump:0xd04040,IfcFan:0xd06840,
+      IfcBoiler:0xb04040,IfcChiller:0x4080c0,IfcTank:0x608080,
+      IfcElectricDistributionBoard:0xd4b000,IfcElectricAppliance:0xe0c030,
+      IfcDistributionElement:0xe07050,IfcDistributionFlowElement:0xe07050,
+      IfcBuildingElementProxy:0x607080,
+      IfcSite:0x064e3b,
       DEFAULT:0x3b82f6
     };
     const matCache={};
@@ -373,65 +388,113 @@ class OrbitCtrl {
     controls.setView(ctr,dist);
     initialCenter=ctr.clone();initialDist=dist;
 
-    // ── Leer propiedades rápidas (GetLine) ───────────────
-    // Modelo todavía abierto — leer Name y ObjectType de cada elemento con geometría
-    prog(88,'Leyendo propiedades...');
-    const elemInfo=new Map(); // expressID → {name, objectType}
+    // ── Nombres en español para tipos IFC (Opción A — universal) ──
+    const IFC_TYPE_ES={
+      IfcWall:'Muros',IfcWallStandardCase:'Muros',IfcCurtainWall:'Muros cortina',
+      IfcSlab:'Losas',IfcRamp:'Rampas',IfcRampFlight:'Rampas',
+      IfcColumn:'Columnas',IfcBeam:'Vigas',
+      IfcDoor:'Puertas',IfcWindow:'Ventanas',
+      IfcRoof:'Techos',IfcStair:'Escaleras',IfcStairFlight:'Tramos de escalera',
+      IfcRailing:'Barandas',
+      IfcFurnishingElement:'Mobiliario',IfcFurniture:'Mobiliario',
+      IfcSite:'Terreno',IfcBuildingElementProxy:'Modelos genéricos',
+      IfcPlate:'Placas',IfcMember:'Perfiles estructurales',
+      IfcFooting:'Cimentaciones',IfcPile:'Pilotes',
+      IfcFlowSegment:'Tuberías / Conductos',
+      IfcPipeSegment:'Tuberías',IfcDuctSegment:'Conductos',
+      IfcCableSegment:'Cables',
+      IfcFlowTerminal:'Terminales MEP',
+      IfcAirTerminal:'Difusores / Rejillas',IfcLamp:'Luminarias',
+      IfcSanitaryTerminal:'Aparatos sanitarios',
+      IfcFlowFitting:'Accesorios MEP',
+      IfcPipeFitting:'Accesorios de tubería',IfcDuctFitting:'Accesorios de conducto',
+      IfcFlowController:'Controladores MEP',IfcValve:'Válvulas',IfcDamper:'Compuertas',
+      IfcFlowMovingDevice:'Equipos de movimiento',IfcPump:'Bombas',IfcFan:'Ventiladores',
+      IfcFlowStorageDevice:'Depósitos',IfcTank:'Tanques',
+      IfcEnergyConversionDevice:'Equipos de energía',
+      IfcBoiler:'Calderas',IfcChiller:'Enfriadoras',
+      IfcElectricDistributionBoard:'Tableros eléctricos',
+      IfcElectricAppliance:'Aparatos eléctricos',
+      IfcDistributionElement:'Distribución MEP',
+      IfcDistributionFlowElement:'Flujo MEP',
+      DEFAULT:'Sin categoría'
+    };
+
+    // ── Leer nombre de cada elemento con geometría ───────
+    prog(88,'Leyendo nombres...');
+    const elemNames=new Map(); // expressID → string
 
     for(const [eid] of meshMap){
       try{
-        const line=ifcAPI.GetLine(modelID,eid,false);
-        const name =line.Name?.value||line.LongName?.value||'#'+eid;
-        const objType=line.ObjectType?.value||'';
-        const ifcType=typeOfID.get(eid)||'';
-        elemInfo.set(eid,{name,objectType:objType||ifcType||'Sin categoría'});
-      }catch(_){
-        elemInfo.set(eid,{name:'#'+eid,objectType:typeOfID.get(eid)||'Sin categoría'});
-      }
+        const ln=ifcAPI.GetLine(modelID,eid,false);
+        const name=ln.Name?.value||ln.LongName?.value||('#'+eid);
+        elemNames.set(eid,name);
+      }catch(_){elemNames.set(eid,'#'+eid);}
     }
 
-    // ── Estructura espacial → mapa expressID → storey ──
+    // ── Mapear elementos → nivel via IfcRelContainedInSpatialStructure ──
     prog(92,'Construyendo árbol...');
-    const storeyOfID=new Map(); // expressID → storey name
-    const storeyOrder=[]; // mantiene orden de aparición
+    const storeyOfID=new Map();
+    const storeyOrder=[];
 
     try{
-      const spatial=ifcAPI.GetSpatialStructure(modelID,true);
-      if(spatial){
-        function walkSpatial(node,currentStorey){
-          let storey=currentStorey;
-          if(node.type==='IfcBuildingStorey'){
-            storey=node.Name?.value||node.LongName?.value||'Nivel';
-            if(!storeyOrder.includes(storey)) storeyOrder.push(storey);
+      // 1. Leer todos los IfcBuildingStorey con su nombre y elevación
+      const storeyNames=new Map();   // expressID → nombre
+      const storeyElevs=new Map();   // expressID → elevación numérica
+      const sIDs=ifcAPI.GetLineIDsWithType(modelID,WebIFC['IfcBuildingStorey']);
+      for(let i=0;i<sIDs.size();i++){
+        const sid=sIDs.get(i);
+        try{
+          const sl=ifcAPI.GetLine(modelID,sid,false);
+          const name=sl.Name?.value||sl.LongName?.value||('Nivel '+(i+1));
+          const elev=typeof sl.Elevation?.value==='number'?sl.Elevation.value:i*10;
+          storeyNames.set(sid,name);
+          storeyElevs.set(sid,elev);
+        }catch(_){storeyNames.set(sid,'Nivel '+(i+1));storeyElevs.set(sid,i*10);}
+      }
+
+      // Ordenar por elevación ascendente
+      [...storeyNames.entries()]
+        .sort((a,b)=>(storeyElevs.get(a[0])??0)-(storeyElevs.get(b[0])??0))
+        .forEach(([,name])=>{if(!storeyOrder.includes(name))storeyOrder.push(name);});
+
+      // 2. Leer relaciones IfcRelContainedInSpatialStructure
+      const relIDs=ifcAPI.GetLineIDsWithType(modelID,WebIFC['IfcRelContainedInSpatialStructure']);
+      for(let i=0;i<relIDs.size();i++){
+        try{
+          const rel=ifcAPI.GetLine(modelID,relIDs.get(i),false);
+          const storeyID=rel.RelatingStructure?.value;
+          if(!storeyID||!storeyNames.has(storeyID)) continue;
+          const storeyName=storeyNames.get(storeyID);
+          const elems=rel.RelatedElements;
+          if(!Array.isArray(elems)) continue;
+          for(const ref of elems){
+            const eid=ref?.value??ref;
+            if(eid&&meshMap.has(eid)) storeyOfID.set(eid,storeyName);
           }
-          if(node.expressID&&meshMap.has(node.expressID)){
-            storeyOfID.set(node.expressID,storey||'General');
-          }
-          for(const child of(node.children||[])) walkSpatial(child,storey);
-        }
-        walkSpatial(spatial,null);
+        }catch(_){}
       }
     }catch(_){}
 
-    // Elementos no encontrados en estructura espacial → "Sin nivel"
+    // Elementos sin nivel asignado → "Sin nivel"
     for(const [eid] of meshMap){
       if(!storeyOfID.has(eid)) storeyOfID.set(eid,'Sin nivel');
     }
 
-    // Cerrar modelo — ya no lo necesitamos para geometría
+    // Cerrar modelo
     ifcAPI.CloseModel(modelID);
 
-    // ── Construir treeData: storey → category → [elements] ─
-    // { storeyName → Map(objectType → [{expressID, name}]) }
+    // ── treeData: nivel → categoría IFC (ES) → [{expressID, name}] ──
     const treeData=new Map();
 
-    for(const [eid,info] of elemInfo){
+    for(const [eid,name] of elemNames){
       const storey=storeyOfID.get(eid)||'Sin nivel';
-      const cat=info.objectType||'Sin categoría';
+      const ifcType=typeOfID.get(eid)||'DEFAULT';
+      const cat=IFC_TYPE_ES[ifcType]||IFC_TYPE_ES.DEFAULT;
       if(!treeData.has(storey)) treeData.set(storey,new Map());
       const cats=treeData.get(storey);
       if(!cats.has(cat)) cats.set(cat,[]);
-      cats.get(cat).push({expressID:eid,name:info.name});
+      cats.get(cat).push({expressID:eid,name});
     }
 
     // ═══════════════════════════════════════════════════

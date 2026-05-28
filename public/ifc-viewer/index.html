@@ -12,7 +12,7 @@ body{background:#050d1a;overflow:hidden;height:100vh;font-family:system-ui,sans-
 #app{display:flex;flex-direction:column;height:100vh;}
 #toolbar{display:none;align-items:center;gap:6px;padding:7px 10px;background:#07111f;border-bottom:1px solid #1e3a5f;flex-shrink:0;flex-wrap:wrap;}
 #main{display:flex;flex:1;overflow:hidden;}
-#sidebar{width:260px;display:none;flex-direction:column;background:#07111f;border-right:1px solid #1e3a5f;flex-shrink:0;overflow:hidden;}
+#sidebar{width:270px;display:none;flex-direction:column;background:#07111f;border-right:1px solid #1e3a5f;flex-shrink:0;overflow:hidden;}
 #canvas-wrap{flex:1;position:relative;overflow:hidden;}
 canvas{display:block;width:100%!important;height:100%!important;}
 
@@ -42,6 +42,21 @@ canvas{display:block;width:100%!important;height:100%!important;}
 #sidebar-tabs{display:flex;border-bottom:1px solid #1e3a5f;flex-shrink:0;}
 .stab{flex:1;padding:8px 4px;text-align:center;font-size:11px;color:#475569;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
 .stab.active{color:#60a5fa;border-color:#2563eb;}
+
+/* ── Buscador ── */
+#search-wrap{padding:6px 8px;border-bottom:1px solid #1e3a5f;flex-shrink:0;display:none;}
+#search-input{width:100%;background:#0a1628;border:1px solid #1e3a5f;border-radius:5px;color:#e2e8f0;font-size:11px;padding:5px 8px;outline:none;transition:border-color .15s;}
+#search-input:focus{border-color:#2563eb;}
+#search-input::placeholder{color:#334155;}
+#search-clear{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#334155;cursor:pointer;font-size:12px;display:none;}
+#search-wrap{position:relative;}
+
+/* ── Sub-tabs árbol ── */
+#tree-subtabs{display:none;gap:0;border-bottom:1px solid #1e3a5f;flex-shrink:0;}
+.tree-stab{flex:1;padding:5px 4px;text-align:center;font-size:10px;color:#475569;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:transparent;border-left:none;border-right:none;border-top:none;}
+.tree-stab.active{color:#60a5fa;border-color:#2563eb;}
+.tree-stab:hover{color:#94a3b8;}
+
 #sidebar-body{flex:1;overflow:hidden;position:relative;}
 .spanel{position:absolute;inset:0;overflow-y:auto;display:none;padding:6px;}
 .spanel.active{display:block;}
@@ -53,11 +68,29 @@ canvas{display:block;width:100%!important;height:100%!important;}
 .tnode{cursor:pointer;font-size:11px;padding:2px 4px;border-radius:4px;display:flex;align-items:center;gap:4px;color:#94a3b8;}
 .tnode:hover{background:#0f2035;color:#e2e8f0;}
 .tnode.selected{background:#2563eb22;color:#60a5fa;}
+.tnode.multi-selected{background:#f59e0b22;color:#fbbf24;}
 .tnode-arrow{width:14px;text-align:center;color:#334155;flex-shrink:0;font-size:10px;}
 .tnode-icon{font-size:10px;flex-shrink:0;}
 .tnode-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .tnode-children{padding-left:14px;}
 .tnode-children.collapsed{display:none;}
+.tnode.search-hidden{display:none;}
+.tnode.search-match .tnode-label{color:#fbbf24;}
+
+/* ── Categorías ── */
+.cat-group{margin-bottom:4px;}
+.cat-header{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;cursor:pointer;font-size:11px;color:#94a3b8;transition:all .15s;}
+.cat-header:hover{background:#0f2035;color:#e2e8f0;}
+.cat-header.active{background:#2563eb22;color:#60a5fa;}
+.cat-icon{font-size:11px;}
+.cat-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cat-badge{background:#1e3a5f;color:#475569;font-size:9px;padding:1px 5px;border-radius:10px;flex-shrink:0;}
+.cat-items{display:none;padding-left:12px;}
+.cat-items.open{display:block;}
+.cat-item{font-size:10px;padding:2px 6px;border-radius:3px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cat-item:hover{background:#0a1628;color:#94a3b8;}
+.cat-item.selected{color:#60a5fa;}
+.cat-item.multi-selected{color:#fbbf24;}
 
 /* ── Properties ── */
 #prop-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#334155;font-size:11px;text-align:center;}
@@ -69,6 +102,12 @@ canvas{display:block;width:100%!important;height:100%!important;}
 .prop-key{font-size:10px;color:#475569;flex:0 0 90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .prop-val{font-size:10px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
+/* ── Selection info bar ── */
+#sel-bar{display:none;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid #1e3a5f;font-size:10px;color:#475569;flex-shrink:0;background:#060f1c;}
+#sel-bar span{flex:1;}
+#sel-bar button{background:transparent;border:none;color:#475569;cursor:pointer;font-size:10px;padding:1px 4px;border-radius:3px;}
+#sel-bar button:hover{color:#e2e8f0;background:#1e3a5f;}
+
 /* ── Measurement tooltip ── */
 #measure-tip{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);background:#050d1aee;border:1px solid #2563eb55;border-radius:8px;padding:8px 14px;font-size:12px;color:#60a5fa;pointer-events:none;display:none;white-space:nowrap;}
 #crosshair{position:absolute;inset:0;pointer-events:none;display:none;}
@@ -78,6 +117,9 @@ canvas{display:block;width:100%!important;height:100%!important;}
 
 /* ── Section handle ── */
 #section-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#050d1acc;border:1px solid #2563eb55;border-radius:8px;padding:10px 16px;font-size:11px;color:#94a3b8;pointer-events:none;display:none;text-align:center;line-height:1.6;}
+
+/* ── Isolate banner ── */
+#isolate-banner{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#f59e0b22;border:1px solid #f59e0b55;border-radius:8px;padding:6px 14px;font-size:11px;color:#fbbf24;pointer-events:none;display:none;white-space:nowrap;z-index:10;}
 </style>
 </head>
 <body>
@@ -95,8 +137,9 @@ canvas{display:block;width:100%!important;height:100%!important;}
     <button class="tb" id="btn-sz" title="Sección Z">✂ Sección Z</button>
     <span class="tb-sep"></span>
     <button class="tb" id="btn-measure" title="Medir distancia">📏 Medir</button>
+    <button class="tb" id="btn-isolate" title="Aislar selección">◎ Aislar</button>
     <button class="tb" id="btn-hide" title="Ocultar seleccionado">👁 Ocultar</button>
-    <button class="tb" id="btn-showall" title="Mostrar todo">👁 Mostrar todo</button>
+    <button class="tb" id="btn-showall" title="Mostrar todo">⊕ Mostrar todo</button>
     <div id="statusbar"><span class="dot"></span><span id="lbl">Modelo IFC</span></div>
   </div>
 
@@ -107,8 +150,34 @@ canvas{display:block;width:100%!important;height:100%!important;}
         <div class="stab active" data-tab="tree">Árbol</div>
         <div class="stab" data-tab="props">Propiedades</div>
       </div>
+
+      <!-- Sub-tabs árbol (Jerarquía / Categorías) -->
+      <div id="tree-subtabs" style="display:flex;">
+        <button class="tree-stab active" id="stab-hierarchy">Jerarquía</button>
+        <button class="tree-stab" id="stab-categories">Categorías</button>
+      </div>
+
+      <!-- Buscador -->
+      <div id="search-wrap" style="display:block;">
+        <input id="search-input" type="text" placeholder="🔍  Buscar elemento…" autocomplete="off"/>
+        <span id="search-clear" title="Limpiar">✕</span>
+      </div>
+
+      <!-- Barra de selección múltiple -->
+      <div id="sel-bar">
+        <span id="sel-count">0 seleccionados</span>
+        <button id="btn-sel-clear">✕ Limpiar</button>
+        <button id="btn-sel-isolate">◎ Aislar</button>
+        <button id="btn-sel-hide">👁 Ocultar</button>
+      </div>
+
       <div id="sidebar-body">
-        <div class="spanel active" id="tab-tree"><div id="tree-root"></div></div>
+        <div class="spanel active" id="tab-tree">
+          <!-- Vista jerarquía -->
+          <div id="view-hierarchy"><div id="tree-root"></div></div>
+          <!-- Vista categorías -->
+          <div id="view-categories" style="display:none;"><div id="cat-root"></div></div>
+        </div>
         <div class="spanel" id="tab-props">
           <div id="prop-empty">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -133,9 +202,10 @@ canvas{display:block;width:100%!important;height:100%!important;}
         <p id="errmsg"></p>
         <button onclick="location.reload()">↺ Reintentar</button>
       </div>
-      <div id="measure-tip" id="mtip"></div>
+      <div id="measure-tip"></div>
       <div id="crosshair"></div>
       <div id="section-hint"></div>
+      <div id="isolate-banner">◎ Modo aislamiento activo — clic en "Mostrar todo" para salir</div>
     </div>
   </div>
 </div>
@@ -144,7 +214,7 @@ canvas{display:block;width:100%!important;height:100%!important;}
 <script src="https://cdn.jsdelivr.net/npm/web-ifc@0.0.77/web-ifc-api-iife.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
-//  OrbitCtrl — inline (Three.js examples/js no existe en npm)
+//  OrbitCtrl
 // ═══════════════════════════════════════════════════════════
 class OrbitCtrl {
   constructor(cam, el) {
@@ -199,21 +269,21 @@ class OrbitCtrl {
 
   try{
     prog(6,'Iniciando escena 3D...');
-    const wrap   = document.getElementById('canvas-wrap');
-    const scene  = new THREE.Scene();
+    const wrap    = document.getElementById('canvas-wrap');
+    const scene   = new THREE.Scene();
     scene.background = new THREE.Color(0x050d1a);
-    const camera = new THREE.PerspectiveCamera(60,wrap.clientWidth/wrap.clientHeight,0.01,100000);
-    const renderer = new THREE.WebGLRenderer({antialias:true});
+    const camera  = new THREE.PerspectiveCamera(60,wrap.clientWidth/wrap.clientHeight,0.01,100000);
+    const renderer= new THREE.WebGLRenderer({antialias:true});
     renderer.setPixelRatio(Math.min(devicePixelRatio,2));
     renderer.setSize(wrap.clientWidth,wrap.clientHeight);
-    renderer.localClippingEnabled = true;
+    renderer.localClippingEnabled=true;
     wrap.appendChild(renderer.domElement);
 
-    const controls = new OrbitCtrl(camera,renderer.domElement);
+    const controls=new OrbitCtrl(camera,renderer.domElement);
 
     scene.add(new THREE.AmbientLight(0xffffff,0.65));
     const sun=new THREE.DirectionalLight(0xffffff,1.2);
-    sun.position.set(50,80,50);scene.add(sun);
+    sun.position.set(50,80,50); scene.add(sun);
     scene.add(new THREE.GridHelper(1000,60,0x1e3a5f,0x0f2035));
 
     new ResizeObserver(()=>{
@@ -229,7 +299,7 @@ class OrbitCtrl {
     prog(16,'Descargando modelo...');
     let res;
     try{res=await fetch(fileUrl);}catch(e){throw new Error('Error de red: '+e.message);}
-    if(!res.ok)throw new Error('Error HTTP '+res.status);
+    if(!res.ok) throw new Error('Error HTTP '+res.status);
 
     prog(34,'Procesando geometría...');
     const buffer=await res.arrayBuffer();
@@ -241,9 +311,8 @@ class OrbitCtrl {
     prog(64,'Construyendo mallas 3D...');
     const modelID=ifcAPI.OpenModel(new Uint8Array(buffer),{COORDINATE_TO_ORIGIN:true,USE_FAST_BOOLS:true});
 
-    // Mapa expressID → mesh para selección y ocultado
-    const meshMap = new Map(); // expressID → THREE.Mesh[]
-    const allMeshes = [];
+    const meshMap  = new Map(); // expressID → THREE.Mesh[]
+    const allMeshes= [];
 
     const COLORS={
       IfcWall:0x4a90d9, IfcSlab:0x7fb3d3, IfcColumn:0x5b9bd5,
@@ -251,6 +320,13 @@ class OrbitCtrl {
       IfcRoof:0x6366f1, IfcStair:0xa78bfa, IfcRailing:0x94a3b8,
       IfcFurnishingElement:0x8b5cf6, IfcSite:0x064e3b,
       DEFAULT:0x3b82f6
+    };
+
+    const TYPE_ICONS={
+      IfcProject:'🏗',IfcSite:'🌍',IfcBuilding:'🏢',IfcBuildingStorey:'📐',
+      IfcSpace:'⬛',IfcWall:'🧱',IfcDoor:'🚪',IfcWindow:'🪟',IfcSlab:'⬜',
+      IfcColumn:'🏛',IfcBeam:'━',IfcRoof:'🔺',IfcStair:'🪜',
+      IfcFurnishingElement:'🪑',IfcRailing:'⚙',DEFAULT:'◆'
     };
 
     const matCache={};
@@ -263,15 +339,28 @@ class OrbitCtrl {
     const group=new THREE.Group();
     let n=0;
 
-    // Leer tipos IFC para colorear
-    const typeMap = new Map(); // expressID → IFC type string
+    // Leer tipos IFC para colorear y categorizar
+    const typeMap=new Map(); // expressID → IFC type string
+    const categoryMap=new Map(); // typeName → [{expressID, label}]
+
+    const knownTypes=Object.keys(COLORS).filter(k=>k.startsWith('Ifc'));
     try{
-      const allTypes=Object.keys(COLORS).filter(k=>k.startsWith('Ifc'));
-      for(const typeName of allTypes){
+      for(const typeName of knownTypes){
         const typeCode=WebIFC[typeName];
-        if(!typeCode)continue;
+        if(!typeCode) continue;
         const ids=ifcAPI.GetLineIDsWithType(modelID,typeCode);
-        for(let i=0;i<ids.size();i++) typeMap.set(ids.get(i),typeName);
+        if(!categoryMap.has(typeName)) categoryMap.set(typeName,[]);
+        for(let i=0;i<ids.size();i++){
+          const eid=ids.get(i);
+          typeMap.set(eid,typeName);
+          try{
+            const p=ifcAPI.GetItemProperties(modelID,eid,false);
+            const label=p?.Name?.value||p?.LongName?.value||('#'+eid);
+            categoryMap.get(typeName).push({expressID:eid,label});
+          }catch(_){
+            categoryMap.get(typeName).push({expressID:eid,label:'#'+eid});
+          }
+        }
       }
     }catch(_){}
 
@@ -314,7 +403,7 @@ class OrbitCtrl {
     });
 
     ifcAPI.CloseModel(modelID);
-    if(n===0)throw new Error('El modelo no contiene geometría visible.');
+    if(n===0) throw new Error('El modelo no contiene geometría visible.');
     scene.add(group);
 
     // ── Cámara inicial ──────────────────────────────────────
@@ -328,38 +417,185 @@ class OrbitCtrl {
 
     // ── Árbol IFC ──────────────────────────────────────────
     prog(94,'Construyendo árbol IFC...');
+    const nodeRowMap=new Map(); // expressID → DOM row element
+
     await buildTree(ifcAPI, modelID);
+    buildCategories();
 
     prog(100,'¡Modelo cargado! ('+n+' elementos)');
     setTimeout(()=>{
       document.getElementById('overlay').style.display='none';
       document.getElementById('toolbar').style.display='flex';
       document.getElementById('sidebar').style.display='flex';
-      document.getElementById('main').style.display='flex';
     },300);
 
     // ═══════════════════════════════════════════════════════
-    //  ÁRBOL IFC
+    //  SELECCIÓN — estado
+    // ═══════════════════════════════════════════════════════
+    const HIGHLIGHT_SINGLE = new THREE.MeshLambertMaterial({color:0xfbbf24,side:THREE.DoubleSide,transparent:true,opacity:0.85});
+    const HIGHLIGHT_MULTI  = new THREE.MeshLambertMaterial({color:0xf97316,side:THREE.DoubleSide,transparent:true,opacity:0.75});
+    const raycaster=new THREE.Raycaster();
+    const mouse=new THREE.Vector2();
+
+    let selectedIDs  = new Set(); // selección múltiple
+    let prevMats     = new Map(); // mesh → original material
+    let isolateMode  = false;
+    const hiddenIDs  = new Set();
+
+    function clearSelection(){
+      for(const [mesh,mat] of prevMats) mesh.material=mat;
+      prevMats.clear();
+      selectedIDs.clear();
+      document.querySelectorAll('.tnode.selected,.tnode.multi-selected').forEach(n=>{
+        n.classList.remove('selected','multi-selected');
+      });
+      document.querySelectorAll('.cat-item.selected,.cat-item.multi-selected').forEach(n=>{
+        n.classList.remove('selected','multi-selected');
+      });
+      updateSelBar();
+    }
+
+    function applyHighlight(expressID, multi=false){
+      const meshes=meshMap.get(expressID)||[];
+      const mat=multi?HIGHLIGHT_MULTI:HIGHLIGHT_SINGLE;
+      for(const m of meshes){
+        if(!prevMats.has(m)) prevMats.set(m,m.material);
+        m.material=mat;
+      }
+    }
+
+    // Seleccionar un ID (reemplaza selección si no es Ctrl)
+    function selectElement(expressID, addToSelection=false, treeRow=null){
+      if(!addToSelection){
+        clearSelection();
+        selectedIDs.add(expressID);
+        applyHighlight(expressID,false);
+        scrollTreeToNode(expressID);
+        highlightTreeRow(expressID,'selected');
+        highlightCatItem(expressID,'selected');
+        showProps(expressID);
+        switchTab('props');
+      } else {
+        if(selectedIDs.has(expressID)){
+          // Deseleccionar
+          selectedIDs.delete(expressID);
+          const meshes=meshMap.get(expressID)||[];
+          for(const m of meshes){
+            if(prevMats.has(m)){ m.material=prevMats.get(m); prevMats.delete(m); }
+          }
+          unhighlightTreeRow(expressID);
+          unhighlightCatItem(expressID);
+        } else {
+          // Añadir a selección
+          selectedIDs.add(expressID);
+          applyHighlight(expressID,true);
+          highlightTreeRow(expressID,'multi-selected');
+          highlightCatItem(expressID,'multi-selected');
+        }
+        // Re-colorear el primero seleccionado como "primary"
+        if(selectedIDs.size===1){
+          const first=[...selectedIDs][0];
+          const meshes=meshMap.get(first)||[];
+          for(const m of meshes){ m.material=HIGHLIGHT_SINGLE; }
+          const row=nodeRowMap.get(first);
+          if(row){ row.classList.remove('multi-selected'); row.classList.add('selected'); }
+        }
+      }
+      updateSelBar();
+    }
+
+    function updateSelBar(){
+      const bar=document.getElementById('sel-bar');
+      if(selectedIDs.size>1){
+        bar.style.display='flex';
+        document.getElementById('sel-count').textContent=selectedIDs.size+' seleccionados';
+      } else {
+        bar.style.display='none';
+      }
+    }
+
+    // ── Scroll del árbol al nodo seleccionado ──────────────
+    function scrollTreeToNode(expressID){
+      const row=nodeRowMap.get(expressID);
+      if(!row) return;
+      // Expandir ancestros
+      let p=row.parentElement;
+      while(p){
+        if(p.classList.contains('tnode-children')){
+          p.classList.remove('collapsed');
+          const arrow=p.previousSibling?.querySelector?.('.tnode-arrow');
+          if(arrow) arrow.textContent='▼';
+        }
+        p=p.parentElement;
+      }
+      setTimeout(()=>row.scrollIntoView({block:'nearest',behavior:'smooth'}),50);
+    }
+
+    function highlightTreeRow(expressID, cls){
+      const row=nodeRowMap.get(expressID);
+      if(row){ row.classList.remove('selected','multi-selected'); row.classList.add(cls); }
+    }
+    function unhighlightTreeRow(expressID){
+      const row=nodeRowMap.get(expressID);
+      if(row){ row.classList.remove('selected','multi-selected'); }
+    }
+
+    // ── Highlight en vista categorías ──────────────────────
+    const catItemEls=new Map(); // expressID → cat-item DOM element
+    function highlightCatItem(expressID,cls){
+      const el=catItemEls.get(expressID);
+      if(el){ el.classList.remove('selected','multi-selected'); el.classList.add(cls); }
+    }
+    function unhighlightCatItem(expressID){
+      const el=catItemEls.get(expressID);
+      if(el){ el.classList.remove('selected','multi-selected'); }
+    }
+
+    function focusElement(expressID){
+      const meshes=meshMap.get(expressID)||[];
+      if(!meshes.length) return;
+      const b=new THREE.Box3();
+      meshes.forEach(m=>b.union(new THREE.Box3().setFromObject(m)));
+      const c=b.getCenter(new THREE.Vector3());
+      const s=b.getSize(new THREE.Vector3());
+      controls.setView(c,Math.max(s.x,s.y,s.z)*2.5);
+    }
+
+    // Clic en canvas → raycast
+    renderer.domElement.addEventListener('click',e=>{
+      if(measureMode){handleMeasureClick(e);return;}
+      if(e.button!==0) return;
+      const rect=renderer.domElement.getBoundingClientRect();
+      mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
+      mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
+      raycaster.setFromCamera(mouse,camera);
+      const hits=raycaster.intersectObjects(allMeshes.filter(m=>m.visible),false);
+      if(hits.length>0){
+        const id=hits[0].object.userData.expressID;
+        if(id) selectElement(id, e.ctrlKey||e.metaKey);
+      } else {
+        if(!e.ctrlKey&&!e.metaKey) clearSelection();
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════
+    //  ÁRBOL — jerarquía espacial
     // ═══════════════════════════════════════════════════════
     async function buildTree(api, mid){
       const root=document.getElementById('tree-root');
       root.innerHTML='';
       try{
         const spatialRaw=api.GetSpatialStructure(mid,true);
-        if(spatialRaw) renderNode(spatialRaw, root, 0);
-      }catch(e){root.innerHTML='<div style="font-size:11px;color:#475569;padding:8px;">Árbol no disponible</div>';}
+        if(spatialRaw) renderNode(spatialRaw,root,0);
+      }catch(e){
+        root.innerHTML='<div style="font-size:11px;color:#475569;padding:8px;">Árbol no disponible</div>';
+      }
     }
 
-    const TYPE_ICONS={
-      IfcProject:'🏗',IfcSite:'🌍',IfcBuilding:'🏢',IfcBuildingStorey:'📐',
-      IfcSpace:'⬛',IfcWall:'🧱',IfcDoor:'🚪',IfcWindow:'🪟',IfcSlab:'⬜',
-      IfcColumn:'🏛',IfcBeam:'━',IfcRoof:'🔺',IfcStair:'🪜',IfcFurnishingElement:'🪑',
-    };
-
-    function renderNode(node, container, depth){
-      if(!node)return;
-      const hasChildren = node.children && node.children.length>0;
-      const icon=TYPE_ICONS[node.type]||'◆';
+    function renderNode(node,container,depth){
+      if(!node) return;
+      const hasChildren=node.children&&node.children.length>0;
+      const icon=TYPE_ICONS[node.type]||TYPE_ICONS.DEFAULT;
       const label=(node.Name?.value||node.type||'Elemento')+
                   (node.expressID?` #${node.expressID}`:'');
 
@@ -367,6 +603,9 @@ class OrbitCtrl {
 
       const row=document.createElement('div');
       row.className='tnode';
+      row.dataset.expressId=node.expressID||'';
+      row.dataset.label=label.toLowerCase();
+      row.dataset.type=(node.type||'').toLowerCase();
       row.innerHTML=`<span class="tnode-arrow">${hasChildren?'▶':' '}</span><span class="tnode-icon">${icon}</span><span class="tnode-label" title="${label}">${label}</span>`;
 
       const childWrap=document.createElement('div');
@@ -378,19 +617,19 @@ class OrbitCtrl {
           e.stopPropagation();
           const collapsed=childWrap.classList.toggle('collapsed');
           arrow.textContent=collapsed?'▶':'▼';
+          if(node.expressID) selectElement(node.expressID, e.ctrlKey||e.metaKey, row);
         });
       }
 
       if(node.expressID){
-        row.addEventListener('click',e=>{
-          if(hasChildren)return;
-          e.stopPropagation();
-          selectElement(node.expressID, row);
-        });
-        row.addEventListener('dblclick',e=>{
-          e.stopPropagation();
-          focusElement(node.expressID);
-        });
+        if(!hasChildren){
+          row.addEventListener('click',e=>{
+            e.stopPropagation();
+            selectElement(node.expressID, e.ctrlKey||e.metaKey, row);
+          });
+        }
+        row.addEventListener('dblclick',e=>{e.stopPropagation();focusElement(node.expressID);});
+        nodeRowMap.set(node.expressID,row);
       }
 
       wrap.appendChild(row);
@@ -402,39 +641,228 @@ class OrbitCtrl {
     }
 
     // ═══════════════════════════════════════════════════════
-    //  SELECCIÓN & PROPIEDADES
+    //  ÁRBOL — vista por categorías
     // ═══════════════════════════════════════════════════════
-    const HIGHLIGHT = new THREE.MeshLambertMaterial({color:0xfbbf24,side:THREE.DoubleSide,transparent:true,opacity:0.85});
-    const raycaster = new THREE.Raycaster();
-    const mouse     = new THREE.Vector2();
-    let selectedID  = null;
-    let prevMats    = new Map(); // mesh → original material
+    function buildCategories(){
+      const root=document.getElementById('cat-root');
+      root.innerHTML='';
+      const sorted=[...categoryMap.entries()]
+        .filter(([,items])=>items.length>0)
+        .sort((a,b)=>b[1].length-a[1].length);
 
-    function clearSelection(){
-      for(const [mesh, mat] of prevMats) mesh.material=mat;
-      prevMats.clear();
-      selectedID=null;
-      document.querySelectorAll('.tnode.selected').forEach(n=>n.classList.remove('selected'));
+      for(const [typeName,items] of sorted){
+        const icon=TYPE_ICONS[typeName]||TYPE_ICONS.DEFAULT;
+        const grp=document.createElement('div');
+        grp.className='cat-group';
+
+        const hdr=document.createElement('div');
+        hdr.className='cat-header';
+        hdr.dataset.type=typeName.toLowerCase();
+        hdr.innerHTML=`<span class="cat-icon">${icon}</span><span class="cat-name">${typeName.replace('Ifc','')}</span><span class="cat-badge">${items.length}</span><span style="color:#334155;font-size:9px;margin-left:2px;">▶</span>`;
+
+        const list=document.createElement('div');
+        list.className='cat-items';
+
+        hdr.addEventListener('click',()=>{
+          const open=list.classList.toggle('open');
+          hdr.querySelector('span:last-child').textContent=open?'▼':'▶';
+        });
+
+        for(const {expressID,label} of items){
+          const el=document.createElement('div');
+          el.className='cat-item';
+          el.dataset.expressId=String(expressID);
+          el.dataset.label=label.toLowerCase();
+          el.innerHTML=`<span style="color:#334155">◆</span> ${label}`;
+          el.addEventListener('click',e=>{
+            selectElement(expressID, e.ctrlKey||e.metaKey);
+            switchTab('tree');
+          });
+          el.addEventListener('dblclick',e=>{e.stopPropagation();focusElement(expressID);switchTab('tree');});
+          list.appendChild(el);
+          catItemEls.set(expressID,el);
+        }
+
+        grp.appendChild(hdr);
+        grp.appendChild(list);
+        root.appendChild(grp);
+      }
+
+      if(sorted.length===0){
+        root.innerHTML='<div style="font-size:11px;color:#475569;padding:8px;">Sin categorías disponibles</div>';
+      }
     }
 
-    function selectElement(expressID, treeRow=null){
+    // ═══════════════════════════════════════════════════════
+    //  BUSCADOR en tiempo real
+    // ═══════════════════════════════════════════════════════
+    const searchInput=document.getElementById('search-input');
+    const searchClear=document.getElementById('search-clear');
+    let searchTimeout=null;
+
+    searchInput.addEventListener('input',()=>{
+      clearTimeout(searchTimeout);
+      searchTimeout=setTimeout(applySearch,120);
+      searchClear.style.display=searchInput.value?'block':'none';
+    });
+    searchClear.addEventListener('click',()=>{
+      searchInput.value='';
+      searchClear.style.display='none';
+      applySearch();
+    });
+
+    function applySearch(){
+      const q=searchInput.value.trim().toLowerCase();
+      const activeView=currentTreeView;
+
+      if(activeView==='hierarchy'){
+        // Buscar en árbol de jerarquía
+        const nodes=document.querySelectorAll('#tree-root .tnode');
+        if(!q){
+          nodes.forEach(n=>{
+            n.classList.remove('search-hidden','search-match');
+            const wrap=n.parentElement;
+            if(wrap) wrap.style.display='';
+          });
+          // Colapsar todo de nuevo
+          document.querySelectorAll('#tree-root .tnode-children').forEach(c=>c.classList.add('collapsed'));
+          document.querySelectorAll('#tree-root .tnode-arrow').forEach(a=>{if(a.textContent==='▼')a.textContent='▶';});
+          return;
+        }
+        nodes.forEach(n=>{
+          const lbl=n.dataset.label||'';
+          const type=n.dataset.type||'';
+          const match=lbl.includes(q)||type.includes(q);
+          n.classList.toggle('search-match',match);
+          if(match){
+            // Expandir ancestros
+            let p=n.parentElement;
+            while(p&&p.id!=='tree-root'){
+              if(p.classList.contains('tnode-children')){
+                p.classList.remove('collapsed');
+                const arr=p.previousSibling?.querySelector?.('.tnode-arrow');
+                if(arr) arr.textContent='▼';
+              }
+              p=p.parentElement;
+            }
+          }
+        });
+        // Ocultar wrappers sin matches
+        document.querySelectorAll('#tree-root > div').forEach(wrap=>filterWrap(wrap,q));
+      } else {
+        // Buscar en vista categorías
+        document.querySelectorAll('.cat-group').forEach(grp=>{
+          const hdr=grp.querySelector('.cat-header');
+          const items=grp.querySelectorAll('.cat-item');
+          let anyMatch=false;
+          items.forEach(item=>{
+            const lbl=item.dataset.label||'';
+            const match=!q||lbl.includes(q)||(hdr.dataset.type||'').includes(q);
+            item.style.display=match?'':'none';
+            if(match) anyMatch=true;
+          });
+          grp.style.display=(!q||anyMatch)?'':'none';
+          if(q&&anyMatch){ grp.querySelector('.cat-items').classList.add('open'); }
+        });
+      }
+    }
+
+    function filterWrap(wrap,q){
+      if(!wrap||!wrap.querySelector) return false;
+      const row=wrap.querySelector(':scope > .tnode');
+      const childWrap=wrap.querySelector(':scope > .tnode-children');
+      let childMatch=false;
+      if(childWrap){
+        childWrap.querySelectorAll(':scope > div').forEach(cw=>{
+          if(filterWrap(cw,q)) childMatch=true;
+        });
+      }
+      const selfMatch=row&&(row.classList.contains('search-match'));
+      const visible=selfMatch||childMatch;
+      if(wrap.style!==undefined) wrap.style.display=visible?'':'none';
+      return visible;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  SUB-TABS árbol: Jerarquía / Categorías
+    // ═══════════════════════════════════════════════════════
+    let currentTreeView='hierarchy';
+
+    document.getElementById('stab-hierarchy').addEventListener('click',()=>{
+      currentTreeView='hierarchy';
+      document.getElementById('stab-hierarchy').classList.add('active');
+      document.getElementById('stab-categories').classList.remove('active');
+      document.getElementById('view-hierarchy').style.display='block';
+      document.getElementById('view-categories').style.display='none';
+      searchInput.placeholder='🔍  Buscar en jerarquía…';
+      applySearch();
+    });
+    document.getElementById('stab-categories').addEventListener('click',()=>{
+      currentTreeView='categories';
+      document.getElementById('stab-categories').classList.add('active');
+      document.getElementById('stab-hierarchy').classList.remove('active');
+      document.getElementById('view-hierarchy').style.display='none';
+      document.getElementById('view-categories').style.display='block';
+      searchInput.placeholder='🔍  Buscar categoría…';
+      applySearch();
+    });
+
+    // ═══════════════════════════════════════════════════════
+    //  AISLAMIENTO
+    // ═══════════════════════════════════════════════════════
+    function enterIsolate(ids){
+      // Ocultar todo excepto los IDs seleccionados
+      for(const m of allMeshes){
+        const eid=m.userData.expressID;
+        m.visible=ids.has(eid);
+      }
+      isolateMode=true;
+      document.getElementById('btn-isolate').classList.add('active');
+      document.getElementById('isolate-banner').style.display='block';
+    }
+
+    function exitIsolate(){
+      for(const m of allMeshes){
+        const eid=m.userData.expressID;
+        m.visible=!hiddenIDs.has(eid);
+      }
+      isolateMode=false;
+      document.getElementById('btn-isolate').classList.remove('active');
+      document.getElementById('isolate-banner').style.display='none';
+    }
+
+    document.getElementById('btn-isolate').onclick=()=>{
+      if(isolateMode){ exitIsolate(); return; }
+      if(selectedIDs.size===0) return;
+      enterIsolate(new Set(selectedIDs));
+    };
+
+    // Botón en sel-bar
+    document.getElementById('btn-sel-isolate').onclick=()=>{
+      if(selectedIDs.size===0) return;
+      enterIsolate(new Set(selectedIDs));
+    };
+    document.getElementById('btn-sel-clear').onclick=()=>clearSelection();
+    document.getElementById('btn-sel-hide').onclick=()=>{
+      for(const id of selectedIDs){
+        const meshes=meshMap.get(id)||[];
+        meshes.forEach(m=>{m.visible=false;});
+        hiddenIDs.add(id);
+      }
       clearSelection();
-      selectedID=expressID;
-      const meshes=meshMap.get(expressID)||[];
-      for(const m of meshes){ prevMats.set(m,m.material); m.material=HIGHLIGHT; }
-      if(treeRow){treeRow.classList.add('selected');}
-      showProps(expressID);
-      switchTab('props');
-    }
+    };
 
+    // ═══════════════════════════════════════════════════════
+    //  PROPIEDADES
+    // ═══════════════════════════════════════════════════════
     async function showProps(expressID){
       const content=document.getElementById('prop-content');
       const empty=document.getElementById('prop-empty');
       content.style.display='none'; empty.style.display='flex';
-      content.innerHTML='';
+      content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">Cargando propiedades…</div>';
+      content.style.display='block'; empty.style.display='none';
 
       try{
-        // Re-abre el modelo para leer propiedades
         const res2=await fetch(fileUrl);
         const buf2=await res2.arrayBuffer();
         const api2=new WebIFC.IfcAPI();
@@ -444,25 +872,22 @@ class OrbitCtrl {
         const props=api2.GetItemProperties(mid2,expressID,false);
         const psets=api2.GetPropertySets(mid2,expressID);
 
-        empty.style.display='none';
-        content.style.display='block';
+        content.innerHTML='';
 
-        // Propiedades base
         if(props){
           const sec=makePropSection('Propiedades generales');
           for(const [k,v] of Object.entries(props)){
-            if(k==='type'||!v)continue;
+            if(k==='type'||!v) continue;
             const val=v?.value??v;
-            if(typeof val==='object')continue;
+            if(typeof val==='object') continue;
             sec.appendChild(makePropRow(k,String(val)));
           }
           content.appendChild(sec);
         }
 
-        // Property Sets
         if(psets&&psets.length>0){
           for(const pset of psets){
-            if(!pset.HasProperties)continue;
+            if(!pset.HasProperties) continue;
             const sec=makePropSection(pset.Name?.value||'PropertySet');
             for(const prop of pset.HasProperties){
               const name=prop.Name?.value||'';
@@ -475,8 +900,6 @@ class OrbitCtrl {
 
         api2.CloseModel(mid2);
       }catch(e){
-        content.style.display='block';
-        empty.style.display='none';
         content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">No se pudieron cargar las propiedades.</div>';
       }
     }
@@ -494,40 +917,11 @@ class OrbitCtrl {
       return d;
     }
 
-    function focusElement(expressID){
-      const meshes=meshMap.get(expressID)||[];
-      if(!meshes.length)return;
-      const b=new THREE.Box3();
-      meshes.forEach(m=>{const wb=new THREE.Box3().setFromObject(m);b.union(wb);});
-      const c=b.getCenter(new THREE.Vector3());
-      const s=b.getSize(new THREE.Vector3());
-      controls.setView(c,Math.max(s.x,s.y,s.z)*2.5);
-    }
-
-    // Clic en canvas → raycast
-    renderer.domElement.addEventListener('click',e=>{
-      if(measureMode){handleMeasureClick(e);return;}
-      if(e.button!==0)return;
-      const rect=renderer.domElement.getBoundingClientRect();
-      mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
-      mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
-      raycaster.setFromCamera(mouse,camera);
-      const hits=raycaster.intersectObjects(allMeshes,false);
-      if(hits.length>0){
-        const hit=hits[0];
-        const id=hit.object.userData.expressID;
-        if(id)selectElement(id);
-      } else {
-        clearSelection();
-      }
-    });
-
     // ═══════════════════════════════════════════════════════
     //  SECCIÓN
     // ═══════════════════════════════════════════════════════
     const clipPlanes={x:null,y:null,z:null};
     const boxCenter=box.getCenter(new THREE.Vector3());
-    const boxSize=box.getSize(new THREE.Vector3());
 
     function toggleSection(axis){
       const btn=document.getElementById('btn-s'+axis);
@@ -544,7 +938,7 @@ class OrbitCtrl {
         renderer.clippingPlanes=[...renderer.clippingPlanes,plane];
         btn.classList.add('active');
         const hint=document.getElementById('section-hint');
-        hint.innerHTML=`✂ Sección ${axis.toUpperCase()} activa<br><span style="font-size:10px;color:#334155;">Rueda del ratón sobre el visor para ajustar</span>`;
+        hint.innerHTML=`✂ Sección ${axis.toUpperCase()} activa<br><span style="font-size:10px;color:#334155;">Rueda del ratón para ajustar</span>`;
         hint.style.display='block';
         setTimeout(()=>{hint.style.display='none';},3000);
       }
@@ -570,9 +964,7 @@ class OrbitCtrl {
       document.getElementById('btn-measure').classList.toggle('active',on);
       document.getElementById('crosshair').style.display=on?'block':'none';
       renderer.domElement.style.cursor=on?'crosshair':'default';
-      if(!on){
-        document.getElementById('measure-tip').style.display='none';
-      }
+      if(!on) document.getElementById('measure-tip').style.display='none';
     }
 
     function clearMeasurements(){
@@ -588,11 +980,10 @@ class OrbitCtrl {
       mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
       mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
       raycaster.setFromCamera(mouse,camera);
-      const hits=raycaster.intersectObjects(allMeshes,false);
-      if(!hits.length)return;
+      const hits=raycaster.intersectObjects(allMeshes.filter(m=>m.visible),false);
+      if(!hits.length) return;
       const pt=hits[0].point.clone();
       measurePoints.push(pt);
-
       const marker=new THREE.Mesh(MARKER_GEO,MARKER_MAT);
       marker.position.copy(pt);
       scene.add(marker); measureMarkers.push(marker);
@@ -618,22 +1009,18 @@ class OrbitCtrl {
     // ═══════════════════════════════════════════════════════
     //  OCULTAR / MOSTRAR
     // ═══════════════════════════════════════════════════════
-    const hiddenIDs=new Set();
-
     document.getElementById('btn-hide').onclick=()=>{
-      if(selectedID===null)return;
-      const meshes=meshMap.get(selectedID)||[];
-      if(hiddenIDs.has(selectedID)){
-        meshes.forEach(m=>{m.visible=true;});
-        hiddenIDs.delete(selectedID);
-      } else {
+      for(const id of selectedIDs){
+        const meshes=meshMap.get(id)||[];
         meshes.forEach(m=>{m.visible=false;});
-        hiddenIDs.add(selectedID);
+        hiddenIDs.add(id);
       }
+      if(selectedIDs.size===0 && selectedIDs.size===0) return;
       clearSelection();
     };
 
     document.getElementById('btn-showall').onclick=()=>{
+      exitIsolate();
       for(const id of hiddenIDs){
         const meshes=meshMap.get(id)||[];
         meshes.forEach(m=>{m.visible=true;});
@@ -642,21 +1029,20 @@ class OrbitCtrl {
     };
 
     // ═══════════════════════════════════════════════════════
-    //  TOOLBAR — otros botones
+    //  TOOLBAR — otros
     // ═══════════════════════════════════════════════════════
     let wire=false;
     document.getElementById('btn-r').onclick=()=>controls.setView(initialCenter,initialDist);
     document.getElementById('btn-fit').onclick=()=>{
-      if(selectedID&&meshMap.has(selectedID)) focusElement(selectedID);
+      if(selectedIDs.size>0) focusElement([...selectedIDs][0]);
       else controls.setView(initialCenter,initialDist);
     };
     document.getElementById('btn-w').onclick=()=>{
       wire=!wire;
       document.getElementById('btn-w').classList.toggle('active',wire);
-      for(const [,mat] of Object.entries(matCache)){mat.wireframe=wire;}
+      for(const mat of Object.values(matCache)) mat.wireframe=wire;
     };
 
-    // Panel toggle
     let sidebarVisible=true;
     document.getElementById('btn-panel').onclick=()=>{
       sidebarVisible=!sidebarVisible;
@@ -671,6 +1057,11 @@ class OrbitCtrl {
     function switchTab(name){
       document.querySelectorAll('.stab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
       document.querySelectorAll('.spanel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+name));
+      // Mostrar/ocultar buscador y subtabs solo en tab árbol
+      const inTree=name==='tree';
+      document.getElementById('search-wrap').style.display=inTree?'block':'none';
+      document.getElementById('tree-subtabs').style.display=inTree?'flex':'none';
+      document.getElementById('sel-bar').style.display=(inTree&&selectedIDs.size>1)?'flex':'none';
     }
 
   }catch(e){showErr(e.message||String(e));}

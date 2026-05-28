@@ -115,11 +115,20 @@ canvas{display:block;width:100%!important;height:100%!important;}
 
 /* ── Properties ── */
 #prop-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#334155;font-size:11px;text-align:center;padding:16px;}
-.prop-section{margin-bottom:10px;}
-.prop-section-title{font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.05em;padding:4px 6px;background:#0f1f35;border-radius:4px;margin-bottom:4px;}
-.prop-row{display:flex;padding:3px 6px;gap:6px;border-radius:3px;}
-.prop-row:nth-child(even){background:#0a1628;}
-.prop-key{font-size:10px;color:#475569;flex:0 0 90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* Nombre del elemento seleccionado */
+#prop-elem-name{padding:8px 10px;font-size:11px;font-weight:600;color:#e2e8f0;border-bottom:1px solid #1e3a5f;background:#060f1c;word-break:break-word;line-height:1.4;}
+/* Grupos colapsables (PropertySets) */
+.prop-group{border-bottom:1px solid #0a1628;}
+.prop-group-header{display:flex;align-items:center;gap:6px;padding:7px 10px;cursor:pointer;background:#0b1a2e;font-size:11px;font-weight:600;color:#7da9d8;transition:background .12s;}
+.prop-group-header:hover{background:#0f2035;}
+.prop-group-arrow{font-size:9px;color:#334155;flex-shrink:0;width:10px;}
+.prop-group-body{display:none;}
+.prop-group-body.open{display:block;}
+/* Filas clave-valor */
+.prop-row{display:flex;padding:4px 10px;gap:8px;border-bottom:1px solid #070f1c;}
+.prop-row:nth-child(odd){background:#070d1a;}
+.prop-row:nth-child(even){background:#080f1c;}
+.prop-key{font-size:10px;color:#475569;flex:0 0 110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .prop-val{font-size:10px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
 /* ── Measurement ── */
@@ -185,6 +194,7 @@ canvas{display:block;width:100%!important;height:100%!important;}
             <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" opacity=".3"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
             Selecciona un elemento<br>para ver sus propiedades
           </div>
+          <div id="prop-elem-name" style="display:none;"></div>
           <div id="prop-content" style="display:none;"></div>
         </div>
       </div>
@@ -294,6 +304,7 @@ class OrbitCtrl {
 
     prog(34,'Procesando geometría...');
     const buffer=await res.arrayBuffer();
+    let ifcBuffer=buffer;
 
     prog(50,'Inicializando motor IFC...');
     const ifcAPI=new WebIFC.IfcAPI();
@@ -971,47 +982,74 @@ class OrbitCtrl {
     async function showProps(eid){
       const content=document.getElementById('prop-content');
       const empty=document.getElementById('prop-empty');
+      const nameEl=document.getElementById('prop-elem-name');
       empty.style.display='none';
+      nameEl.style.display='block';
       content.style.display='block';
+      nameEl.textContent=elemNames.get(eid)||('#'+eid);
       content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">Cargando…</div>';
 
+      if(!ifcBuffer){
+        content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">Modelo no disponible.</div>';
+        return;
+      }
       try{
-        const r2=await fetch(fileUrl);
-        const b2=await r2.arrayBuffer();
         const a2=new WebIFC.IfcAPI();
         await a2.Init();
-        const m2=a2.OpenModel(new Uint8Array(b2),{COORDINATE_TO_ORIGIN:true,USE_FAST_BOOLS:true});
+        const m2=a2.OpenModel(new Uint8Array(ifcBuffer),{COORDINATE_TO_ORIGIN:true,USE_FAST_BOOLS:true});
         const props=a2.GetItemProperties(m2,eid,false);
         const psets=a2.GetPropertySets(m2,eid);
+        a2.CloseModel(m2);
         content.innerHTML='';
+
+        // Grupo "Parámetros IFC" con atributos básicos del elemento
+        const IFC_ATTR_KEYS=['Name','ObjectType','Description','Tag','GlobalId','LongName'];
+        const ifcAttrs=[];
         if(props){
-          const sec=mkSec('Propiedades generales');
-          for(const [k,v] of Object.entries(props)){
-            if(k==='type'||!v) continue;
-            const val=v?.value??v;
-            if(typeof val==='object') continue;
-            sec.appendChild(mkRow(k,String(val)));
+          for(const k of IFC_ATTR_KEYS){
+            if(props[k]?.value!=null) ifcAttrs.push([k,String(props[k].value)]);
           }
-          content.appendChild(sec);
         }
+        if(ifcAttrs.length) content.appendChild(mkGroup('Parámetros IFC',ifcAttrs,true));
+
+        // Un grupo colapsable por cada PropertySet
         if(psets?.length){
           for(const ps of psets){
-            if(!ps.HasProperties) continue;
-            const sec=mkSec(ps.Name?.value||'PropertySet');
+            if(!ps.HasProperties?.length) continue;
+            const rows=[];
             for(const p of ps.HasProperties){
               const nm=p.Name?.value||'';
               const vl=p.NominalValue?.value??p.Value?.value??'-';
-              sec.appendChild(mkRow(nm,String(vl)));
+              if(nm) rows.push([nm,String(vl)]);
             }
-            content.appendChild(sec);
+            if(rows.length) content.appendChild(mkGroup(ps.Name?.value||'PropertySet',rows,false));
           }
         }
-        a2.CloseModel(m2);
+
+        if(!content.firstChild){
+          content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">Sin propiedades disponibles.</div>';
+        }
       }catch(_){
         content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">No se pudieron cargar las propiedades.</div>';
       }
     }
-    function mkSec(title){const d=document.createElement('div');d.className='prop-section';d.innerHTML=`<div class="prop-section-title">${title}</div>`;return d;}
+
+    function mkGroup(title,rows,open){
+      const grp=document.createElement('div');
+      grp.className='prop-group';
+      const hdr=document.createElement('div');
+      hdr.className='prop-group-header';
+      hdr.innerHTML=`<span class="prop-group-arrow">${open?'▼':'▶'}</span><span>${title}</span><span style="margin-left:auto;font-size:9px;color:#334155;">${rows.length}</span>`;
+      const body=document.createElement('div');
+      body.className='prop-group-body'+(open?' open':'');
+      for(const [k,v] of rows) body.appendChild(mkRow(k,v));
+      hdr.addEventListener('click',()=>{
+        const isOpen=body.classList.toggle('open');
+        hdr.querySelector('.prop-group-arrow').textContent=isOpen?'▼':'▶';
+      });
+      grp.appendChild(hdr);grp.appendChild(body);
+      return grp;
+    }
     function mkRow(k,v){const d=document.createElement('div');d.className='prop-row';d.innerHTML=`<span class="prop-key" title="${k}">${k}</span><span class="prop-val" title="${v}">${v}</span>`;return d;}
 
     // ═══════════════════════════════════════════════════

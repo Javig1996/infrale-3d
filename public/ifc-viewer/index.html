@@ -1003,30 +1003,49 @@ class OrbitCtrl {
 
         // PropertySets: buscar IfcRelDefinesByProperties que referencien este eid
         const psets=[];
+        const dbg={relCode:null,totalRels:0,matchedRels:0,psetsFound:0,firstRel:null,firstObjsSample:null};
         try{
           const relCode=WebIFC['IfcRelDefinesByProperties'];
+          dbg.relCode=relCode;
           if(relCode){
             const relIDs=ifcAPI.GetLineIDsWithType(m2,relCode);
+            dbg.totalRels=relIDs.size();
             for(let i=0;i<relIDs.size();i++){
               try{
                 const rel=ifcAPI.GetLine(m2,relIDs.get(i),false);
+                if(i===0){dbg.firstRel=JSON.stringify(rel).slice(0,300);}
                 const objs=rel.RelatedObjects;
+                if(i===0){dbg.firstObjsSample=JSON.stringify(objs).slice(0,200);}
                 if(!Array.isArray(objs)) continue;
                 const found=objs.some(o=>(o?.value??o)===eid);
                 if(!found) continue;
+                dbg.matchedRels++;
                 const psRef=rel.RelatingPropertyDefinition;
                 if(!psRef) continue;
                 const psID=psRef.value??psRef;
                 if(typeof psID!=='number') continue;
                 const ps=ifcAPI.GetLine(m2,psID,true);
-                if(ps) psets.push(ps);
+                if(ps){psets.push(ps);dbg.psetsFound++;}
               }catch(_){}
             }
           }
-        }catch(_){}
+        }catch(e){dbg.error=e.message;}
 
         ifcAPI.CloseModel(m2);
         content.innerHTML='';
+
+        // ── DEBUG TEMPORAL ──
+        const dbgDiv=document.createElement('div');
+        dbgDiv.style='padding:8px;font-size:10px;color:#f59e0b;background:#1a0f00;border-bottom:1px solid #f59e0b44;word-break:break-all;line-height:1.7;';
+        dbgDiv.innerHTML=`<b>DEBUG</b><br>
+eid: ${eid}<br>
+IfcRelDefinesByProperties code: ${dbg.relCode}<br>
+Total relaciones en modelo: ${dbg.totalRels}<br>
+Relaciones que contienen este eid: ${dbg.matchedRels}<br>
+PropertySets encontrados: ${dbg.psetsFound}<br>
+<br><b>firstRel (primera relación cruda):</b><br>${dbg.firstRel||'—'}<br>
+<br><b>firstRel.RelatedObjects:</b><br>${dbg.firstObjsSample||'—'}`;
+        content.appendChild(dbgDiv);
 
         // Grupo "Parámetros IFC" con atributos básicos del elemento
         const IFC_ATTR_KEYS=['Name','ObjectType','Description','Tag','GlobalId','LongName'];

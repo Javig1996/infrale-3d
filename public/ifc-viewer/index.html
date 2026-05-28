@@ -1005,8 +1005,18 @@ class OrbitCtrl {
         const psets=[];
         const dbg={relCode:null,totalRels:0,matchedRels:0,psetsFound:0,firstRel:null,firstObjsSample:null};
         try{
-          const relCode=WebIFC['IfcRelDefinesByProperties'];
+          // web-ifc 0.0.77 IIFE exporta constantes en MAYÚSCULAS
+          let relCode=WebIFC['IfcRelDefinesByProperties']
+            ||WebIFC['IFCRELDEFINESBYPROPERTIES'];
+          // Fallback: buscar en el mapa inverso codeToName
+          if(!relCode){
+            for(const [code,name] of codeToName){
+              if(name.toUpperCase().includes('RELDEFINESBYPROPERTIES')){relCode=code;break;}
+            }
+          }
           dbg.relCode=relCode;
+          // Mostrar sample de claves WebIFC que contengan 'REL'
+          dbg.keySample=Object.keys(WebIFC).filter(k=>k.toUpperCase().includes('RELDEFINES')).slice(0,5).join(', ')||'ninguna';
           if(relCode){
             const relIDs=ifcAPI.GetLineIDsWithType(m2,relCode);
             dbg.totalRels=relIDs.size();
@@ -1040,6 +1050,7 @@ class OrbitCtrl {
         dbgDiv.innerHTML=`<b>DEBUG</b><br>
 eid: ${eid}<br>
 IfcRelDefinesByProperties code: ${dbg.relCode}<br>
+Claves WebIFC con RELDEFINES: ${dbg.keySample}<br>
 Total relaciones en modelo: ${dbg.totalRels}<br>
 Relaciones que contienen este eid: ${dbg.matchedRels}<br>
 PropertySets encontrados: ${dbg.psetsFound}<br>

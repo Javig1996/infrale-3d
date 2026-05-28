@@ -329,7 +329,13 @@ class OrbitCtrl {
       return matCache[type];
     }
 
-    // ── Mapas de tipos ──────────────────────────────────
+    // ── Mapa inverso TypeCode → nombre IFC (cubre TODOS los tipos) ──
+    const codeToName=new Map();
+    for(const [k,v] of Object.entries(WebIFC)){
+      if(typeof v==='number') codeToName.set(v,k);
+    }
+
+    // ── Pre-mapeo de tipos conocidos (para colorear mallas) ──
     prog(58,'Mapeando tipos IFC...');
     const typeOfID=new Map(); // expressID → IfcTypeName
     const knownTypes=Object.keys(COLORS).filter(k=>k.startsWith('Ifc'));
@@ -420,8 +426,8 @@ class OrbitCtrl {
       DEFAULT:'Sin categoría'
     };
 
-    // ── Leer nombre de cada elemento con geometría ───────
-    prog(88,'Leyendo nombres...');
+    // ── Leer nombre Y tipo real de cada elemento con geometría ──
+    prog(88,'Leyendo nombres y tipos...');
     const elemNames=new Map(); // expressID → string
 
     for(const [eid] of meshMap){
@@ -429,6 +435,11 @@ class OrbitCtrl {
         const ln=ifcAPI.GetLine(modelID,eid,false);
         const name=ln.Name?.value||ln.LongName?.value||('#'+eid);
         elemNames.set(eid,name);
+        // Si el tipo no fue capturado por el pre-mapeo, leerlo del TypeCode real
+        if(!typeOfID.has(eid)){
+          const rawName=codeToName.get(ln.type)||'DEFAULT';
+          typeOfID.set(eid,rawName);
+        }
       }catch(_){elemNames.set(eid,'#'+eid);}
     }
 
@@ -438,45 +449,63 @@ class OrbitCtrl {
     const storeyOrder=[];
 
     try{
-      // 1. Leer todos los IfcBuildingStorey con su nombre y elevación
-      const storeyNames=new Map();   // expressID → nombre
-      const storeyElevs=new Map();   // expressID → elevación numérica
-      const sIDs=ifcAPI.GetLineIDsWithType(modelID,WebIFC['IfcBuildingStorey']);
-      for(let i=0;i<sIDs.size();i++){
-        const sid=sIDs.get(i);
-        try{
-          const sl=ifcAPI.GetLine(modelID,sid,false);
-          const name=sl.Name?.value||sl.LongName?.value||('Nivel '+(i+1));
-          const elev=typeof sl.Elevation?.value==='number'?sl.Elevation.value:i*10;
-          storeyNames.set(sid,name);
-          storeyElevs.set(sid,elev);
-        }catch(_){storeyNames.set(sid,'Nivel '+(i+1));storeyElevs.set(sid,i*10);}
+      // 1. Recopilar estructuras espaciales: IfcBuildingStorey + IfcBuilding + IfcSite
+      //    como fallback para modelos sin pisos (infraestructura, MEP, civil)
+      const spatialNames=new Map();  // expressID → label
+      const spatialElevs=new Map();  // expressID → elevación (para ordenar)
+      const spatialPriority=new Map(); // expressID → prioridad (storey=0, building=1, site=2)
+
+      const SPATIAL_TYPES=[
+        {key:'IfcBuildingStorey', pri:0, prefix:''},
+        {key:'IfcBuilding',       pri:1, prefix:'Edificio: '},
+        {key:'IfcSite',           pri:2, prefix:'Terreno: '},
+      ];
+
+      for(const {key,pri,prefix} of SPATIAL_TYPES){
+        const code=WebIFC[key]; if(!code) continue;
+        const ids=ifcAPI.GetLineIDsWithType(modelID,code);
+        for(let i=0;i<ids.size();i++){
+          const sid=ids.get(i);
+          try{
+            const sl=ifcAPI.GetLine(modelID,sid,false);
+            const rawName=sl.Name?.value||sl.LongName?.value||sl.Description?.value||null;
+            const label=rawName?(prefix+rawName):(key==='IfcBuildingStorey'?('Nivel '+(i+1)):(prefix||key));
+            const elev=typeof sl.Elevation?.value==='number'?sl.Elevation.value:(pri*1000+i*10);
+            spatialNames.set(sid,label);
+            spatialElevs.set(sid,elev);
+            spatialPriority.set(sid,pri);
+          }catch(_){}
+        }
       }
 
-      // Ordenar por elevación ascendente
-      [...storeyNames.entries()]
-        .sort((a,b)=>(storeyElevs.get(a[0])??0)-(storeyElevs.get(b[0])??0))
+      // Ordenar: primero por prioridad (storey antes que building/site), luego por elevación
+      [...spatialNames.entries()]
+        .sort((a,b)=>{
+          const pa=spatialPriority.get(a[0])??9, pb=spatialPriority.get(b[0])??9;
+          if(pa!==pb) return pa-pb;
+          return (spatialElevs.get(a[0])??0)-(spatialElevs.get(b[0])??0);
+        })
         .forEach(([,name])=>{if(!storeyOrder.includes(name))storeyOrder.push(name);});
 
-      // 2. Leer relaciones IfcRelContainedInSpatialStructure
+      // 2. Relaciones IfcRelContainedInSpatialStructure → mapear elementos a su nivel
       const relIDs=ifcAPI.GetLineIDsWithType(modelID,WebIFC['IfcRelContainedInSpatialStructure']);
       for(let i=0;i<relIDs.size();i++){
         try{
           const rel=ifcAPI.GetLine(modelID,relIDs.get(i),false);
-          const storeyID=rel.RelatingStructure?.value;
-          if(!storeyID||!storeyNames.has(storeyID)) continue;
-          const storeyName=storeyNames.get(storeyID);
+          const spatialID=rel.RelatingStructure?.value;
+          if(!spatialID||!spatialNames.has(spatialID)) continue;
+          const levelName=spatialNames.get(spatialID);
           const elems=rel.RelatedElements;
           if(!Array.isArray(elems)) continue;
           for(const ref of elems){
             const eid=ref?.value??ref;
-            if(eid&&meshMap.has(eid)) storeyOfID.set(eid,storeyName);
+            if(eid&&meshMap.has(eid)) storeyOfID.set(eid,levelName);
           }
         }catch(_){}
       }
     }catch(_){}
 
-    // Elementos sin nivel asignado → "Sin nivel"
+    // Fallback: elementos sin nivel asignado
     for(const [eid] of meshMap){
       if(!storeyOfID.has(eid)) storeyOfID.set(eid,'Sin nivel');
     }
@@ -484,13 +513,29 @@ class OrbitCtrl {
     // Cerrar modelo
     ifcAPI.CloseModel(modelID);
 
-    // ── treeData: nivel → categoría IFC (ES) → [{expressID, name}] ──
+    // ── Convertir nombre IFC a categoría legible ────────
+    function resolveCategory(ifcType){
+      if(!ifcType||ifcType==='DEFAULT') return 'Sin categoría';
+      // Búsqueda directa en mapa ES
+      if(IFC_TYPE_ES[ifcType]) return IFC_TYPE_ES[ifcType];
+      // Normalizar: 'IFCWALL' → 'IfcWall' (web-ifc puede exportar en mayúsculas)
+      const normalized=ifcType.replace(/^IFC/i,'Ifc');
+      if(IFC_TYPE_ES[normalized]) return IFC_TYPE_ES[normalized];
+      // Fallback: separar camelCase → palabras legibles
+      // 'IfcBuildingElementProxy' → 'Building Element Proxy'
+      // 'IFCFLOWTERMINAL' → 'Ifc Flow Terminal' → prettify
+      const pretty=(normalized.startsWith('Ifc')?normalized.slice(3):normalized)
+        .replace(/([A-Z])/g,' $1').trim();
+      return pretty||ifcType;
+    }
+
+    // ── treeData: nivel → categoría IFC → [{expressID, name}] ──
     const treeData=new Map();
 
     for(const [eid,name] of elemNames){
       const storey=storeyOfID.get(eid)||'Sin nivel';
       const ifcType=typeOfID.get(eid)||'DEFAULT';
-      const cat=IFC_TYPE_ES[ifcType]||IFC_TYPE_ES.DEFAULT;
+      const cat=resolveCategory(ifcType);
       if(!treeData.has(storey)) treeData.set(storey,new Map());
       const cats=treeData.get(storey);
       if(!cats.has(cat)) cats.set(cat,[]);

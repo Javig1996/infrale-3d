@@ -1047,15 +1047,19 @@ class OrbitCtrl {
         // ── DEBUG TEMPORAL ──
         const dbgDiv=document.createElement('div');
         dbgDiv.style='padding:8px;font-size:10px;color:#f59e0b;background:#1a0f00;border-bottom:1px solid #f59e0b44;word-break:break-all;line-height:1.7;';
+        // Capturar estructura del primer pset para debug
+        const firstPset=psets[0]?JSON.stringify(psets[0]).slice(0,600):'—';
+        const firstPsetProps=psets[0]?(psets[0].HasProperties||psets[0].Quantities||[]):[];
+        const firstProp=firstPsetProps[0]?JSON.stringify(firstPsetProps[0]).slice(0,300):'—';
+
         dbgDiv.innerHTML=`<b>DEBUG</b><br>
 eid: ${eid}<br>
 IfcRelDefinesByProperties code: ${dbg.relCode}<br>
-Claves WebIFC con RELDEFINES: ${dbg.keySample}<br>
 Total relaciones en modelo: ${dbg.totalRels}<br>
 Relaciones que contienen este eid: ${dbg.matchedRels}<br>
 PropertySets encontrados: ${dbg.psetsFound}<br>
-<br><b>firstRel (primera relación cruda):</b><br>${dbg.firstRel||'—'}<br>
-<br><b>firstRel.RelatedObjects:</b><br>${dbg.firstObjsSample||'—'}`;
+<br><b>Primer pset (primeros 600 chars):</b><br>${firstPset}<br>
+<br><b>Primera propiedad del pset:</b><br>${firstProp}`;
         content.appendChild(dbgDiv);
 
         // Grupo "Parámetros IFC" con atributos básicos del elemento

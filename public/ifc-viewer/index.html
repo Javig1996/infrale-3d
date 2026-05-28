@@ -994,36 +994,60 @@ class OrbitCtrl {
         return;
       }
       try{
-        // Reutilizar la instancia ifcAPI ya inicializada; solo abrir un modelo temporal
+        // web-ifc 0.0.77 no tiene GetItemProperties/GetPropertySets en el IIFE global.
+        // Usamos la API de bajo nivel: GetLine + IfcRelDefinesByProperties.
         const m2=ifcAPI.OpenModel(new Uint8Array(ifcBuffer),{COORDINATE_TO_ORIGIN:true,USE_FAST_BOOLS:true});
-        const props=ifcAPI.GetItemProperties(m2,eid,false);
-        let psets=[];
-        try{psets=ifcAPI.GetPropertySets(m2,eid)||[];}catch(_){}
+
+        // Atributos directos del elemento
+        const line=ifcAPI.GetLine(m2,eid,false);
+
+        // PropertySets: buscar IfcRelDefinesByProperties que referencien este eid
+        const psets=[];
+        try{
+          const relCode=WebIFC['IfcRelDefinesByProperties'];
+          if(relCode){
+            const relIDs=ifcAPI.GetLineIDsWithType(m2,relCode);
+            for(let i=0;i<relIDs.size();i++){
+              try{
+                const rel=ifcAPI.GetLine(m2,relIDs.get(i),false);
+                const objs=rel.RelatedObjects;
+                if(!Array.isArray(objs)) continue;
+                const found=objs.some(o=>(o?.value??o)===eid);
+                if(!found) continue;
+                const psRef=rel.RelatingPropertyDefinition;
+                if(!psRef) continue;
+                const psID=psRef.value??psRef;
+                if(typeof psID!=='number') continue;
+                const ps=ifcAPI.GetLine(m2,psID,true);
+                if(ps) psets.push(ps);
+              }catch(_){}
+            }
+          }
+        }catch(_){}
+
         ifcAPI.CloseModel(m2);
         content.innerHTML='';
 
         // Grupo "Parámetros IFC" con atributos básicos del elemento
         const IFC_ATTR_KEYS=['Name','ObjectType','Description','Tag','GlobalId','LongName'];
         const ifcAttrs=[];
-        if(props){
-          for(const k of IFC_ATTR_KEYS){
-            if(props[k]?.value!=null) ifcAttrs.push([k,String(props[k].value)]);
-          }
+        for(const k of IFC_ATTR_KEYS){
+          if(line?.[k]?.value!=null) ifcAttrs.push([k,String(line[k].value)]);
         }
         if(ifcAttrs.length) content.appendChild(mkGroup('Parámetros IFC',ifcAttrs,true));
 
-        // Un grupo colapsable por cada PropertySet
-        if(psets?.length){
-          for(const ps of psets){
-            if(!ps.HasProperties?.length) continue;
-            const rows=[];
-            for(const p of ps.HasProperties){
-              const nm=p.Name?.value||'';
-              const vl=p.NominalValue?.value??p.Value?.value??'-';
-              if(nm) rows.push([nm,String(vl)]);
-            }
-            if(rows.length) content.appendChild(mkGroup(ps.Name?.value||'PropertySet',rows,false));
+        // Un grupo colapsable por cada PropertySet / QuantitySet
+        for(const ps of psets){
+          const props=ps.HasProperties||ps.Quantities||[];
+          if(!props.length) continue;
+          const rows=[];
+          for(const p of props){
+            const nm=p?.Name?.value||'';
+            const vl=p?.NominalValue?.value??p?.LengthValue?.value
+              ??p?.AreaValue?.value??p?.VolumeValue?.value??p?.Value?.value??'-';
+            if(nm) rows.push([nm,String(vl)]);
           }
+          if(rows.length) content.appendChild(mkGroup(ps.Name?.value||'PropertySet',rows,false));
         }
 
         if(!content.firstChild){

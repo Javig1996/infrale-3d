@@ -12,7 +12,7 @@ body{background:#050d1a;overflow:hidden;height:100vh;font-family:system-ui,sans-
 #app{display:flex;flex-direction:column;height:100vh;}
 #toolbar{display:none;align-items:center;gap:6px;padding:7px 10px;background:#07111f;border-bottom:1px solid #1e3a5f;flex-shrink:0;flex-wrap:wrap;}
 #main{display:flex;flex:1;overflow:hidden;}
-#sidebar{width:270px;display:none;flex-direction:column;background:#07111f;border-right:1px solid #1e3a5f;flex-shrink:0;overflow:hidden;}
+#sidebar{width:280px;display:none;flex-direction:column;background:#07111f;border-right:1px solid #1e3a5f;flex-shrink:0;overflow:hidden;}
 #canvas-wrap{flex:1;position:relative;overflow:hidden;}
 canvas{display:block;width:100%!important;height:100%!important;}
 
@@ -24,7 +24,6 @@ canvas{display:block;width:100%!important;height:100%!important;}
 .pb{width:200px;height:3px;background:#1e3a5f;border-radius:2px;overflow:hidden;}
 .pf{height:100%;background:#2563eb;border-radius:2px;transition:width .4s;}
 #err{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#050d1a;padding:24px;text-align:center;z-index:20;}
-#err svg{width:40px;height:40px;color:#ef4444;}
 #err h3{font-size:14px;color:#ef4444;}
 #err p{font-size:11px;color:#64748b;max-width:380px;line-height:1.7;}
 #err button{background:#1e3a5f;border:1px solid #2563eb44;color:#94a3b8;padding:7px 18px;border-radius:7px;font-size:11px;cursor:pointer;}
@@ -38,63 +37,84 @@ canvas{display:block;width:100%!important;height:100%!important;}
 #statusbar{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:#475569;}
 .dot{width:5px;height:5px;border-radius:50%;background:#2563eb;}
 
-/* ── Sidebar ── */
+/* ── Sidebar tabs ── */
 #sidebar-tabs{display:flex;border-bottom:1px solid #1e3a5f;flex-shrink:0;}
 .stab{flex:1;padding:8px 4px;text-align:center;font-size:11px;color:#475569;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
 .stab.active{color:#60a5fa;border-color:#2563eb;}
 
-/* ── Buscador ── */
-#search-wrap{padding:6px 8px;border-bottom:1px solid #1e3a5f;flex-shrink:0;display:none;}
-#search-input{width:100%;background:#0a1628;border:1px solid #1e3a5f;border-radius:5px;color:#e2e8f0;font-size:11px;padding:5px 8px;outline:none;transition:border-color .15s;}
-#search-input:focus{border-color:#2563eb;}
-#search-input::placeholder{color:#334155;}
-#search-clear{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#334155;cursor:pointer;font-size:12px;display:none;}
-#search-wrap{position:relative;}
-
-/* ── Sub-tabs árbol ── */
-#tree-subtabs{display:none;gap:0;border-bottom:1px solid #1e3a5f;flex-shrink:0;}
+/* ── Tree sub-tabs ── */
+#tree-subtabs{display:flex;flex-shrink:0;border-bottom:1px solid #0f1f35;}
 .tree-stab{flex:1;padding:5px 4px;text-align:center;font-size:10px;color:#475569;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:transparent;border-left:none;border-right:none;border-top:none;}
 .tree-stab.active{color:#60a5fa;border-color:#2563eb;}
 .tree-stab:hover{color:#94a3b8;}
 
+/* ── Search ── */
+#search-wrap{padding:6px 8px;border-bottom:1px solid #1e3a5f;flex-shrink:0;position:relative;}
+#search-input{width:100%;background:#0a1628;border:1px solid #1e3a5f;border-radius:5px;color:#e2e8f0;font-size:11px;padding:5px 26px 5px 8px;outline:none;transition:border-color .15s;}
+#search-input:focus{border-color:#2563eb;}
+#search-input::placeholder{color:#334155;}
+#search-clear{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#334155;cursor:pointer;font-size:12px;display:none;line-height:1;}
+
+/* ── Sel bar ── */
+#sel-bar{display:none;align-items:center;gap:4px;padding:4px 8px;border-bottom:1px solid #1e3a5f;font-size:10px;color:#475569;flex-shrink:0;background:#060f1c;}
+#sel-bar span{flex:1;}
+#sel-bar button{background:transparent;border:1px solid #1e3a5f;color:#475569;cursor:pointer;font-size:10px;padding:2px 6px;border-radius:3px;}
+#sel-bar button:hover{color:#e2e8f0;border-color:#2563eb;}
+
+/* ── Sidebar body ── */
 #sidebar-body{flex:1;overflow:hidden;position:relative;}
-.spanel{position:absolute;inset:0;overflow-y:auto;display:none;padding:6px;}
+.spanel{position:absolute;inset:0;overflow-y:auto;display:none;}
 .spanel.active{display:block;}
 .spanel::-webkit-scrollbar{width:4px;}
 .spanel::-webkit-scrollbar-track{background:#07111f;}
 .spanel::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:2px;}
 
-/* ── Tree ── */
-.tnode{cursor:pointer;font-size:11px;padding:2px 4px;border-radius:4px;display:flex;align-items:center;gap:4px;color:#94a3b8;}
-.tnode:hover{background:#0f2035;color:#e2e8f0;}
-.tnode.selected{background:#2563eb22;color:#60a5fa;}
-.tnode.multi-selected{background:#f59e0b22;color:#fbbf24;}
-.tnode-arrow{width:14px;text-align:center;color:#334155;flex-shrink:0;font-size:10px;}
-.tnode-icon{font-size:10px;flex-shrink:0;}
-.tnode-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.tnode-children{padding-left:14px;}
-.tnode-children.collapsed{display:none;}
-.tnode.search-hidden{display:none;}
-.tnode.search-match .tnode-label{color:#fbbf24;}
+/* ── Tree nodes ── */
+/* Storey row */
+.storey-row{display:flex;align-items:center;gap:0;padding:5px 6px 5px 4px;cursor:pointer;border-bottom:1px solid #0a1628;}
+.storey-row:hover{background:#0a1628;}
+.storey-arrow{width:16px;text-align:center;font-size:9px;color:#475569;flex-shrink:0;}
+.storey-icon{font-size:11px;margin:0 4px;flex-shrink:0;}
+.storey-name{flex:1;font-size:11px;font-weight:600;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.storey-count{font-size:9px;color:#334155;margin-right:4px;}
 
-/* ── Categorías ── */
-.cat-group{margin-bottom:4px;}
-.cat-header{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;cursor:pointer;font-size:11px;color:#94a3b8;transition:all .15s;}
-.cat-header:hover{background:#0f2035;color:#e2e8f0;}
-.cat-header.active{background:#2563eb22;color:#60a5fa;}
-.cat-icon{font-size:11px;}
-.cat-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.cat-badge{background:#1e3a5f;color:#475569;font-size:9px;padding:1px 5px;border-radius:10px;flex-shrink:0;}
-.cat-items{display:none;padding-left:12px;}
-.cat-items.open{display:block;}
-.cat-item{font-size:10px;padding:2px 6px;border-radius:3px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.cat-item:hover{background:#0a1628;color:#94a3b8;}
-.cat-item.selected{color:#60a5fa;}
-.cat-item.multi-selected{color:#fbbf24;}
+/* Category row */
+.cat-row{display:flex;align-items:center;padding:4px 6px 4px 22px;cursor:pointer;}
+.cat-row:hover{background:#080e1c;}
+.cat-arrow{width:14px;text-align:center;font-size:9px;color:#334155;flex-shrink:0;}
+.cat-icon{font-size:10px;margin:0 3px;flex-shrink:0;}
+.cat-name{flex:1;font-size:11px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cat-count{font-size:9px;color:#1e3a5f;margin-right:4px;}
+
+/* Element row */
+.elem-row{display:flex;align-items:center;padding:3px 6px 3px 40px;cursor:pointer;border-radius:0;}
+.elem-row:hover{background:#080e1c;}
+.elem-row.selected{background:#2563eb18;}
+.elem-row.multi-selected{background:#f59e0b18;}
+.elem-label{flex:1;font-size:10px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.elem-row:hover .elem-label,.elem-row.selected .elem-label{color:#94a3b8;}
+.elem-row.multi-selected .elem-label{color:#fbbf24;}
+
+/* Eye button — visible on hover or when hidden */
+.eye-btn{background:none;border:none;cursor:pointer;color:#334155;font-size:11px;padding:1px 3px;border-radius:3px;flex-shrink:0;opacity:0;transition:opacity .1s, color .1s;line-height:1;}
+.storey-row:hover .eye-btn,
+.cat-row:hover .eye-btn,
+.elem-row:hover .eye-btn,
+.eye-btn.is-hidden{opacity:1;}
+.eye-btn.is-hidden{color:#1e3a5f;}
+.eye-btn:hover{color:#60a5fa!important;opacity:1!important;}
+
+/* children containers */
+.storey-children{display:block;}
+.storey-children.collapsed{display:none;}
+.cat-children{display:block;}
+.cat-children.collapsed{display:none;}
+
+/* search highlight */
+.elem-label.search-hl{color:#fbbf24!important;}
 
 /* ── Properties ── */
-#prop-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#334155;font-size:11px;text-align:center;}
-#prop-empty svg{width:32px;height:32px;opacity:.4;}
+#prop-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#334155;font-size:11px;text-align:center;padding:16px;}
 .prop-section{margin-bottom:10px;}
 .prop-section-title{font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.05em;padding:4px 6px;background:#0f1f35;border-radius:4px;margin-bottom:4px;}
 .prop-row{display:flex;padding:3px 6px;gap:6px;border-radius:3px;}
@@ -102,20 +122,14 @@ canvas{display:block;width:100%!important;height:100%!important;}
 .prop-key{font-size:10px;color:#475569;flex:0 0 90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .prop-val{font-size:10px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-/* ── Selection info bar ── */
-#sel-bar{display:none;align-items:center;gap:6px;padding:4px 8px;border-bottom:1px solid #1e3a5f;font-size:10px;color:#475569;flex-shrink:0;background:#060f1c;}
-#sel-bar span{flex:1;}
-#sel-bar button{background:transparent;border:none;color:#475569;cursor:pointer;font-size:10px;padding:1px 4px;border-radius:3px;}
-#sel-bar button:hover{color:#e2e8f0;background:#1e3a5f;}
-
-/* ── Measurement tooltip ── */
+/* ── Measurement ── */
 #measure-tip{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);background:#050d1aee;border:1px solid #2563eb55;border-radius:8px;padding:8px 14px;font-size:12px;color:#60a5fa;pointer-events:none;display:none;white-space:nowrap;}
 #crosshair{position:absolute;inset:0;pointer-events:none;display:none;}
 #crosshair::before,#crosshair::after{content:'';position:absolute;background:#2563eb88;}
 #crosshair::before{width:1px;top:0;bottom:0;left:50%;}
 #crosshair::after{height:1px;left:0;right:0;top:50%;}
 
-/* ── Section handle ── */
+/* ── Section hint ── */
 #section-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#050d1acc;border:1px solid #2563eb55;border-radius:8px;padding:10px 16px;font-size:11px;color:#94a3b8;pointer-events:none;display:none;text-align:center;line-height:1.6;}
 
 /* ── Isolate banner ── */
@@ -124,63 +138,51 @@ canvas{display:block;width:100%!important;height:100%!important;}
 </head>
 <body>
 <div id="app">
-  <!-- Toolbar -->
   <div id="toolbar">
-    <button class="tb" id="btn-panel" title="Panel lateral">☰ Panel</button>
+    <button class="tb" id="btn-panel">☰ Panel</button>
     <span class="tb-sep"></span>
-    <button class="tb" id="btn-r" title="Resetear cámara">⟳ Reset</button>
-    <button class="tb" id="btn-w" title="Wireframe">◻ Wireframe</button>
-    <button class="tb" id="btn-fit" title="Ajustar vista">⊡ Fit</button>
+    <button class="tb" id="btn-r">⟳ Reset</button>
+    <button class="tb" id="btn-w">◻ Wireframe</button>
+    <button class="tb" id="btn-fit">⊡ Fit</button>
     <span class="tb-sep"></span>
-    <button class="tb" id="btn-sx" title="Sección X">✂ Sección X</button>
-    <button class="tb" id="btn-sy" title="Sección Y">✂ Sección Y</button>
-    <button class="tb" id="btn-sz" title="Sección Z">✂ Sección Z</button>
+    <button class="tb" id="btn-sx">✂ Sección X</button>
+    <button class="tb" id="btn-sy">✂ Sección Y</button>
+    <button class="tb" id="btn-sz">✂ Sección Z</button>
     <span class="tb-sep"></span>
-    <button class="tb" id="btn-measure" title="Medir distancia">📏 Medir</button>
-    <button class="tb" id="btn-isolate" title="Aislar selección">◎ Aislar</button>
-    <button class="tb" id="btn-hide" title="Ocultar seleccionado">👁 Ocultar</button>
-    <button class="tb" id="btn-showall" title="Mostrar todo">⊕ Mostrar todo</button>
+    <button class="tb" id="btn-measure">📏 Medir</button>
+    <button class="tb" id="btn-isolate">◎ Aislar</button>
+    <button class="tb" id="btn-showall">⊕ Mostrar todo</button>
     <div id="statusbar"><span class="dot"></span><span id="lbl">Modelo IFC</span></div>
   </div>
 
   <div id="main">
-    <!-- Sidebar -->
     <div id="sidebar">
       <div id="sidebar-tabs">
         <div class="stab active" data-tab="tree">Árbol</div>
         <div class="stab" data-tab="props">Propiedades</div>
       </div>
-
-      <!-- Sub-tabs árbol (Jerarquía / Categorías) -->
-      <div id="tree-subtabs" style="display:flex;">
+      <div id="tree-subtabs">
         <button class="tree-stab active" id="stab-hierarchy">Jerarquía</button>
         <button class="tree-stab" id="stab-categories">Categorías</button>
       </div>
-
-      <!-- Buscador -->
-      <div id="search-wrap" style="display:block;">
+      <div id="search-wrap">
         <input id="search-input" type="text" placeholder="🔍  Buscar elemento…" autocomplete="off"/>
-        <span id="search-clear" title="Limpiar">✕</span>
+        <span id="search-clear">✕</span>
       </div>
-
-      <!-- Barra de selección múltiple -->
       <div id="sel-bar">
         <span id="sel-count">0 seleccionados</span>
-        <button id="btn-sel-clear">✕ Limpiar</button>
+        <button id="btn-sel-clear">✕</button>
         <button id="btn-sel-isolate">◎ Aislar</button>
         <button id="btn-sel-hide">👁 Ocultar</button>
       </div>
-
       <div id="sidebar-body">
         <div class="spanel active" id="tab-tree">
-          <!-- Vista jerarquía -->
-          <div id="view-hierarchy"><div id="tree-root"></div></div>
-          <!-- Vista categorías -->
-          <div id="view-categories" style="display:none;"><div id="cat-root"></div></div>
+          <div id="view-hierarchy"></div>
+          <div id="view-categories" style="display:none;padding:6px;"></div>
         </div>
         <div class="spanel" id="tab-props">
           <div id="prop-empty">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" opacity=".3"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
             Selecciona un elemento<br>para ver sus propiedades
           </div>
           <div id="prop-content" style="display:none;"></div>
@@ -188,7 +190,6 @@ canvas{display:block;width:100%!important;height:100%!important;}
       </div>
     </div>
 
-    <!-- Canvas -->
     <div id="canvas-wrap">
       <div id="overlay">
         <div class="spinner"></div>
@@ -197,7 +198,6 @@ canvas{display:block;width:100%!important;height:100%!important;}
         <p style="font-size:11px;color:#334155" id="pct">0%</p>
       </div>
       <div id="err">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         <h3>Error al cargar el modelo</h3>
         <p id="errmsg"></p>
         <button onclick="location.reload()">↺ Reintentar</button>
@@ -205,7 +205,7 @@ canvas{display:block;width:100%!important;height:100%!important;}
       <div id="measure-tip"></div>
       <div id="crosshair"></div>
       <div id="section-hint"></div>
-      <div id="isolate-banner">◎ Modo aislamiento activo — clic en "Mostrar todo" para salir</div>
+      <div id="isolate-banner">◎ Modo aislamiento activo — "Mostrar todo" para salir</div>
     </div>
   </div>
 </div>
@@ -213,24 +213,24 @@ canvas{display:block;width:100%!important;height:100%!important;}
 <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/web-ifc@0.0.77/web-ifc-api-iife.js"></script>
 <script>
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  OrbitCtrl
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 class OrbitCtrl {
-  constructor(cam, el) {
-    this.cam = cam; this.el = el;
-    this.target = new THREE.Vector3();
-    this._r = 10; this._phi = Math.PI/4; this._theta = Math.PI/4;
-    this._down = false; this._btn = -1; this._px = 0; this._py = 0;
+  constructor(cam,el){
+    this.cam=cam;this.el=el;
+    this.target=new THREE.Vector3();
+    this._r=10;this._phi=Math.PI/4;this._theta=Math.PI/4;
+    this._down=false;this._btn=-1;this._px=0;this._py=0;
     this._apply();
-    el.addEventListener('mousedown',  e=>{this._down=true;this._btn=e.button;this._px=e.clientX;this._py=e.clientY;e.preventDefault();});
-    el.addEventListener('mouseup',    ()=>{this._down=false;});
-    el.addEventListener('mouseleave', ()=>{this._down=false;});
-    el.addEventListener('mousemove',  e=>{
+    el.addEventListener('mousedown',e=>{this._down=true;this._btn=e.button;this._px=e.clientX;this._py=e.clientY;e.preventDefault();});
+    el.addEventListener('mouseup',()=>{this._down=false;});
+    el.addEventListener('mouseleave',()=>{this._down=false;});
+    el.addEventListener('mousemove',e=>{
       if(!this._down)return;
       const dx=e.clientX-this._px,dy=e.clientY-this._py;
       this._px=e.clientX;this._py=e.clientY;
-      if(this._btn===0)this._orbit(dx,dy); else this._pan(dx,dy);
+      if(this._btn===0)this._orbit(dx,dy);else this._pan(dx,dy);
     });
     el.addEventListener('wheel',e=>{this._r=Math.max(0.5,this._r*(1+e.deltaY*0.001));this._apply();e.preventDefault();},{passive:false});
     el.addEventListener('contextmenu',e=>e.preventDefault());
@@ -242,24 +242,16 @@ class OrbitCtrl {
   update(){}
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  Main
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 (async function(){
-  const params    = new URLSearchParams(location.search);
-  const fileUrl   = params.get('url');
-  const modelName = params.get('name') || 'Modelo IFC';
+  const params  = new URLSearchParams(location.search);
+  const fileUrl = params.get('url');
+  const modelName=params.get('name')||'Modelo IFC';
 
-  function prog(p,m){
-    document.getElementById('bar').style.width=p+'%';
-    document.getElementById('pct').textContent=p+'%';
-    if(m)document.getElementById('msg').textContent=m;
-  }
-  function showErr(t){
-    document.getElementById('overlay').style.display='none';
-    document.getElementById('err').style.display='flex';
-    document.getElementById('errmsg').textContent=t;
-  }
+  function prog(p,m){document.getElementById('bar').style.width=p+'%';document.getElementById('pct').textContent=p+'%';if(m)document.getElementById('msg').textContent=m;}
+  function showErr(t){document.getElementById('overlay').style.display='none';document.getElementById('err').style.display='flex';document.getElementById('errmsg').textContent=t;}
 
   if(!fileUrl){showErr('No se especificó la URL del modelo.');return;}
   if(typeof THREE==='undefined'){showErr('Three.js no cargó.');return;}
@@ -269,21 +261,20 @@ class OrbitCtrl {
 
   try{
     prog(6,'Iniciando escena 3D...');
-    const wrap    = document.getElementById('canvas-wrap');
-    const scene   = new THREE.Scene();
-    scene.background = new THREE.Color(0x050d1a);
-    const camera  = new THREE.PerspectiveCamera(60,wrap.clientWidth/wrap.clientHeight,0.01,100000);
-    const renderer= new THREE.WebGLRenderer({antialias:true});
+    const wrap=document.getElementById('canvas-wrap');
+    const scene=new THREE.Scene();
+    scene.background=new THREE.Color(0x050d1a);
+    const camera=new THREE.PerspectiveCamera(60,wrap.clientWidth/wrap.clientHeight,0.01,100000);
+    const renderer=new THREE.WebGLRenderer({antialias:true});
     renderer.setPixelRatio(Math.min(devicePixelRatio,2));
     renderer.setSize(wrap.clientWidth,wrap.clientHeight);
     renderer.localClippingEnabled=true;
     wrap.appendChild(renderer.domElement);
 
     const controls=new OrbitCtrl(camera,renderer.domElement);
-
     scene.add(new THREE.AmbientLight(0xffffff,0.65));
     const sun=new THREE.DirectionalLight(0xffffff,1.2);
-    sun.position.set(50,80,50); scene.add(sun);
+    sun.position.set(50,80,50);scene.add(sun);
     scene.add(new THREE.GridHelper(1000,60,0x1e3a5f,0x0f2035));
 
     new ResizeObserver(()=>{
@@ -292,14 +283,14 @@ class OrbitCtrl {
       renderer.setSize(wrap.clientWidth,wrap.clientHeight);
     }).observe(wrap);
 
-    let initialCenter=new THREE.Vector3(), initialDist=10;
+    let initialCenter=new THREE.Vector3(),initialDist=10;
     (function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera);})();
 
-    // ── Cargar IFC ─────────────────────────────────────────
+    // ── Cargar IFC ─────────────────────────────────────
     prog(16,'Descargando modelo...');
     let res;
     try{res=await fetch(fileUrl);}catch(e){throw new Error('Error de red: '+e.message);}
-    if(!res.ok) throw new Error('Error HTTP '+res.status);
+    if(!res.ok)throw new Error('Error HTTP '+res.status);
 
     prog(34,'Procesando geometría...');
     const buffer=await res.arrayBuffer();
@@ -307,120 +298,145 @@ class OrbitCtrl {
     prog(50,'Inicializando motor IFC...');
     const ifcAPI=new WebIFC.IfcAPI();
     await ifcAPI.Init();
-
-    prog(64,'Construyendo mallas 3D...');
     const modelID=ifcAPI.OpenModel(new Uint8Array(buffer),{COORDINATE_TO_ORIGIN:true,USE_FAST_BOOLS:true});
 
-    const meshMap  = new Map(); // expressID → THREE.Mesh[]
-    const allMeshes= [];
-
+    // ── Materiales por tipo ─────────────────────────────
     const COLORS={
-      IfcWall:0x4a90d9, IfcSlab:0x7fb3d3, IfcColumn:0x5b9bd5,
-      IfcBeam:0x6baed6, IfcDoor:0xf59e0b, IfcWindow:0x22d3ee,
-      IfcRoof:0x6366f1, IfcStair:0xa78bfa, IfcRailing:0x94a3b8,
-      IfcFurnishingElement:0x8b5cf6, IfcSite:0x064e3b,
+      IfcWall:0x4a90d9,IfcSlab:0x7fb3d3,IfcColumn:0x5b9bd5,
+      IfcBeam:0x6baed6,IfcDoor:0xf59e0b,IfcWindow:0x22d3ee,
+      IfcRoof:0x6366f1,IfcStair:0xa78bfa,IfcRailing:0x94a3b8,
+      IfcFurnishingElement:0x8b5cf6,IfcSite:0x064e3b,
       DEFAULT:0x3b82f6
     };
-
-    const TYPE_ICONS={
-      IfcProject:'🏗',IfcSite:'🌍',IfcBuilding:'🏢',IfcBuildingStorey:'📐',
-      IfcSpace:'⬛',IfcWall:'🧱',IfcDoor:'🚪',IfcWindow:'🪟',IfcSlab:'⬜',
-      IfcColumn:'🏛',IfcBeam:'━',IfcRoof:'🔺',IfcStair:'🪜',
-      IfcFurnishingElement:'🪑',IfcRailing:'⚙',DEFAULT:'◆'
-    };
-
     const matCache={};
-    function getMat(type,wireframe=false){
-      const key=type+(wireframe?'_w':'');
-      if(!matCache[key]) matCache[key]=new THREE.MeshLambertMaterial({color:COLORS[type]||COLORS.DEFAULT,side:THREE.DoubleSide,wireframe});
-      return matCache[key];
+    function getMat(type){
+      if(!matCache[type]) matCache[type]=new THREE.MeshLambertMaterial({color:COLORS[type]||COLORS.DEFAULT,side:THREE.DoubleSide});
+      return matCache[type];
     }
 
-    const group=new THREE.Group();
-    let n=0;
-
-    // Leer tipos IFC para colorear y categorizar
-    const typeMap=new Map(); // expressID → IFC type string
-    const categoryMap=new Map(); // typeName → [{expressID, label}]
-
+    // ── Mapas de tipos ──────────────────────────────────
+    prog(58,'Mapeando tipos IFC...');
+    const typeOfID=new Map(); // expressID → IfcTypeName
     const knownTypes=Object.keys(COLORS).filter(k=>k.startsWith('Ifc'));
     try{
       for(const typeName of knownTypes){
-        const typeCode=WebIFC[typeName];
-        if(!typeCode) continue;
-        const ids=ifcAPI.GetLineIDsWithType(modelID,typeCode);
-        if(!categoryMap.has(typeName)) categoryMap.set(typeName,[]);
-        for(let i=0;i<ids.size();i++){
-          const eid=ids.get(i);
-          typeMap.set(eid,typeName);
-          try{
-            const p=ifcAPI.GetItemProperties(modelID,eid,false);
-            const label=p?.Name?.value||p?.LongName?.value||('#'+eid);
-            categoryMap.get(typeName).push({expressID:eid,label});
-          }catch(_){
-            categoryMap.get(typeName).push({expressID:eid,label:'#'+eid});
-          }
-        }
+        const code=WebIFC[typeName];
+        if(!code)continue;
+        const ids=ifcAPI.GetLineIDsWithType(modelID,code);
+        for(let i=0;i<ids.size();i++) typeOfID.set(ids.get(i),typeName);
       }
     }catch(_){}
 
-    ifcAPI.StreamAllMeshes(modelID,(flatMesh)=>{
-      const expressID=flatMesh.expressID;
-      const gc=flatMesh.geometries.size();
-      const type=typeMap.get(expressID)||'DEFAULT';
-      const mshList=[];
+    // ── Stream mallas ────────────────────────────────────
+    prog(64,'Construyendo mallas 3D...');
+    const meshMap=new Map(); // expressID → Mesh[]
+    const allMeshes=[];
+    const group=new THREE.Group();
+    let n=0;
 
+    ifcAPI.StreamAllMeshes(modelID,flatMesh=>{
+      const eid=flatMesh.expressID;
+      const gc=flatMesh.geometries.size();
+      const type=typeOfID.get(eid)||'DEFAULT';
+      const mshList=[];
       for(let i=0;i<gc;i++){
         const placed=flatMesh.geometries.get(i);
-        const geomData=ifcAPI.GetGeometry(modelID,placed.geometryExpressID);
-        const idxArr=ifcAPI.GetIndexArray(geomData.GetIndexData(),geomData.GetIndexDataSize());
-        const vtxArr=ifcAPI.GetVertexArray(geomData.GetVertexData(),geomData.GetVertexDataSize());
-        if(!vtxArr||!idxArr||vtxArr.length===0){geomData.delete();continue;}
-
-        const posArr=new Float32Array(vtxArr.length/2);
-        const nrmArr=new Float32Array(vtxArr.length/2);
-        for(let j=0,k=0;j<vtxArr.length;j+=6,k+=3){
-          posArr[k]=vtxArr[j];posArr[k+1]=vtxArr[j+1];posArr[k+2]=vtxArr[j+2];
-          nrmArr[k]=vtxArr[j+3];nrmArr[k+1]=vtxArr[j+4];nrmArr[k+2]=vtxArr[j+5];
-        }
+        const gd=ifcAPI.GetGeometry(modelID,placed.geometryExpressID);
+        const idx=ifcAPI.GetIndexArray(gd.GetIndexData(),gd.GetIndexDataSize());
+        const vtx=ifcAPI.GetVertexArray(gd.GetVertexData(),gd.GetVertexDataSize());
+        if(!vtx||!idx||vtx.length===0){gd.delete();continue;}
+        const pos=new Float32Array(vtx.length/2),nrm=new Float32Array(vtx.length/2);
+        for(let j=0,k=0;j<vtx.length;j+=6,k+=3){pos[k]=vtx[j];pos[k+1]=vtx[j+1];pos[k+2]=vtx[j+2];nrm[k]=vtx[j+3];nrm[k+1]=vtx[j+4];nrm[k+2]=vtx[j+5];}
         const geo=new THREE.BufferGeometry();
-        geo.setAttribute('position',new THREE.BufferAttribute(posArr,3));
-        geo.setAttribute('normal',new THREE.BufferAttribute(nrmArr,3));
-        geo.setIndex(new THREE.BufferAttribute(idxArr,1));
-
+        geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+        geo.setAttribute('normal',new THREE.BufferAttribute(nrm,3));
+        geo.setIndex(new THREE.BufferAttribute(idx,1));
         const mesh=new THREE.Mesh(geo,getMat(type));
         mesh.matrix.fromArray(placed.flatTransformation);
         mesh.matrixAutoUpdate=false;
-        mesh.userData.expressID=expressID;
-        mesh.userData.ifcType=type;
-        group.add(mesh);
-        mshList.push(mesh);
-        allMeshes.push(mesh);
-        n++;
-        geomData.delete();
+        mesh.userData.expressID=eid;
+        group.add(mesh);mshList.push(mesh);allMeshes.push(mesh);n++;
+        gd.delete();
       }
-      if(mshList.length) meshMap.set(expressID,mshList);
+      if(mshList.length) meshMap.set(eid,mshList);
     });
 
-    ifcAPI.CloseModel(modelID);
     if(n===0) throw new Error('El modelo no contiene geometría visible.');
     scene.add(group);
 
-    // ── Cámara inicial ──────────────────────────────────────
-    prog(88,'Ajustando cámara...');
+    // ── Cámara ──────────────────────────────────────────
+    prog(82,'Ajustando cámara...');
     const box=new THREE.Box3().setFromObject(group);
     const ctr=box.getCenter(new THREE.Vector3());
     const sz=box.getSize(new THREE.Vector3());
     const dist=Math.max(sz.x,sz.y,sz.z)*1.8;
     controls.setView(ctr,dist);
-    initialCenter=ctr.clone(); initialDist=dist;
+    initialCenter=ctr.clone();initialDist=dist;
 
-    // ── Árbol IFC ──────────────────────────────────────────
-    prog(94,'Construyendo árbol IFC...');
-    const nodeRowMap=new Map(); // expressID → DOM row element
+    // ── Leer propiedades rápidas (GetLine) ───────────────
+    // Modelo todavía abierto — leer Name y ObjectType de cada elemento con geometría
+    prog(88,'Leyendo propiedades...');
+    const elemInfo=new Map(); // expressID → {name, objectType}
 
-    await buildTree(ifcAPI, modelID);
-    buildCategories();
+    for(const [eid] of meshMap){
+      try{
+        const line=ifcAPI.GetLine(modelID,eid,false);
+        const name =line.Name?.value||line.LongName?.value||'#'+eid;
+        const objType=line.ObjectType?.value||'';
+        const ifcType=typeOfID.get(eid)||'';
+        elemInfo.set(eid,{name,objectType:objType||ifcType||'Sin categoría'});
+      }catch(_){
+        elemInfo.set(eid,{name:'#'+eid,objectType:typeOfID.get(eid)||'Sin categoría'});
+      }
+    }
+
+    // ── Estructura espacial → mapa expressID → storey ──
+    prog(92,'Construyendo árbol...');
+    const storeyOfID=new Map(); // expressID → storey name
+    const storeyOrder=[]; // mantiene orden de aparición
+
+    try{
+      const spatial=ifcAPI.GetSpatialStructure(modelID,true);
+      if(spatial){
+        function walkSpatial(node,currentStorey){
+          let storey=currentStorey;
+          if(node.type==='IfcBuildingStorey'){
+            storey=node.Name?.value||node.LongName?.value||'Nivel';
+            if(!storeyOrder.includes(storey)) storeyOrder.push(storey);
+          }
+          if(node.expressID&&meshMap.has(node.expressID)){
+            storeyOfID.set(node.expressID,storey||'General');
+          }
+          for(const child of(node.children||[])) walkSpatial(child,storey);
+        }
+        walkSpatial(spatial,null);
+      }
+    }catch(_){}
+
+    // Elementos no encontrados en estructura espacial → "Sin nivel"
+    for(const [eid] of meshMap){
+      if(!storeyOfID.has(eid)) storeyOfID.set(eid,'Sin nivel');
+    }
+
+    // Cerrar modelo — ya no lo necesitamos para geometría
+    ifcAPI.CloseModel(modelID);
+
+    // ── Construir treeData: storey → category → [elements] ─
+    // { storeyName → Map(objectType → [{expressID, name}]) }
+    const treeData=new Map();
+
+    for(const [eid,info] of elemInfo){
+      const storey=storeyOfID.get(eid)||'Sin nivel';
+      const cat=info.objectType||'Sin categoría';
+      if(!treeData.has(storey)) treeData.set(storey,new Map());
+      const cats=treeData.get(storey);
+      if(!cats.has(cat)) cats.set(cat,[]);
+      cats.get(cat).push({expressID:eid,name:info.name});
+    }
+
+    prog(98,'Renderizando árbol...');
+    buildHierarchyTree(treeData,storeyOrder);
+    buildCategoriesView(treeData);
 
     prog(100,'¡Modelo cargado! ('+n+' elementos)');
     setTimeout(()=>{
@@ -429,76 +445,62 @@ class OrbitCtrl {
       document.getElementById('sidebar').style.display='flex';
     },300);
 
-    // ═══════════════════════════════════════════════════════
-    //  SELECCIÓN — estado
-    // ═══════════════════════════════════════════════════════
-    const HIGHLIGHT_SINGLE = new THREE.MeshLambertMaterial({color:0xfbbf24,side:THREE.DoubleSide,transparent:true,opacity:0.85});
-    const HIGHLIGHT_MULTI  = new THREE.MeshLambertMaterial({color:0xf97316,side:THREE.DoubleSide,transparent:true,opacity:0.75});
+    // ═══════════════════════════════════════════════════
+    //  SELECCIÓN
+    // ═══════════════════════════════════════════════════
+    const H_SINGLE=new THREE.MeshLambertMaterial({color:0xfbbf24,side:THREE.DoubleSide,transparent:true,opacity:.85});
+    const H_MULTI =new THREE.MeshLambertMaterial({color:0xf97316,side:THREE.DoubleSide,transparent:true,opacity:.75});
     const raycaster=new THREE.Raycaster();
     const mouse=new THREE.Vector2();
 
-    let selectedIDs  = new Set(); // selección múltiple
-    let prevMats     = new Map(); // mesh → original material
-    let isolateMode  = false;
-    const hiddenIDs  = new Set();
+    let selectedIDs=new Set();
+    let prevMats=new Map();     // mesh → original mat
+    let isolateMode=false;
+    const hiddenIDs=new Set();
+    const elemRowMap=new Map(); // expressID → .elem-row DOM element
 
     function clearSelection(){
       for(const [mesh,mat] of prevMats) mesh.material=mat;
-      prevMats.clear();
-      selectedIDs.clear();
-      document.querySelectorAll('.tnode.selected,.tnode.multi-selected').forEach(n=>{
-        n.classList.remove('selected','multi-selected');
-      });
-      document.querySelectorAll('.cat-item.selected,.cat-item.multi-selected').forEach(n=>{
-        n.classList.remove('selected','multi-selected');
-      });
+      prevMats.clear();selectedIDs.clear();
+      document.querySelectorAll('.elem-row.selected,.elem-row.multi-selected').forEach(r=>r.classList.remove('selected','multi-selected'));
       updateSelBar();
     }
 
-    function applyHighlight(expressID, multi=false){
-      const meshes=meshMap.get(expressID)||[];
-      const mat=multi?HIGHLIGHT_MULTI:HIGHLIGHT_SINGLE;
-      for(const m of meshes){
-        if(!prevMats.has(m)) prevMats.set(m,m.material);
-        m.material=mat;
-      }
+    function applyHL(eid,multi=false){
+      const meshes=meshMap.get(eid)||[];
+      const mat=multi?H_MULTI:H_SINGLE;
+      for(const m of meshes){if(!prevMats.has(m))prevMats.set(m,m.material);m.material=mat;}
     }
 
-    // Seleccionar un ID (reemplaza selección si no es Ctrl)
-    function selectElement(expressID, addToSelection=false, treeRow=null){
-      if(!addToSelection){
+    function selectElement(eid,add=false){
+      if(!add){
         clearSelection();
-        selectedIDs.add(expressID);
-        applyHighlight(expressID,false);
-        scrollTreeToNode(expressID);
-        highlightTreeRow(expressID,'selected');
-        highlightCatItem(expressID,'selected');
-        showProps(expressID);
+        selectedIDs.add(eid);
+        applyHL(eid,false);
+        scrollToElem(eid);
+        const row=elemRowMap.get(eid);
+        if(row){row.classList.add('selected');}
+        showProps(eid);
         switchTab('props');
       } else {
-        if(selectedIDs.has(expressID)){
-          // Deseleccionar
-          selectedIDs.delete(expressID);
-          const meshes=meshMap.get(expressID)||[];
-          for(const m of meshes){
-            if(prevMats.has(m)){ m.material=prevMats.get(m); prevMats.delete(m); }
-          }
-          unhighlightTreeRow(expressID);
-          unhighlightCatItem(expressID);
+        if(selectedIDs.has(eid)){
+          selectedIDs.delete(eid);
+          const meshes=meshMap.get(eid)||[];
+          for(const m of meshes){if(prevMats.has(m)){m.material=prevMats.get(m);prevMats.delete(m);}}
+          const row=elemRowMap.get(eid);
+          if(row) row.classList.remove('selected','multi-selected');
         } else {
-          // Añadir a selección
-          selectedIDs.add(expressID);
-          applyHighlight(expressID,true);
-          highlightTreeRow(expressID,'multi-selected');
-          highlightCatItem(expressID,'multi-selected');
+          selectedIDs.add(eid);
+          applyHL(eid,true);
+          const row=elemRowMap.get(eid);
+          if(row){row.classList.remove('selected');row.classList.add('multi-selected');}
         }
-        // Re-colorear el primero seleccionado como "primary"
         if(selectedIDs.size===1){
           const first=[...selectedIDs][0];
           const meshes=meshMap.get(first)||[];
-          for(const m of meshes){ m.material=HIGHLIGHT_SINGLE; }
-          const row=nodeRowMap.get(first);
-          if(row){ row.classList.remove('multi-selected'); row.classList.add('selected'); }
+          for(const m of meshes) m.material=H_SINGLE;
+          const row=elemRowMap.get(first);
+          if(row){row.classList.remove('multi-selected');row.classList.add('selected');}
         }
       }
       updateSelBar();
@@ -506,53 +508,32 @@ class OrbitCtrl {
 
     function updateSelBar(){
       const bar=document.getElementById('sel-bar');
-      if(selectedIDs.size>1){
-        bar.style.display='flex';
-        document.getElementById('sel-count').textContent=selectedIDs.size+' seleccionados';
-      } else {
-        bar.style.display='none';
-      }
+      bar.style.display=selectedIDs.size>1?'flex':'none';
+      document.getElementById('sel-count').textContent=selectedIDs.size+' seleccionados';
     }
 
-    // ── Scroll del árbol al nodo seleccionado ──────────────
-    function scrollTreeToNode(expressID){
-      const row=nodeRowMap.get(expressID);
+    // Scroll árbol al nodo del elemento
+    function scrollToElem(eid){
+      const row=elemRowMap.get(eid);
       if(!row) return;
-      // Expandir ancestros
+      // Expandir ancestros (cat-children, storey-children)
       let p=row.parentElement;
-      while(p){
-        if(p.classList.contains('tnode-children')){
+      while(p&&p.id!=='view-hierarchy'){
+        if(p.classList.contains('cat-children')||p.classList.contains('storey-children')){
           p.classList.remove('collapsed');
-          const arrow=p.previousSibling?.querySelector?.('.tnode-arrow');
-          if(arrow) arrow.textContent='▼';
+          const hdr=p.previousSibling;
+          if(hdr){
+            const arr=hdr.querySelector('.storey-arrow,.cat-arrow');
+            if(arr) arr.textContent='▼';
+          }
         }
         p=p.parentElement;
       }
       setTimeout(()=>row.scrollIntoView({block:'nearest',behavior:'smooth'}),50);
     }
 
-    function highlightTreeRow(expressID, cls){
-      const row=nodeRowMap.get(expressID);
-      if(row){ row.classList.remove('selected','multi-selected'); row.classList.add(cls); }
-    }
-    function unhighlightTreeRow(expressID){
-      const row=nodeRowMap.get(expressID);
-      if(row){ row.classList.remove('selected','multi-selected'); }
-    }
-
-    // ── Highlight en vista categorías ──────────────────────
-    const catItemEls=new Map(); // expressID → cat-item DOM element
-    function highlightCatItem(expressID,cls){
-      const el=catItemEls.get(expressID);
-      if(el){ el.classList.remove('selected','multi-selected'); el.classList.add(cls); }
-    }
-    function unhighlightCatItem(expressID){
-      const el=catItemEls.get(expressID);
-      if(el){ el.classList.remove('selected','multi-selected'); }
-    }
-
-    function focusElement(expressID){
-      const meshes=meshMap.get(expressID)||[];
+    function focusElement(eid){
+      const meshes=meshMap.get(eid)||[];
       if(!meshes.length) return;
       const b=new THREE.Box3();
       meshes.forEach(m=>b.union(new THREE.Box3().setFromObject(m)));
@@ -561,7 +542,7 @@ class OrbitCtrl {
       controls.setView(c,Math.max(s.x,s.y,s.z)*2.5);
     }
 
-    // Clic en canvas → raycast
+    // Click canvas
     renderer.domElement.addEventListener('click',e=>{
       if(measureMode){handleMeasureClick(e);return;}
       if(e.button!==0) return;
@@ -570,356 +551,394 @@ class OrbitCtrl {
       mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
       raycaster.setFromCamera(mouse,camera);
       const hits=raycaster.intersectObjects(allMeshes.filter(m=>m.visible),false);
-      if(hits.length>0){
-        const id=hits[0].object.userData.expressID;
-        if(id) selectElement(id, e.ctrlKey||e.metaKey);
+      if(hits.length){
+        const eid=hits[0].object.userData.expressID;
+        if(eid) selectElement(eid,e.ctrlKey||e.metaKey);
       } else {
         if(!e.ctrlKey&&!e.metaKey) clearSelection();
       }
     });
 
-    // ═══════════════════════════════════════════════════════
-    //  ÁRBOL — jerarquía espacial
-    // ═══════════════════════════════════════════════════════
-    async function buildTree(api, mid){
-      const root=document.getElementById('tree-root');
-      root.innerHTML='';
-      try{
-        const spatialRaw=api.GetSpatialStructure(mid,true);
-        if(spatialRaw) renderNode(spatialRaw,root,0);
-      }catch(e){
-        root.innerHTML='<div style="font-size:11px;color:#475569;padding:8px;">Árbol no disponible</div>';
+    // ═══════════════════════════════════════════════════
+    //  VISIBILIDAD — helpers
+    // ═══════════════════════════════════════════════════
+    // eids: array de expressID
+    function setVisible(eids,visible){
+      for(const eid of eids){
+        const meshes=meshMap.get(eid)||[];
+        meshes.forEach(m=>{m.visible=visible;});
+        if(!visible) hiddenIDs.add(eid);
+        else hiddenIDs.delete(eid);
       }
     }
 
-    function renderNode(node,container,depth){
-      if(!node) return;
-      const hasChildren=node.children&&node.children.length>0;
-      const icon=TYPE_ICONS[node.type]||TYPE_ICONS.DEFAULT;
-      const label=(node.Name?.value||node.type||'Elemento')+
-                  (node.expressID?` #${node.expressID}`:'');
+    // Recopilar todos los expressIDs bajo un grupo de nodos DOM
+    function collectEids(containerEl){
+      const eids=[];
+      containerEl.querySelectorAll('.elem-row[data-eid]').forEach(r=>{
+        const eid=parseInt(r.dataset.eid);
+        if(!isNaN(eid)) eids.push(eid);
+      });
+      return eids;
+    }
 
-      const wrap=document.createElement('div');
+    function updateEyeBtn(btn,visible){
+      if(visible){btn.textContent='👁';btn.classList.remove('is-hidden');btn.title='Ocultar';}
+      else{btn.textContent='🚫';btn.classList.add('is-hidden');btn.title='Mostrar';}
+    }
 
-      const row=document.createElement('div');
-      row.className='tnode';
-      row.dataset.expressId=node.expressID||'';
-      row.dataset.label=label.toLowerCase();
-      row.dataset.type=(node.type||'').toLowerCase();
-      row.innerHTML=`<span class="tnode-arrow">${hasChildren?'▶':' '}</span><span class="tnode-icon">${icon}</span><span class="tnode-label" title="${label}">${label}</span>`;
+    // ═══════════════════════════════════════════════════
+    //  ÁRBOL JERARQUÍA — Nivel → Categoría → Elemento
+    // ═══════════════════════════════════════════════════
+    function buildHierarchyTree(treeData,storeyOrder){
+      const root=document.getElementById('view-hierarchy');
+      root.innerHTML='';
+      if(treeData.size===0){
+        root.innerHTML='<div style="font-size:11px;color:#475569;padding:12px;">Sin datos de árbol disponibles</div>';
+        return;
+      }
 
-      const childWrap=document.createElement('div');
-      childWrap.className='tnode-children collapsed';
+      // Ordenar: primero los storeys en orden encontrado, "Sin nivel" al final
+      const ordered=[
+        ...storeyOrder.filter(s=>treeData.has(s)),
+        ...[...treeData.keys()].filter(s=>!storeyOrder.includes(s))
+      ];
 
-      if(hasChildren){
-        const arrow=row.querySelector('.tnode-arrow');
-        row.addEventListener('click',e=>{
-          e.stopPropagation();
-          const collapsed=childWrap.classList.toggle('collapsed');
-          arrow.textContent=collapsed?'▶':'▼';
-          if(node.expressID) selectElement(node.expressID, e.ctrlKey||e.metaKey, row);
+      for(const storeyName of ordered){
+        const cats=treeData.get(storeyName);
+        if(!cats||cats.size===0) continue;
+
+        const totalElems=[...cats.values()].reduce((a,b)=>a+b.length,0);
+
+        // ── Storey wrapper ──
+        const storeyWrap=document.createElement('div');
+
+        // Storey header row
+        const storeyRow=document.createElement('div');
+        storeyRow.className='storey-row';
+        storeyRow.innerHTML=`<span class="storey-arrow">▼</span><span class="storey-icon">📐</span><span class="storey-name" title="${storeyName}">${storeyName}</span><span class="storey-count">${totalElems}</span><button class="eye-btn" title="Ocultar nivel">👁</button>`;
+
+        const storeyChildren=document.createElement('div');
+        storeyChildren.className='storey-children';
+
+        // Toggle colapso de storey
+        const storeyArrow=storeyRow.querySelector('.storey-arrow');
+        storeyRow.addEventListener('click',e=>{
+          if(e.target.classList.contains('eye-btn')) return;
+          const collapsed=storeyChildren.classList.toggle('collapsed');
+          storeyArrow.textContent=collapsed?'▶':'▼';
         });
-      }
 
-      if(node.expressID){
-        if(!hasChildren){
-          row.addEventListener('click',e=>{
-            e.stopPropagation();
-            selectElement(node.expressID, e.ctrlKey||e.metaKey, row);
+        // Eye en storey → ocultar/mostrar todos sus elementos
+        const storeyEye=storeyRow.querySelector('.eye-btn');
+        let storeyVisible=true;
+        storeyEye.addEventListener('click',e=>{
+          e.stopPropagation();
+          storeyVisible=!storeyVisible;
+          const eids=collectEids(storeyChildren);
+          setVisible(eids,storeyVisible);
+          updateEyeBtn(storeyEye,storeyVisible);
+          // Sincronizar eyes de categorías
+          storeyChildren.querySelectorAll('.cat-row .eye-btn').forEach(b=>{
+            updateEyeBtn(b,storeyVisible);b._visible=storeyVisible;
           });
-        }
-        row.addEventListener('dblclick',e=>{e.stopPropagation();focusElement(node.expressID);});
-        nodeRowMap.set(node.expressID,row);
-      }
+        });
+        storeyEye._visible=true;
 
-      wrap.appendChild(row);
-      if(hasChildren){
-        for(const child of node.children) renderNode(child,childWrap,depth+1);
-        wrap.appendChild(childWrap);
+        // ── Categorías ──
+        const sortedCats=[...cats.entries()].sort((a,b)=>b[1].length-a[1].length);
+        for(const [catName,elems] of sortedCats){
+          const catWrap=document.createElement('div');
+
+          const catRow=document.createElement('div');
+          catRow.className='cat-row';
+          catRow.innerHTML=`<span class="cat-arrow">▼</span><span class="cat-icon">▪</span><span class="cat-name" title="${catName}">${catName}</span><span class="cat-count">${elems.length}</span><button class="eye-btn" title="Ocultar categoría">👁</button>`;
+
+          const catChildren=document.createElement('div');
+          catChildren.className='cat-children';
+
+          const catArrow=catRow.querySelector('.cat-arrow');
+          catRow.addEventListener('click',e=>{
+            if(e.target.classList.contains('eye-btn')) return;
+            const collapsed=catChildren.classList.toggle('collapsed');
+            catArrow.textContent=collapsed?'▶':'▼';
+          });
+
+          // Eye en categoría
+          const catEye=catRow.querySelector('.eye-btn');
+          catEye._visible=true;
+          catEye.addEventListener('click',e=>{
+            e.stopPropagation();
+            catEye._visible=!catEye._visible;
+            const eids=collectEids(catChildren);
+            setVisible(eids,catEye._visible);
+            updateEyeBtn(catEye,catEye._visible);
+          });
+
+          // ── Elementos ──
+          for(const {expressID,name} of elems){
+            const elemRow=document.createElement('div');
+            elemRow.className='elem-row';
+            elemRow.dataset.eid=String(expressID);
+            elemRow.dataset.label=name.toLowerCase();
+            elemRow.innerHTML=`<span class="elem-label" title="${name}">${name}</span><button class="eye-btn" title="Ocultar">👁</button>`;
+
+            // Seleccionar elemento
+            elemRow.addEventListener('click',e=>{
+              if(e.target.classList.contains('eye-btn')) return;
+              selectElement(expressID,e.ctrlKey||e.metaKey);
+            });
+            elemRow.addEventListener('dblclick',e=>{e.stopPropagation();focusElement(expressID);});
+
+            // Eye en elemento
+            const elemEye=elemRow.querySelector('.eye-btn');
+            elemEye._visible=true;
+            elemEye.addEventListener('click',e=>{
+              e.stopPropagation();
+              elemEye._visible=!elemEye._visible;
+              setVisible([expressID],elemEye._visible);
+              updateEyeBtn(elemEye,elemEye._visible);
+            });
+
+            catChildren.appendChild(elemRow);
+            elemRowMap.set(expressID,elemRow);
+          }
+
+          catWrap.appendChild(catRow);
+          catWrap.appendChild(catChildren);
+          storeyChildren.appendChild(catWrap);
+        }
+
+        storeyWrap.appendChild(storeyRow);
+        storeyWrap.appendChild(storeyChildren);
+        root.appendChild(storeyWrap);
       }
-      container.appendChild(wrap);
     }
 
-    // ═══════════════════════════════════════════════════════
-    //  ÁRBOL — vista por categorías
-    // ═══════════════════════════════════════════════════════
-    function buildCategories(){
-      const root=document.getElementById('cat-root');
+    // ═══════════════════════════════════════════════════
+    //  ÁRBOL CATEGORÍAS (vista plana agrupada)
+    // ═══════════════════════════════════════════════════
+    function buildCategoriesView(treeData){
+      // Aplanar: cat → [{expressID, name, storey}]
+      const catFlat=new Map();
+      for(const [storey,cats] of treeData){
+        for(const [cat,elems] of cats){
+          if(!catFlat.has(cat)) catFlat.set(cat,[]);
+          for(const e of elems) catFlat.get(cat).push({...e,storey});
+        }
+      }
+      const root=document.getElementById('view-categories');
       root.innerHTML='';
-      const sorted=[...categoryMap.entries()]
-        .filter(([,items])=>items.length>0)
-        .sort((a,b)=>b[1].length-a[1].length);
+      const sorted=[...catFlat.entries()].sort((a,b)=>b[1].length-a[1].length);
 
-      for(const [typeName,items] of sorted){
-        const icon=TYPE_ICONS[typeName]||TYPE_ICONS.DEFAULT;
+      for(const [catName,elems] of sorted){
         const grp=document.createElement('div');
-        grp.className='cat-group';
+        grp.style.marginBottom='2px';
 
         const hdr=document.createElement('div');
-        hdr.className='cat-header';
-        hdr.dataset.type=typeName.toLowerCase();
-        hdr.innerHTML=`<span class="cat-icon">${icon}</span><span class="cat-name">${typeName.replace('Ifc','')}</span><span class="cat-badge">${items.length}</span><span style="color:#334155;font-size:9px;margin-left:2px;">▶</span>`;
-
+        hdr.className='cat-row';
+        hdr.style.paddingLeft='6px';
+        hdr.innerHTML=`<span class="cat-arrow">▶</span><span class="cat-icon">▪</span><span class="cat-name" title="${catName}">${catName}</span><span class="cat-count">${elems.length}</span>`;
         const list=document.createElement('div');
-        list.className='cat-items';
+        list.className='cat-children collapsed';
+        list.style.paddingLeft='20px';
 
         hdr.addEventListener('click',()=>{
-          const open=list.classList.toggle('open');
-          hdr.querySelector('span:last-child').textContent=open?'▼':'▶';
+          const c=list.classList.toggle('collapsed');
+          hdr.querySelector('.cat-arrow').textContent=c?'▶':'▼';
         });
 
-        for(const {expressID,label} of items){
+        for(const {expressID,name} of elems){
           const el=document.createElement('div');
-          el.className='cat-item';
-          el.dataset.expressId=String(expressID);
-          el.dataset.label=label.toLowerCase();
-          el.innerHTML=`<span style="color:#334155">◆</span> ${label}`;
-          el.addEventListener('click',e=>{
-            selectElement(expressID, e.ctrlKey||e.metaKey);
-            switchTab('tree');
-          });
-          el.addEventListener('dblclick',e=>{e.stopPropagation();focusElement(expressID);switchTab('tree');});
+          el.className='elem-row';
+          el.dataset.eid=String(expressID);
+          el.dataset.label=name.toLowerCase();
+          el.innerHTML=`<span class="elem-label" title="${name}">${name}</span>`;
+          el.addEventListener('click',e=>{selectElement(expressID,e.ctrlKey||e.metaKey);switchTab('tree');});
+          el.addEventListener('dblclick',()=>{focusElement(expressID);});
           list.appendChild(el);
-          catItemEls.set(expressID,el);
         }
-
-        grp.appendChild(hdr);
-        grp.appendChild(list);
+        grp.appendChild(hdr);grp.appendChild(list);
         root.appendChild(grp);
-      }
-
-      if(sorted.length===0){
-        root.innerHTML='<div style="font-size:11px;color:#475569;padding:8px;">Sin categorías disponibles</div>';
       }
     }
 
-    // ═══════════════════════════════════════════════════════
-    //  BUSCADOR en tiempo real
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════
+    //  BUSCADOR
+    // ═══════════════════════════════════════════════════
+    let currentView='hierarchy';
     const searchInput=document.getElementById('search-input');
     const searchClear=document.getElementById('search-clear');
-    let searchTimeout=null;
 
     searchInput.addEventListener('input',()=>{
-      clearTimeout(searchTimeout);
-      searchTimeout=setTimeout(applySearch,120);
       searchClear.style.display=searchInput.value?'block':'none';
+      applySearch(searchInput.value.trim().toLowerCase());
     });
-    searchClear.addEventListener('click',()=>{
-      searchInput.value='';
-      searchClear.style.display='none';
-      applySearch();
-    });
+    searchClear.addEventListener('click',()=>{searchInput.value='';searchClear.style.display='none';applySearch('');});
 
-    function applySearch(){
-      const q=searchInput.value.trim().toLowerCase();
-      const activeView=currentTreeView;
-
-      if(activeView==='hierarchy'){
-        // Buscar en árbol de jerarquía
-        const nodes=document.querySelectorAll('#tree-root .tnode');
+    function applySearch(q){
+      if(currentView==='hierarchy'){
+        const viewEl=document.getElementById('view-hierarchy');
         if(!q){
-          nodes.forEach(n=>{
-            n.classList.remove('search-hidden','search-match');
-            const wrap=n.parentElement;
-            if(wrap) wrap.style.display='';
-          });
-          // Colapsar todo de nuevo
-          document.querySelectorAll('#tree-root .tnode-children').forEach(c=>c.classList.add('collapsed'));
-          document.querySelectorAll('#tree-root .tnode-arrow').forEach(a=>{if(a.textContent==='▼')a.textContent='▶';});
+          viewEl.querySelectorAll('.elem-row').forEach(r=>{r.style.display='';r.querySelector('.elem-label').classList.remove('search-hl');});
+          viewEl.querySelectorAll('.cat-children').forEach(c=>c.classList.remove('_force-open'));
+          viewEl.querySelectorAll('.storey-children').forEach(c=>c.classList.remove('_force-open'));
           return;
         }
-        nodes.forEach(n=>{
-          const lbl=n.dataset.label||'';
-          const type=n.dataset.type||'';
-          const match=lbl.includes(q)||type.includes(q);
-          n.classList.toggle('search-match',match);
+        viewEl.querySelectorAll('.elem-row').forEach(r=>{
+          const lbl=r.dataset.label||'';
+          const match=lbl.includes(q);
+          r.style.display=match?'':'none';
+          r.querySelector('.elem-label').classList.toggle('search-hl',match);
           if(match){
-            // Expandir ancestros
-            let p=n.parentElement;
-            while(p&&p.id!=='tree-root'){
-              if(p.classList.contains('tnode-children')){
+            let p=r.parentElement;
+            while(p&&p!==viewEl){
+              if(p.classList.contains('cat-children')||p.classList.contains('storey-children')){
                 p.classList.remove('collapsed');
-                const arr=p.previousSibling?.querySelector?.('.tnode-arrow');
+                const arr=p.previousSibling?.querySelector?.('.storey-arrow,.cat-arrow');
                 if(arr) arr.textContent='▼';
               }
               p=p.parentElement;
             }
           }
         });
-        // Ocultar wrappers sin matches
-        document.querySelectorAll('#tree-root > div').forEach(wrap=>filterWrap(wrap,q));
       } else {
-        // Buscar en vista categorías
-        document.querySelectorAll('.cat-group').forEach(grp=>{
-          const hdr=grp.querySelector('.cat-header');
-          const items=grp.querySelectorAll('.cat-item');
-          let anyMatch=false;
-          items.forEach(item=>{
-            const lbl=item.dataset.label||'';
-            const match=!q||lbl.includes(q)||(hdr.dataset.type||'').includes(q);
-            item.style.display=match?'':'none';
-            if(match) anyMatch=true;
-          });
-          grp.style.display=(!q||anyMatch)?'':'none';
-          if(q&&anyMatch){ grp.querySelector('.cat-items').classList.add('open'); }
+        const viewEl=document.getElementById('view-categories');
+        viewEl.querySelectorAll('.elem-row').forEach(r=>{
+          const lbl=r.dataset.label||'';
+          const match=!q||lbl.includes(q);
+          r.style.display=match?'':'none';
+        });
+        viewEl.querySelectorAll('.cat-row').forEach(row=>{
+          const list=row.nextSibling;
+          if(!list) return;
+          const hasVisible=[...list.querySelectorAll('.elem-row')].some(r=>r.style.display!=='none');
+          row.parentElement.style.display=(!q||hasVisible)?'':'none';
+          if(q&&hasVisible){list.classList.remove('collapsed');row.querySelector('.cat-arrow').textContent='▼';}
         });
       }
     }
 
-    function filterWrap(wrap,q){
-      if(!wrap||!wrap.querySelector) return false;
-      const row=wrap.querySelector(':scope > .tnode');
-      const childWrap=wrap.querySelector(':scope > .tnode-children');
-      let childMatch=false;
-      if(childWrap){
-        childWrap.querySelectorAll(':scope > div').forEach(cw=>{
-          if(filterWrap(cw,q)) childMatch=true;
-        });
-      }
-      const selfMatch=row&&(row.classList.contains('search-match'));
-      const visible=selfMatch||childMatch;
-      if(wrap.style!==undefined) wrap.style.display=visible?'':'none';
-      return visible;
-    }
-
-    // ═══════════════════════════════════════════════════════
-    //  SUB-TABS árbol: Jerarquía / Categorías
-    // ═══════════════════════════════════════════════════════
-    let currentTreeView='hierarchy';
-
+    // ── Sub-tabs árbol ──
     document.getElementById('stab-hierarchy').addEventListener('click',()=>{
-      currentTreeView='hierarchy';
+      currentView='hierarchy';
       document.getElementById('stab-hierarchy').classList.add('active');
       document.getElementById('stab-categories').classList.remove('active');
       document.getElementById('view-hierarchy').style.display='block';
       document.getElementById('view-categories').style.display='none';
       searchInput.placeholder='🔍  Buscar en jerarquía…';
-      applySearch();
+      applySearch(searchInput.value.trim().toLowerCase());
     });
     document.getElementById('stab-categories').addEventListener('click',()=>{
-      currentTreeView='categories';
+      currentView='categories';
       document.getElementById('stab-categories').classList.add('active');
       document.getElementById('stab-hierarchy').classList.remove('active');
       document.getElementById('view-hierarchy').style.display='none';
       document.getElementById('view-categories').style.display='block';
       searchInput.placeholder='🔍  Buscar categoría…';
-      applySearch();
+      applySearch(searchInput.value.trim().toLowerCase());
     });
 
-    // ═══════════════════════════════════════════════════════
-    //  AISLAMIENTO
-    // ═══════════════════════════════════════════════════════
-    function enterIsolate(ids){
-      // Ocultar todo excepto los IDs seleccionados
-      for(const m of allMeshes){
-        const eid=m.userData.expressID;
-        m.visible=ids.has(eid);
-      }
-      isolateMode=true;
-      document.getElementById('btn-isolate').classList.add('active');
-      document.getElementById('isolate-banner').style.display='block';
+    // ── Sidebar main tabs ──
+    document.querySelectorAll('.stab').forEach(tab=>{
+      tab.addEventListener('click',()=>switchTab(tab.dataset.tab));
+    });
+    function switchTab(name){
+      document.querySelectorAll('.stab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+      document.querySelectorAll('.spanel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+name));
+      const inTree=name==='tree';
+      document.getElementById('tree-subtabs').style.display=inTree?'flex':'none';
+      document.getElementById('search-wrap').style.display=inTree?'block':'none';
+      document.getElementById('sel-bar').style.display=(inTree&&selectedIDs.size>1)?'flex':'none';
     }
 
-    function exitIsolate(){
-      for(const m of allMeshes){
-        const eid=m.userData.expressID;
-        m.visible=!hiddenIDs.has(eid);
-      }
-      isolateMode=false;
-      document.getElementById('btn-isolate').classList.remove('active');
-      document.getElementById('isolate-banner').style.display='none';
-    }
-
-    document.getElementById('btn-isolate').onclick=()=>{
-      if(isolateMode){ exitIsolate(); return; }
-      if(selectedIDs.size===0) return;
-      enterIsolate(new Set(selectedIDs));
-    };
-
-    // Botón en sel-bar
-    document.getElementById('btn-sel-isolate').onclick=()=>{
-      if(selectedIDs.size===0) return;
-      enterIsolate(new Set(selectedIDs));
-    };
-    document.getElementById('btn-sel-clear').onclick=()=>clearSelection();
-    document.getElementById('btn-sel-hide').onclick=()=>{
-      for(const id of selectedIDs){
-        const meshes=meshMap.get(id)||[];
-        meshes.forEach(m=>{m.visible=false;});
-        hiddenIDs.add(id);
-      }
-      clearSelection();
-    };
-
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════
     //  PROPIEDADES
-    // ═══════════════════════════════════════════════════════
-    async function showProps(expressID){
+    // ═══════════════════════════════════════════════════
+    async function showProps(eid){
       const content=document.getElementById('prop-content');
       const empty=document.getElementById('prop-empty');
-      content.style.display='none'; empty.style.display='flex';
-      content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">Cargando propiedades…</div>';
-      content.style.display='block'; empty.style.display='none';
+      empty.style.display='none';
+      content.style.display='block';
+      content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">Cargando…</div>';
 
       try{
-        const res2=await fetch(fileUrl);
-        const buf2=await res2.arrayBuffer();
-        const api2=new WebIFC.IfcAPI();
-        await api2.Init();
-        const mid2=api2.OpenModel(new Uint8Array(buf2),{COORDINATE_TO_ORIGIN:true,USE_FAST_BOOLS:true});
-
-        const props=api2.GetItemProperties(mid2,expressID,false);
-        const psets=api2.GetPropertySets(mid2,expressID);
-
+        const r2=await fetch(fileUrl);
+        const b2=await r2.arrayBuffer();
+        const a2=new WebIFC.IfcAPI();
+        await a2.Init();
+        const m2=a2.OpenModel(new Uint8Array(b2),{COORDINATE_TO_ORIGIN:true,USE_FAST_BOOLS:true});
+        const props=a2.GetItemProperties(m2,eid,false);
+        const psets=a2.GetPropertySets(m2,eid);
         content.innerHTML='';
-
         if(props){
-          const sec=makePropSection('Propiedades generales');
+          const sec=mkSec('Propiedades generales');
           for(const [k,v] of Object.entries(props)){
             if(k==='type'||!v) continue;
             const val=v?.value??v;
             if(typeof val==='object') continue;
-            sec.appendChild(makePropRow(k,String(val)));
+            sec.appendChild(mkRow(k,String(val)));
           }
           content.appendChild(sec);
         }
-
-        if(psets&&psets.length>0){
-          for(const pset of psets){
-            if(!pset.HasProperties) continue;
-            const sec=makePropSection(pset.Name?.value||'PropertySet');
-            for(const prop of pset.HasProperties){
-              const name=prop.Name?.value||'';
-              const val=prop.NominalValue?.value??prop.Value?.value??'-';
-              sec.appendChild(makePropRow(name,String(val)));
+        if(psets?.length){
+          for(const ps of psets){
+            if(!ps.HasProperties) continue;
+            const sec=mkSec(ps.Name?.value||'PropertySet');
+            for(const p of ps.HasProperties){
+              const nm=p.Name?.value||'';
+              const vl=p.NominalValue?.value??p.Value?.value??'-';
+              sec.appendChild(mkRow(nm,String(vl)));
             }
             content.appendChild(sec);
           }
         }
-
-        api2.CloseModel(mid2);
-      }catch(e){
+        a2.CloseModel(m2);
+      }catch(_){
         content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">No se pudieron cargar las propiedades.</div>';
       }
     }
+    function mkSec(title){const d=document.createElement('div');d.className='prop-section';d.innerHTML=`<div class="prop-section-title">${title}</div>`;return d;}
+    function mkRow(k,v){const d=document.createElement('div');d.className='prop-row';d.innerHTML=`<span class="prop-key" title="${k}">${k}</span><span class="prop-val" title="${v}">${v}</span>`;return d;}
 
-    function makePropSection(title){
-      const d=document.createElement('div');
-      d.className='prop-section';
-      d.innerHTML=`<div class="prop-section-title">${title}</div>`;
-      return d;
+    // ═══════════════════════════════════════════════════
+    //  AISLAMIENTO
+    // ═══════════════════════════════════════════════════
+    function enterIsolate(ids){
+      for(const m of allMeshes) m.visible=ids.has(m.userData.expressID);
+      isolateMode=true;
+      document.getElementById('btn-isolate').classList.add('active');
+      document.getElementById('isolate-banner').style.display='block';
     }
-    function makePropRow(k,v){
-      const d=document.createElement('div');
-      d.className='prop-row';
-      d.innerHTML=`<span class="prop-key" title="${k}">${k}</span><span class="prop-val" title="${v}">${v}</span>`;
-      return d;
+    function exitIsolate(){
+      for(const m of allMeshes) m.visible=!hiddenIDs.has(m.userData.expressID);
+      isolateMode=false;
+      document.getElementById('btn-isolate').classList.remove('active');
+      document.getElementById('isolate-banner').style.display='none';
     }
+    document.getElementById('btn-isolate').onclick=()=>{
+      if(isolateMode){exitIsolate();return;}
+      if(selectedIDs.size===0) return;
+      enterIsolate(new Set(selectedIDs));
+    };
+    document.getElementById('btn-sel-isolate').onclick=()=>{if(selectedIDs.size)enterIsolate(new Set(selectedIDs));};
+    document.getElementById('btn-sel-clear').onclick=()=>clearSelection();
+    document.getElementById('btn-sel-hide').onclick=()=>{
+      for(const id of selectedIDs){const ms=meshMap.get(id)||[];ms.forEach(m=>{m.visible=false;});hiddenIDs.add(id);}
+      clearSelection();
+    };
 
-    // ═══════════════════════════════════════════════════════
+    document.getElementById('btn-showall').onclick=()=>{
+      exitIsolate();
+      for(const id of hiddenIDs){const ms=meshMap.get(id)||[];ms.forEach(m=>{m.visible=true;});}
+      hiddenIDs.clear();
+      // Restaurar todos los eyes del árbol a visible
+      document.querySelectorAll('.eye-btn.is-hidden').forEach(b=>{updateEyeBtn(b,true);b._visible=true;});
+    };
+
+    // ═══════════════════════════════════════════════════
     //  SECCIÓN
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════
     const clipPlanes={x:null,y:null,z:null};
     const boxCenter=box.getCenter(new THREE.Vector3());
 
@@ -927,54 +946,47 @@ class OrbitCtrl {
       const btn=document.getElementById('btn-s'+axis);
       if(clipPlanes[axis]){
         renderer.clippingPlanes=renderer.clippingPlanes.filter(p=>p!==clipPlanes[axis]);
-        clipPlanes[axis]=null;
-        btn.classList.remove('active');
+        clipPlanes[axis]=null;btn.classList.remove('active');
         document.getElementById('section-hint').style.display='none';
       } else {
-        const normal={x:new THREE.Vector3(1,0,0),y:new THREE.Vector3(0,1,0),z:new THREE.Vector3(0,0,1)};
-        const c={x:boxCenter.x,y:boxCenter.y,z:boxCenter.z};
-        const plane=new THREE.Plane(normal[axis],-c[axis]);
+        const normals={x:new THREE.Vector3(1,0,0),y:new THREE.Vector3(0,1,0),z:new THREE.Vector3(0,0,1)};
+        const plane=new THREE.Plane(normals[axis],-boxCenter[axis]);
         clipPlanes[axis]=plane;
         renderer.clippingPlanes=[...renderer.clippingPlanes,plane];
         btn.classList.add('active');
         const hint=document.getElementById('section-hint');
-        hint.innerHTML=`✂ Sección ${axis.toUpperCase()} activa<br><span style="font-size:10px;color:#334155;">Rueda del ratón para ajustar</span>`;
+        hint.innerHTML=`✂ Sección ${axis.toUpperCase()} activa`;
         hint.style.display='block';
-        setTimeout(()=>{hint.style.display='none';},3000);
+        setTimeout(()=>{hint.style.display='none';},2500);
       }
     }
-
     document.getElementById('btn-sx').onclick=()=>toggleSection('x');
     document.getElementById('btn-sy').onclick=()=>toggleSection('y');
     document.getElementById('btn-sz').onclick=()=>toggleSection('z');
 
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════
     //  MEDICIÓN
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════
     let measureMode=false;
-    const measurePoints=[];
-    const measureMarkers=[];
-    const measureLines=[];
-    const MARKER_GEO=new THREE.SphereGeometry(0.08,8,8);
-    const MARKER_MAT=new THREE.MeshBasicMaterial({color:0xfbbf24});
-    const LINE_MAT=new THREE.LineBasicMaterial({color:0xfbbf24});
+    const measurePoints=[],measureMarkers=[],measureLines=[];
+    const MK_GEO=new THREE.SphereGeometry(0.08,8,8);
+    const MK_MAT=new THREE.MeshBasicMaterial({color:0xfbbf24});
+    const LN_MAT=new THREE.LineBasicMaterial({color:0xfbbf24});
 
-    function setMeasureMode(on){
+    function setMeasure(on){
       measureMode=on;
       document.getElementById('btn-measure').classList.toggle('active',on);
       document.getElementById('crosshair').style.display=on?'block':'none';
       renderer.domElement.style.cursor=on?'crosshair':'default';
       if(!on) document.getElementById('measure-tip').style.display='none';
     }
-
-    function clearMeasurements(){
+    function clearMeasure(){
       measurePoints.length=0;
       for(const m of measureMarkers) scene.remove(m);
       for(const l of measureLines) scene.remove(l);
-      measureMarkers.length=0; measureLines.length=0;
+      measureMarkers.length=0;measureLines.length=0;
       document.getElementById('measure-tip').style.display='none';
     }
-
     function handleMeasureClick(e){
       const rect=renderer.domElement.getBoundingClientRect();
       mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
@@ -984,85 +996,35 @@ class OrbitCtrl {
       if(!hits.length) return;
       const pt=hits[0].point.clone();
       measurePoints.push(pt);
-      const marker=new THREE.Mesh(MARKER_GEO,MARKER_MAT);
-      marker.position.copy(pt);
-      scene.add(marker); measureMarkers.push(marker);
-
+      const mk=new THREE.Mesh(MK_GEO,MK_MAT);mk.position.copy(pt);scene.add(mk);measureMarkers.push(mk);
       if(measurePoints.length>=2){
-        const a=measurePoints[measurePoints.length-2];
-        const b=measurePoints[measurePoints.length-1];
-        const geo=new THREE.BufferGeometry().setFromPoints([a,b]);
-        const line=new THREE.Line(geo,LINE_MAT);
-        scene.add(line); measureLines.push(line);
-        const d=a.distanceTo(b).toFixed(3);
+        const a=measurePoints[measurePoints.length-2],b=measurePoints[measurePoints.length-1];
+        const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),LN_MAT);
+        scene.add(ln);measureLines.push(ln);
         const tip=document.getElementById('measure-tip');
-        tip.textContent=`📏 ${d} m`;
+        tip.textContent='📏 '+a.distanceTo(b).toFixed(3)+' m';
         tip.style.display='block';
       }
     }
+    document.getElementById('btn-measure').onclick=()=>{if(measureMode){clearMeasure();setMeasure(false);}else setMeasure(true);};
 
-    document.getElementById('btn-measure').onclick=()=>{
-      if(measureMode){clearMeasurements();setMeasureMode(false);}
-      else setMeasureMode(true);
-    };
-
-    // ═══════════════════════════════════════════════════════
-    //  OCULTAR / MOSTRAR
-    // ═══════════════════════════════════════════════════════
-    document.getElementById('btn-hide').onclick=()=>{
-      for(const id of selectedIDs){
-        const meshes=meshMap.get(id)||[];
-        meshes.forEach(m=>{m.visible=false;});
-        hiddenIDs.add(id);
-      }
-      if(selectedIDs.size===0 && selectedIDs.size===0) return;
-      clearSelection();
-    };
-
-    document.getElementById('btn-showall').onclick=()=>{
-      exitIsolate();
-      for(const id of hiddenIDs){
-        const meshes=meshMap.get(id)||[];
-        meshes.forEach(m=>{m.visible=true;});
-      }
-      hiddenIDs.clear();
-    };
-
-    // ═══════════════════════════════════════════════════════
-    //  TOOLBAR — otros
-    // ═══════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════
+    //  TOOLBAR — resto
+    // ═══════════════════════════════════════════════════
     let wire=false;
     document.getElementById('btn-r').onclick=()=>controls.setView(initialCenter,initialDist);
-    document.getElementById('btn-fit').onclick=()=>{
-      if(selectedIDs.size>0) focusElement([...selectedIDs][0]);
-      else controls.setView(initialCenter,initialDist);
-    };
+    document.getElementById('btn-fit').onclick=()=>{if(selectedIDs.size)focusElement([...selectedIDs][0]);else controls.setView(initialCenter,initialDist);};
     document.getElementById('btn-w').onclick=()=>{
       wire=!wire;
       document.getElementById('btn-w').classList.toggle('active',wire);
       for(const mat of Object.values(matCache)) mat.wireframe=wire;
     };
-
     let sidebarVisible=true;
     document.getElementById('btn-panel').onclick=()=>{
       sidebarVisible=!sidebarVisible;
       document.getElementById('sidebar').style.display=sidebarVisible?'flex':'none';
       document.getElementById('btn-panel').classList.toggle('active',sidebarVisible);
     };
-
-    // Sidebar tabs
-    document.querySelectorAll('.stab').forEach(tab=>{
-      tab.addEventListener('click',()=>switchTab(tab.dataset.tab));
-    });
-    function switchTab(name){
-      document.querySelectorAll('.stab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
-      document.querySelectorAll('.spanel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+name));
-      // Mostrar/ocultar buscador y subtabs solo en tab árbol
-      const inTree=name==='tree';
-      document.getElementById('search-wrap').style.display=inTree?'block':'none';
-      document.getElementById('tree-subtabs').style.display=inTree?'flex':'none';
-      document.getElementById('sel-bar').style.display=(inTree&&selectedIDs.size>1)?'flex':'none';
-    }
 
   }catch(e){showErr(e.message||String(e));}
 })();

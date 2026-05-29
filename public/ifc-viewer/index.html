@@ -154,6 +154,30 @@ canvas{display:block;width:100%!important;height:100%!important;}
 
 /* ── Isolate banner ── */
 #isolate-banner{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#f59e0b22;border:1px solid #f59e0b55;border-radius:8px;padding:6px 14px;font-size:11px;color:#fbbf24;pointer-events:none;display:none;white-space:nowrap;z-index:10;}
+
+/* ── Section slider ── */
+#section-slider-wrap{display:none;align-items:center;gap:8px;padding:5px 12px;background:#060f1c;border-bottom:1px solid #1e3a5f;font-size:10px;color:#475569;flex-shrink:0;}
+#section-slider{flex:1;accent-color:#2563eb;cursor:pointer;height:3px;}
+#section-slider-val{min-width:42px;text-align:right;color:#7da9d8;}
+
+/* ── Explode ── */
+#explode-wrap{display:none;align-items:center;gap:5px;font-size:10px;color:#94a3b8;}
+#explode-slider{width:80px;accent-color:#a78bfa;cursor:pointer;}
+
+/* ── Walkthrough ── */
+#walk-banner{position:absolute;top:8px;right:12px;background:#6366f122;border:1px solid #6366f155;border-radius:8px;padding:6px 12px;font-size:10px;color:#a5b4fc;pointer-events:none;display:none;white-space:nowrap;z-index:10;line-height:1.6;}
+
+/* ── Annotations ── */
+#annot-layer{position:absolute;inset:0;pointer-events:none;z-index:12;}
+.annot-pin{position:absolute;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:50%;background:#f59e0b;border:2px solid #fff8;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#050d1a;cursor:pointer;pointer-events:auto;box-shadow:0 2px 6px #0008;transition:transform .1s;}
+.annot-pin:hover{transform:translate(-50%,-50%) scale(1.2);}
+.annot-bubble{position:absolute;transform:translate(-50%,-140%);pointer-events:auto;background:#050d1aee;border:1px solid #f59e0b88;border-radius:7px;padding:5px 8px;font-size:10px;color:#fcd34d;white-space:nowrap;cursor:default;max-width:200px;white-space:pre-wrap;word-break:break-word;}
+.annot-bubble-del{background:none;border:none;color:#ef4444;cursor:pointer;margin-left:6px;font-size:11px;line-height:1;}
+#annot-list-empty{font-size:11px;color:#334155;padding:12px;text-align:center;}
+.annot-list-item{display:flex;align-items:flex-start;gap:6px;padding:6px 8px;border-bottom:1px solid #0a1628;font-size:10px;color:#94a3b8;cursor:pointer;}
+.annot-list-item:hover{background:#0a1628;}
+.annot-list-num{flex-shrink:0;width:18px;height:18px;border-radius:50%;background:#f59e0b;color:#050d1a;font-weight:700;font-size:9px;display:flex;align-items:center;justify-content:center;}
+.annot-list-txt{flex:1;line-height:1.4;overflow:hidden;text-overflow:ellipsis;}
 </style>
 </head>
 <body>
@@ -172,7 +196,23 @@ canvas{display:block;width:100%!important;height:100%!important;}
     <button class="tb" id="btn-measure">📏 Medir</button>
     <button class="tb" id="btn-isolate">◎ Aislar</button>
     <button class="tb" id="btn-showall">⊕ Mostrar todo</button>
+    <span class="tb-sep"></span>
+    <button class="tb" id="btn-pbr">✦ PBR</button>
+    <button class="tb" id="btn-explode">💥 Explosión</button>
+    <div id="explode-wrap">
+      <span>Factor:</span>
+      <input type="range" id="explode-slider" min="0" max="3" step="0.05" value="0"/>
+      <span id="explode-val">0.0</span>
+    </div>
+    <span class="tb-sep"></span>
+    <button class="tb" id="btn-walk">🚶 Walk</button>
+    <button class="tb" id="btn-annot">📌 Anotar</button>
     <div id="statusbar"><span class="dot"></span><span id="lbl">Modelo IFC</span></div>
+  </div>
+  <div id="section-slider-wrap">
+    <span id="section-slider-lbl">Sección:</span>
+    <input type="range" id="section-slider"/>
+    <span id="section-slider-val"></span>
   </div>
 
   <div id="main">
@@ -180,6 +220,7 @@ canvas{display:block;width:100%!important;height:100%!important;}
       <div id="sidebar-tabs">
         <div class="stab active" data-tab="tree">Árbol</div>
         <div class="stab" data-tab="props">Propiedades</div>
+        <div class="stab" data-tab="annots">Notas</div>
       </div>
       <div id="tree-subtabs">
         <button class="tree-stab active" id="stab-hierarchy">Jerarquía</button>
@@ -212,6 +253,11 @@ canvas{display:block;width:100%!important;height:100%!important;}
           </div>
           <div id="prop-content" style="display:none;"></div>
         </div>
+        <div class="spanel" id="tab-annots">
+          <div id="annot-list">
+            <div id="annot-list-empty" style="font-size:11px;color:#334155;padding:16px;text-align:center;">Sin anotaciones.<br>Activa 📌 Anotar y haz clic en el modelo.</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -231,6 +277,8 @@ canvas{display:block;width:100%!important;height:100%!important;}
       <div id="crosshair"></div>
       <div id="section-hint"></div>
       <div id="isolate-banner">◎ Modo aislamiento activo — "Mostrar todo" para salir</div>
+      <div id="walk-banner">🚶 Walk — <b>WASD</b> mover · <b>Q/E</b> subir/bajar · <b>ESC</b> salir</div>
+      <div id="annot-layer"></div>
     </div>
   </div>
 </div>
@@ -294,12 +342,21 @@ class OrbitCtrl {
     renderer.setPixelRatio(Math.min(devicePixelRatio,2));
     renderer.setSize(wrap.clientWidth,wrap.clientHeight);
     renderer.localClippingEnabled=true;
+    renderer.shadowMap.enabled=false;
+    renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     wrap.appendChild(renderer.domElement);
 
     const controls=new OrbitCtrl(camera,renderer.domElement);
     scene.add(new THREE.AmbientLight(0xffffff,0.65));
     const sun=new THREE.DirectionalLight(0xffffff,1.2);
-    sun.position.set(50,80,50);scene.add(sun);
+    sun.position.set(50,80,50);
+    sun.castShadow=false;
+    sun.shadow.mapSize.set(2048,2048);
+    sun.shadow.camera.near=0.5;
+    sun.shadow.camera.far=5000;
+    sun.shadow.camera.left=sun.shadow.camera.bottom=-500;
+    sun.shadow.camera.right=sun.shadow.camera.top=500;
+    scene.add(sun);
     scene.add(new THREE.GridHelper(1000,60,0x1e3a5f,0x0f2035));
 
     new ResizeObserver(()=>{
@@ -309,7 +366,8 @@ class OrbitCtrl {
     }).observe(wrap);
 
     let initialCenter=new THREE.Vector3(),initialDist=10;
-    (function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera);})();
+    const tickFns=[];
+    (function loop(){requestAnimationFrame(loop);controls.update();tickFns.forEach(f=>f());renderer.render(scene,camera);})();
 
     // ── Cargar IFC ─────────────────────────────────────
     prog(16,'Descargando modelo...');
@@ -350,9 +408,15 @@ class OrbitCtrl {
       DEFAULT:0x3b82f6
     };
     const matCache={};
+    const pbrCache={};
+    let pbrMode=false;
     function getMat(type){
       if(!matCache[type]) matCache[type]=new THREE.MeshLambertMaterial({color:COLORS[type]||COLORS.DEFAULT,side:THREE.DoubleSide});
       return matCache[type];
+    }
+    function getPBRMat(type){
+      if(!pbrCache[type]) pbrCache[type]=new THREE.MeshStandardMaterial({color:COLORS[type]||COLORS.DEFAULT,roughness:0.65,metalness:0.1,side:THREE.DoubleSide});
+      return pbrCache[type];
     }
 
     // ── Mapa inverso TypeCode → nombre IFC (cubre TODOS los tipos) ──
@@ -410,6 +474,20 @@ class OrbitCtrl {
 
     if(n===0) throw new Error('El modelo no contiene geometría visible.');
     scene.add(group);
+
+    // ── Pre-calcular centroides y matrices originales para Explode ──
+    const elemCentroids=new Map();
+    const origMatrices=new Map();
+    for(const [eid,meshes] of meshMap){
+      const b=new THREE.Box3();
+      meshes.forEach(m=>{
+        if(m.geometry.boundingBox===null) m.geometry.computeBoundingBox();
+        const bb=m.geometry.boundingBox.clone().applyMatrix4(m.matrix);
+        b.union(bb);
+      });
+      elemCentroids.set(eid,b.getCenter(new THREE.Vector3()));
+      origMatrices.set(eid,meshes.map(m=>m.matrix.clone()));
+    }
 
     // ── Cámara ──────────────────────────────────────────
     prog(82,'Ajustando cámara...');
@@ -989,6 +1067,9 @@ class OrbitCtrl {
       document.getElementById('tree-subtabs').style.display=inTree?'flex':'none';
       document.getElementById('search-wrap').style.display=inTree?'block':'none';
       document.getElementById('sel-bar').style.display=(inTree&&selectedIDs.size>1)?'flex':'none';
+      // Buscador de propiedades solo en tab props
+      const sw=document.getElementById('prop-search-wrap');
+      if(sw) sw.style.display=(name==='props'&&document.getElementById('prop-elem-name').style.display!=='none')?'block':'none';
     }
 
     // ═══════════════════════════════════════════════════
@@ -1253,25 +1334,55 @@ class OrbitCtrl {
     // ═══════════════════════════════════════════════════
     const clipPlanes={x:null,y:null,z:null};
     const boxCenter=box.getCenter(new THREE.Vector3());
+    const sectionSliderWrap=document.getElementById('section-slider-wrap');
+    const sectionSlider=document.getElementById('section-slider');
+    const sectionSliderLbl=document.getElementById('section-slider-lbl');
+    const sectionSliderVal=document.getElementById('section-slider-val');
+    let activeSliderAxis=null;
 
     function toggleSection(axis){
       const btn=document.getElementById('btn-s'+axis);
       if(clipPlanes[axis]){
         renderer.clippingPlanes=renderer.clippingPlanes.filter(p=>p!==clipPlanes[axis]);
         clipPlanes[axis]=null;btn.classList.remove('active');
-        document.getElementById('section-hint').style.display='none';
+        if(activeSliderAxis===axis){
+          activeSliderAxis=null;
+          // mostrar slider del otro eje activo si existe
+          const other=Object.entries(clipPlanes).find(([a,p])=>p&&a!==axis);
+          if(other) showSlider(other[0]); else sectionSliderWrap.style.display='none';
+        }
       } else {
         const normals={x:new THREE.Vector3(1,0,0),y:new THREE.Vector3(0,1,0),z:new THREE.Vector3(0,0,1)};
+        const axMin={x:box.min.x,y:box.min.y,z:box.min.z};
+        const axMax={x:box.max.x,y:box.max.y,z:box.max.z};
         const plane=new THREE.Plane(normals[axis],-boxCenter[axis]);
         clipPlanes[axis]=plane;
         renderer.clippingPlanes=[...renderer.clippingPlanes,plane];
         btn.classList.add('active');
-        const hint=document.getElementById('section-hint');
-        hint.innerHTML=`✂ Sección ${axis.toUpperCase()} activa`;
-        hint.style.display='block';
-        setTimeout(()=>{hint.style.display='none';},2500);
+        showSlider(axis);
       }
     }
+
+    function showSlider(axis){
+      const axMin={x:box.min.x,y:box.min.y,z:box.min.z};
+      const axMax={x:box.max.x,y:box.max.y,z:box.max.z};
+      const cur=-clipPlanes[axis].constant;
+      activeSliderAxis=axis;
+      sectionSlider.min=axMin[axis]; sectionSlider.max=axMax[axis];
+      sectionSlider.step=(axMax[axis]-axMin[axis])/400;
+      sectionSlider.value=cur;
+      sectionSliderLbl.textContent=`Sección ${axis.toUpperCase()}:`;
+      sectionSliderVal.textContent=cur.toFixed(1)+' m';
+      sectionSliderWrap.style.display='flex';
+    }
+
+    sectionSlider.addEventListener('input',()=>{
+      if(!activeSliderAxis||!clipPlanes[activeSliderAxis]) return;
+      const v=parseFloat(sectionSlider.value);
+      clipPlanes[activeSliderAxis].constant=-v;
+      sectionSliderVal.textContent=v.toFixed(1)+' m';
+    });
+
     document.getElementById('btn-sx').onclick=()=>toggleSection('x');
     document.getElementById('btn-sy').onclick=()=>toggleSection('y');
     document.getElementById('btn-sz').onclick=()=>toggleSection('z');
@@ -1337,6 +1448,234 @@ class OrbitCtrl {
       document.getElementById('sidebar').style.display=sidebarVisible?'flex':'none';
       document.getElementById('btn-panel').classList.toggle('active',sidebarVisible);
     };
+
+    // ═══════════════════════════════════════════════════
+    //  PBR — Renderizado estándar con sombras
+    // ═══════════════════════════════════════════════════
+    document.getElementById('btn-pbr').onclick=()=>{
+      pbrMode=!pbrMode;
+      document.getElementById('btn-pbr').classList.toggle('active',pbrMode);
+      renderer.shadowMap.enabled=pbrMode;
+      sun.castShadow=pbrMode;
+      for(const m of allMeshes){
+        const type=typeOfID.get(m.userData.expressID)||'DEFAULT';
+        m.material=pbrMode?getPBRMat(type):getMat(type);
+        m.castShadow=pbrMode;
+        m.receiveShadow=pbrMode;
+      }
+      if(wire){
+        const cache=pbrMode?pbrCache:matCache;
+        for(const mat of Object.values(cache)) mat.wireframe=true;
+      }
+    };
+
+    // ═══════════════════════════════════════════════════
+    //  EXPLOSIÓN DE MODELO
+    // ═══════════════════════════════════════════════════
+    const modelCenter=box.getCenter(new THREE.Vector3());
+    let explodeActive=false;
+
+    function applyExplode(factor){
+      for(const [eid,meshes] of meshMap){
+        const orig=origMatrices.get(eid);
+        const ctr=elemCentroids.get(eid);
+        if(!orig||!ctr) continue;
+        const dir=ctr.clone().sub(modelCenter);
+        const offset=new THREE.Matrix4().makeTranslation(dir.x*factor,dir.y*factor,dir.z*factor);
+        meshes.forEach((m,i)=>{m.matrix.copy(orig[i]).premultiply(offset);});
+      }
+    }
+
+    document.getElementById('btn-explode').onclick=()=>{
+      explodeActive=!explodeActive;
+      document.getElementById('btn-explode').classList.toggle('active',explodeActive);
+      const wrap=document.getElementById('explode-wrap');
+      wrap.style.display=explodeActive?'flex':'none';
+      if(!explodeActive){
+        document.getElementById('explode-slider').value=0;
+        document.getElementById('explode-val').textContent='0.0';
+        applyExplode(0);
+      }
+    };
+    document.getElementById('explode-slider').addEventListener('input',function(){
+      const f=parseFloat(this.value);
+      document.getElementById('explode-val').textContent=f.toFixed(1);
+      applyExplode(f);
+    });
+
+    // ═══════════════════════════════════════════════════
+    //  WALKTHROUGH — modo FPS con WASD
+    // ═══════════════════════════════════════════════════
+    let walkthroughMode=false;
+    const wKeys={};
+    const walkSpeed=()=>Math.max(initialDist*0.004,0.1);
+
+    document.addEventListener('keydown',e=>{
+      if(e.code==='Escape'&&walkthroughMode){exitWalkthrough();return;}
+      if(walkthroughMode) wKeys[e.code]=true;
+    });
+    document.addEventListener('keyup',e=>{wKeys[e.code]=false;});
+
+    function exitWalkthrough(){
+      walkthroughMode=false;
+      Object.keys(wKeys).forEach(k=>{wKeys[k]=false;});
+      renderer.domElement.style.cursor='default';
+      document.getElementById('walk-banner').style.display='none';
+      document.getElementById('btn-walk').classList.remove('active');
+    }
+
+    document.getElementById('btn-walk').onclick=()=>{
+      walkthroughMode=!walkthroughMode;
+      document.getElementById('btn-walk').classList.toggle('active',walkthroughMode);
+      document.getElementById('walk-banner').style.display=walkthroughMode?'block':'none';
+      renderer.domElement.style.cursor=walkthroughMode?'crosshair':'default';
+      if(!walkthroughMode) Object.keys(wKeys).forEach(k=>{wKeys[k]=false;});
+    };
+
+    tickFns.push(()=>{
+      if(!walkthroughMode) return;
+      const spd=walkSpeed();
+      const fwd=new THREE.Vector3();
+      camera.getWorldDirection(fwd); fwd.y=0; fwd.normalize();
+      const right=new THREE.Vector3().crossVectors(fwd,new THREE.Vector3(0,1,0)).normalize();
+      if(wKeys['KeyW']||wKeys['ArrowUp'])    camera.position.addScaledVector(fwd,spd);
+      if(wKeys['KeyS']||wKeys['ArrowDown'])  camera.position.addScaledVector(fwd,-spd);
+      if(wKeys['KeyA']||wKeys['ArrowLeft'])  camera.position.addScaledVector(right,-spd);
+      if(wKeys['KeyD']||wKeys['ArrowRight']) camera.position.addScaledVector(right,spd);
+      if(wKeys['KeyQ']||wKeys['Space'])      camera.position.y+=spd;
+      if(wKeys['KeyE']||wKeys['ShiftLeft'])  camera.position.y-=spd;
+      // Mantener OrbitCtrl target delante de la cámara
+      controls.target.copy(camera.position).addScaledVector(fwd,controls._r);
+      controls._apply();
+    });
+
+    // ═══════════════════════════════════════════════════
+    //  ANOTACIONES 3D
+    // ═══════════════════════════════════════════════════
+    let annotMode=false;
+    const annotations=[];
+    const annotLayer=document.getElementById('annot-layer');
+
+    function createPinTexture(num){
+      const c=document.createElement('canvas');
+      c.width=64;c.height=64;
+      const ctx=c.getContext('2d');
+      ctx.fillStyle='#f59e0b';
+      ctx.beginPath();ctx.arc(32,32,28,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();
+      ctx.fillStyle='#050d1a';
+      ctx.font='bold 26px system-ui';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(String(num),32,33);
+      return new THREE.CanvasTexture(c);
+    }
+
+    function worldToScreen(pos3d){
+      const v=pos3d.clone().project(camera);
+      const rect=renderer.domElement.getBoundingClientRect();
+      return {
+        x:(v.x+1)/2*rect.width,
+        y:(-v.y+1)/2*rect.height,
+        behind:v.z>1
+      };
+    }
+
+    function addAnnotation(point,eid){
+      const num=annotations.length+1;
+      // Sprite 3D
+      const tex=createPinTexture(num);
+      const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,sizeAttenuation:false,depthTest:false}));
+      sprite.position.copy(point);
+      sprite.scale.set(0.04,0.04,1);
+      scene.add(sprite);
+
+      // HTML pin
+      const pin=document.createElement('div');
+      pin.className='annot-pin';
+      pin.textContent=String(num);
+      annotLayer.appendChild(pin);
+
+      // Burbuja de texto
+      const text=prompt(`Anotación ${num}:`,'');
+      if(text===null){scene.remove(sprite);pin.remove();return;}
+
+      const bubble=document.createElement('div');
+      bubble.className='annot-bubble';
+      const delBtn=document.createElement('button');
+      delBtn.className='annot-bubble-del';delBtn.textContent='✕';delBtn.title='Eliminar';
+      bubble.textContent=text||`Nota ${num}`;
+      bubble.appendChild(delBtn);
+      annotLayer.appendChild(bubble);
+
+      const annot={sprite,pin,bubble,point:point.clone(),eid,text:text||`Nota ${num}`,num};
+      annotations.push(annot);
+
+      // Eliminar anotación
+      delBtn.addEventListener('click',e=>{
+        e.stopPropagation();
+        scene.remove(sprite);pin.remove();bubble.remove();
+        const idx=annotations.indexOf(annot);
+        if(idx>=0) annotations.splice(idx,1);
+        refreshAnnotList();
+      });
+      pin.addEventListener('click',()=>{
+        bubble.style.display=bubble.style.display==='none'?'block':'none';
+      });
+
+      refreshAnnotList();
+    }
+
+    function refreshAnnotList(){
+      const list=document.getElementById('annot-list');
+      const empty=document.getElementById('annot-list-empty');
+      list.querySelectorAll('.annot-list-item').forEach(el=>el.remove());
+      if(annotations.length===0){empty.style.display='block';return;}
+      empty.style.display='none';
+      for(const a of annotations){
+        const item=document.createElement('div');
+        item.className='annot-list-item';
+        item.innerHTML=`<div class="annot-list-num">${a.num}</div><div class="annot-list-txt">${a.text}</div>`;
+        item.onclick=()=>{
+          focusElement(a.eid||null);
+          switchTab('annots');
+        };
+        list.appendChild(item);
+      }
+    }
+
+    // Actualizar posición HTML de pins en cada frame
+    tickFns.push(()=>{
+      for(const a of annotations){
+        const {x,y,behind}=worldToScreen(a.point);
+        a.pin.style.left=x+'px'; a.pin.style.top=y+'px';
+        a.pin.style.display=behind?'none':'flex';
+        // Burbuja encima del pin
+        a.bubble.style.left=x+'px'; a.bubble.style.top=(y-14)+'px';
+        a.bubble.style.display=(!behind&&a.bubble.style.display!=='none')?'block':'none';
+      }
+    });
+
+    document.getElementById('btn-annot').onclick=()=>{
+      annotMode=!annotMode;
+      document.getElementById('btn-annot').classList.toggle('active',annotMode);
+      renderer.domElement.style.cursor=annotMode?'cell':(walkthroughMode?'crosshair':'default');
+    };
+
+    // Clic en canvas para anotar
+    renderer.domElement.addEventListener('click',e=>{
+      if(!annotMode||measureMode) return;
+      const rect=renderer.domElement.getBoundingClientRect();
+      mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
+      mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
+      raycaster.setFromCamera(mouse,camera);
+      const hits=raycaster.intersectObjects(allMeshes.filter(m=>m.visible),false);
+      if(!hits.length) return;
+      const eid=hits[0].object.userData.expressID;
+      addAnnotation(hits[0].point,eid);
+    },{capture:true}); // capture:true para ir antes del listener de selección
+
+    // Sidebar tab Notas
+    document.querySelector('.stab[data-tab="annots"]').addEventListener('click',()=>switchTab('annots'));
 
   }catch(e){showErr(e.message||String(e));}
 })();

@@ -3,6 +3,7 @@ import { redirect }      from "next/navigation";
 import {
   FolderKanban, Box, FileText, Wrench,
   TrendingUp, CheckCircle2, Clock, AlertTriangle, Bell,
+  ArrowUpRight,
 } from "lucide-react";
 import Link            from "next/link";
 import { formatDate }  from "@/lib/utils";
@@ -12,10 +13,10 @@ import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 export const metadata = { title: "Dashboard — Infrale 3D" };
 
 const STATUS_CONFIG = {
-  activo:     { label: "Activo",     icon: CheckCircle2,  color: "text-green-400" },
-  pausado:    { label: "Pausado",    icon: Clock,         color: "text-yellow-400" },
-  completado: { label: "Completado", icon: TrendingUp,    color: "text-brand-200" },
-  archivado:  { label: "Archivado",  icon: AlertTriangle, color: "text-slate-500" },
+  activo:     { label: "Activo",     icon: CheckCircle2,  color: "text-green-400",  dot: "bg-green-400" },
+  pausado:    { label: "Pausado",    icon: Clock,         color: "text-yellow-400", dot: "bg-yellow-400" },
+  completado: { label: "Completado", icon: TrendingUp,    color: "text-brand-200",  dot: "bg-brand-200" },
+  archivado:  { label: "Archivado",  icon: AlertTriangle, color: "text-slate-500",  dot: "bg-slate-500" },
 } as const;
 
 const TYPE_LABELS: Record<string, string> = {
@@ -23,6 +24,9 @@ const TYPE_LABELS: Record<string, string> = {
 };
 const TYPE_BADGE: Record<string, string> = {
   electrico: "badge-electrico", civil: "badge-civil", mecanico: "badge-mecanico",
+};
+const PRIO_COLOR: Record<string, string> = {
+  critica: "text-red-400", alta: "text-orange-400", media: "text-yellow-400", baja: "text-slate-400",
 };
 
 export default async function DashboardPage() {
@@ -73,10 +77,42 @@ export default async function DashboardPage() {
   }, {});
 
   const stats = [
-    { label: "Proyectos",      value: projectCount ?? 0, icon: FolderKanban, color: "text-brand-200",  bg: "bg-brand-300/10 border-brand-300/20", href: "/proyectos" },
-    { label: "Modelos IFC",    value: ifcCount ?? 0,     icon: Box,          color: "text-cyan-400",   bg: "bg-cyan-400/10 border-cyan-400/20",   href: "/proyectos" },
-    { label: "Documentos",     value: docCount ?? 0,     icon: FileText,     color: "text-green-400",  bg: "bg-green-400/10 border-green-400/20", href: "/proyectos" },
-    { label: "Mant. próximos", value: upcoming.length,   icon: Bell,         color: "text-orange-400", bg: "bg-orange-400/10 border-orange-400/20",href: "/proyectos" },
+    {
+      label: "Proyectos",
+      value: projectCount ?? 0,
+      icon:  FolderKanban,
+      color: "text-brand-200",
+      bg:    "bg-brand-300/10 border-brand-300/20",
+      href:  "/proyectos",
+      desc:  "en total",
+    },
+    {
+      label: "Modelos IFC",
+      value: ifcCount ?? 0,
+      icon:  Box,
+      color: "text-cyan-400",
+      bg:    "bg-cyan-400/10 border-cyan-400/20",
+      href:  "/proyectos",
+      desc:  "cargados",
+    },
+    {
+      label: "Documentos",
+      value: docCount ?? 0,
+      icon:  FileText,
+      color: "text-green-400",
+      bg:    "bg-green-400/10 border-green-400/20",
+      href:  "/proyectos",
+      desc:  "almacenados",
+    },
+    {
+      label: "Alertas",
+      value: upcoming.length,
+      icon:  Bell,
+      color: upcoming.length > 0 ? "text-orange-400" : "text-slate-500",
+      bg:    upcoming.length > 0 ? "bg-orange-400/10 border-orange-400/20" : "bg-surface-hover border-surface-border",
+      href:  "/proyectos",
+      desc:  "esta semana",
+    },
   ];
 
   const chartData = {
@@ -94,25 +130,43 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-100">Dashboard</h1>
-        <p className="text-sm text-slate-500 mt-1">Visión general de tus infraestructuras 3D</p>
+    <div className="space-y-6 max-w-7xl">
+
+      {/* Page header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-subtitle">Visión general de tus infraestructuras 3D</p>
+        </div>
+        <Link href="/proyectos/nuevo" className="btn-primary shrink-0">
+          <FolderKanban className="w-4 h-4" />
+          <span className="hidden sm:inline">Nuevo proyecto</span>
+          <span className="sm:hidden">Nuevo</span>
+        </Link>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map(stat => {
           const Icon = stat.icon;
           return (
-            <Link key={stat.label} href={stat.href} className="glass-card glass-card-hover p-4 flex items-center gap-3 cursor-pointer">
-              <div className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${stat.bg}`}>
+            <Link
+              key={stat.label}
+              href={stat.href}
+              className="glass-card glass-card-hover p-4 flex items-center gap-3 group"
+            >
+              <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 transition-transform duration-150 group-hover:scale-110 ${stat.bg}`}>
                 <Icon className={`w-5 h-5 ${stat.color}`} />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-slate-100 font-mono">{stat.value}</p>
-                <p className="text-xs text-slate-500">{stat.label}</p>
+              <div className="min-w-0">
+                <p className="text-xl font-bold text-slate-100 font-mono tabular-nums leading-none">
+                  {stat.value}
+                </p>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-tight">
+                  {stat.label}
+                </p>
               </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-600 ml-auto self-start mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
             </Link>
           );
         })}
@@ -121,35 +175,56 @@ export default async function DashboardPage() {
       {/* Gráficos */}
       <DashboardCharts data={chartData} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Tablas inferiores */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
         {/* Proyectos recientes */}
         <div className="glass-card overflow-hidden">
-          <div className="px-5 py-4 border-b border-surface-border flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-200">Proyectos recientes</h2>
-            <Link href="/proyectos" className="text-xs text-brand-200 hover:text-cyan-300 transition-colors">Ver todos →</Link>
+          <div className="px-5 py-3.5 border-b border-surface-border flex items-center justify-between">
+            <h2 className="section-heading flex items-center gap-2">
+              <FolderKanban className="w-4 h-4 text-brand-200" />
+              Proyectos recientes
+            </h2>
+            <Link
+              href="/proyectos"
+              className="text-xs text-slate-500 hover:text-brand-200 transition-colors flex items-center gap-1"
+            >
+              Ver todos
+              <ArrowUpRight className="w-3 h-3" />
+            </Link>
           </div>
+
           {!recentProjects.length ? (
-            <div className="px-5 py-10 text-center">
-              <FolderKanban className="w-8 h-8 text-slate-600 mx-auto mb-3" />
-              <p className="text-sm text-slate-500 mb-3">Aún no tienes proyectos</p>
-              <Link href="/proyectos/nuevo" className="btn-primary inline-flex text-sm">Crear proyecto</Link>
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <FolderKanban className="w-5 h-5 text-slate-500" />
+              </div>
+              <p className="empty-state-title">Sin proyectos aún</p>
+              <p className="empty-state-desc">Crea tu primer proyecto para comenzar a gestionar infraestructuras 3D.</p>
+              <Link href="/proyectos/nuevo" className="btn-primary">
+                Crear proyecto
+              </Link>
             </div>
           ) : (
             <div className="divide-y divide-surface-border">
               {recentProjects.map(project => {
-                const cfg = STATUS_CONFIG[project.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.activo;
-                const StatusIcon = cfg.icon;
+                const cfg        = STATUS_CONFIG[project.status as keyof typeof STATUS_CONFIG] ?? STATUS_CONFIG.activo;
                 return (
-                  <Link key={project.id} href={`/proyectos/${project.id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-surface-hover transition-colors">
+                  <Link
+                    key={project.id}
+                    href={`/proyectos/${project.id}`}
+                    className="table-row group"
+                  >
+                    <span className={`status-dot ${cfg.dot} shrink-0`} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-100 truncate">{project.name}</p>
+                      <p className="text-sm font-medium text-slate-100 truncate group-hover:text-cyan-300 transition-colors">
+                        {project.name}
+                      </p>
                       <p className="text-xs text-slate-500 mt-0.5">{formatDate(project.created_at)}</p>
                     </div>
-                    <span className={`${TYPE_BADGE[project.type] ?? "badge-viewer"} text-xs`}>{TYPE_LABELS[project.type] ?? project.type}</span>
-                    <div className={`flex items-center gap-1 text-xs ${cfg.color} shrink-0`}>
-                      <StatusIcon className="w-3 h-3" />
-                      {cfg.label}
-                    </div>
+                    <span className={`${TYPE_BADGE[project.type] ?? "badge-viewer"} shrink-0`}>
+                      {TYPE_LABELS[project.type] ?? project.type}
+                    </span>
                   </Link>
                 );
               })}
@@ -159,33 +234,41 @@ export default async function DashboardPage() {
 
         {/* Mantenimientos próximos */}
         <div className="glass-card overflow-hidden">
-          <div className="px-5 py-4 border-b border-surface-border flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-orange-400" /> Mantenimientos próximos
+          <div className="px-5 py-3.5 border-b border-surface-border flex items-center justify-between">
+            <h2 className="section-heading flex items-center gap-2">
+              <Bell className={`w-4 h-4 ${upcoming.length > 0 ? "text-orange-400" : "text-slate-500"}`} />
+              Mantenimientos próximos
+              {upcoming.length > 0 && (
+                <span className="chip-warning py-0 px-1.5 text-[10px]">{upcoming.length}</span>
+              )}
             </h2>
           </div>
+
           {upcoming.length === 0 ? (
-            <div className="px-5 py-10 text-center">
-              <Wrench className="w-8 h-8 text-slate-600 mx-auto mb-3" />
-              <p className="text-sm text-slate-500">Sin mantenimientos urgentes</p>
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <Wrench className="w-5 h-5 text-slate-500" />
+              </div>
+              <p className="empty-state-title">Sin alertas urgentes</p>
+              <p className="empty-state-desc">No hay mantenimientos pendientes para los próximos 7 días.</p>
             </div>
           ) : (
             <div className="divide-y divide-surface-border">
               {upcoming.map(m => {
                 const isOver  = new Date(m.scheduled_date) < new Date();
-                const prioClr = { critica: "text-red-400", alta: "text-orange-400", media: "text-yellow-400", baja: "text-slate-400" }[m.priority] ?? "text-slate-400";
+                const prioClr = PRIO_COLOR[m.priority] ?? "text-slate-400";
                 return (
-                  <div key={m.id} className="px-5 py-3 flex items-start gap-3">
-                    <AlertTriangle className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${isOver ? "text-red-400" : "text-orange-400"}`} />
+                  <div key={m.id} className="table-row">
+                    <AlertTriangle className={`w-3.5 h-3.5 shrink-0 ${isOver ? "text-red-400" : "text-orange-400"}`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-slate-200 truncate">{m.title}</p>
-                      <p className="text-xs text-slate-500">{m.projects?.name}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{m.projects?.name}</p>
                     </div>
                     <div className="text-right shrink-0">
                       <p className={`text-xs font-medium ${isOver ? "text-red-400" : "text-slate-400"}`}>
                         {isOver ? "Vencido" : formatDate(m.scheduled_date)}
                       </p>
-                      <p className={`text-[10px] ${prioClr}`}>{m.priority}</p>
+                      <p className={`text-[10px] mt-0.5 capitalize ${prioClr}`}>{m.priority}</p>
                     </div>
                   </div>
                 );

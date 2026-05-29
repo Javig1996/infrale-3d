@@ -56,10 +56,16 @@ const config: Config = {
         mono: ["JetBrains Mono", "Fira Code", "monospace"],
       },
       animation: {
-        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        "glow-pulse": "glow-pulse 2s ease-in-out infinite alternate",
-        "slide-in": "slide-in 0.3s ease-out",
-        "fade-in": "fade-in 0.4s ease-out",
+        "pulse-slow":  "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "glow-pulse":  "glow-pulse 2s ease-in-out infinite alternate",
+        "slide-in":    "slide-in 0.3s ease-out",
+        "fade-in":     "fade-in 0.4s ease-out",
+        "slide-up":    "slide-up 0.25s ease-out",
+        "scale-in":    "scale-in 0.2s ease-out",
+        "shimmer":     "shimmer 2s linear infinite",
+        "toast-in":    "toast-in 0.3s ease-out",
+        "toast-out":   "toast-out 0.2s ease-in forwards",
+        "sidebar-in":  "sidebar-in 0.25s ease-out",
       },
       keyframes: {
         "glow-pulse": {
@@ -73,6 +79,30 @@ const config: Config = {
         "fade-in": {
           from: { opacity: "0", transform: "translateY(8px)" },
           to:   { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-up": {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to:   { opacity: "1", transform: "translateY(0)" },
+        },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to:   { opacity: "1", transform: "scale(1)" },
+        },
+        "shimmer": {
+          "0%":   { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "toast-in": {
+          from: { opacity: "0", transform: "translateY(8px) scale(0.97)" },
+          to:   { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "toast-out": {
+          from: { opacity: "1", transform: "translateY(0) scale(1)" },
+          to:   { opacity: "0", transform: "translateY(4px) scale(0.97)" },
+        },
+        "sidebar-in": {
+          from: { transform: "translateX(-100%)" },
+          to:   { transform: "translateX(0)" },
         },
       },
     },

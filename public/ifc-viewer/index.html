@@ -115,9 +115,14 @@ canvas{display:block;width:100%!important;height:100%!important;}
 
 /* ── Properties ── */
 #prop-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#334155;font-size:11px;text-align:center;padding:16px;}
-/* Nombre del elemento seleccionado */
 #prop-elem-name{padding:8px 10px;font-size:11px;font-weight:600;color:#e2e8f0;border-bottom:1px solid #1e3a5f;background:#060f1c;word-break:break-word;line-height:1.4;}
-/* Grupos colapsables (PropertySets) */
+/* Buscador de propiedades */
+#prop-search-wrap{padding:5px 8px;border-bottom:1px solid #1e3a5f;background:#060f1c;display:none;position:relative;}
+#prop-search{width:100%;background:#0a1628;border:1px solid #1e3a5f;border-radius:4px;color:#e2e8f0;font-size:10px;padding:4px 22px 4px 7px;outline:none;transition:border-color .15s;}
+#prop-search:focus{border-color:#2563eb;}
+#prop-search::placeholder{color:#334155;}
+#prop-search-clear{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#334155;cursor:pointer;font-size:11px;display:none;line-height:1;}
+/* Grupos colapsables */
 .prop-group{border-bottom:1px solid #0a1628;}
 .prop-group-header{display:flex;align-items:center;gap:6px;padding:7px 10px;cursor:pointer;background:#0b1a2e;font-size:11px;font-weight:600;color:#7da9d8;transition:background .12s;}
 .prop-group-header:hover{background:#0f2035;}
@@ -125,11 +130,17 @@ canvas{display:block;width:100%!important;height:100%!important;}
 .prop-group-body{display:none;}
 .prop-group-body.open{display:block;}
 /* Filas clave-valor */
-.prop-row{display:flex;padding:4px 10px;gap:8px;border-bottom:1px solid #070f1c;}
+.prop-row{display:flex;align-items:center;padding:4px 10px;gap:8px;border-bottom:1px solid #070f1c;cursor:default;}
 .prop-row:nth-child(odd){background:#070d1a;}
 .prop-row:nth-child(even){background:#080f1c;}
+.prop-row.prop-hidden{display:none;}
 .prop-key{font-size:10px;color:#475569;flex:0 0 110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.prop-val{font-size:10px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prop-val{font-size:10px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;transition:color .1s;}
+.prop-val:hover{color:#e2e8f0;}
+.prop-val.copied{color:#34d399!important;}
+.prop-val a{color:#60a5fa;text-decoration:none;}
+.prop-val a:hover{text-decoration:underline;}
+.prop-unit{font-size:9px;color:#334155;margin-left:2px;}
 
 /* ── Measurement ── */
 #measure-tip{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);background:#050d1aee;border:1px solid #2563eb55;border-radius:8px;padding:8px 14px;font-size:12px;color:#60a5fa;pointer-events:none;display:none;white-space:nowrap;}
@@ -195,6 +206,10 @@ canvas{display:block;width:100%!important;height:100%!important;}
             Selecciona un elemento<br>para ver sus propiedades
           </div>
           <div id="prop-elem-name" style="display:none;"></div>
+          <div id="prop-search-wrap">
+            <input id="prop-search" type="text" placeholder="🔍  Buscar parámetro…" autocomplete="off"/>
+            <span id="prop-search-clear">✕</span>
+          </div>
           <div id="prop-content" style="display:none;"></div>
         </div>
       </div>
@@ -989,6 +1004,11 @@ class OrbitCtrl {
       nameEl.textContent=elemNames.get(eid)||('#'+eid);
       content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">Cargando…</div>';
 
+      document.getElementById('prop-search-wrap').style.display='block';
+      document.getElementById('prop-search').value='';
+      document.getElementById('prop-search-clear').style.display='none';
+      applyPropSearch('');
+
       if(!ifcBuffer){
         content.innerHTML='<div style="padding:8px;font-size:10px;color:#475569;">Modelo no disponible.</div>';
         return;
@@ -1001,7 +1021,7 @@ class OrbitCtrl {
         const IFC_ATTR_KEYS=['Name','ObjectType','Description','Tag','GlobalId','LongName'];
         const ifcAttrs=[];
         for(const k of IFC_ATTR_KEYS){
-          if(line?.[k]?.value!=null) ifcAttrs.push([k,String(line[k].value)]);
+          if(line?.[k]?.value!=null) ifcAttrs.push([k,line[k].value,'']);
         }
 
         // ── PropertySets via IfcRelDefinesByProperties ──
@@ -1040,10 +1060,11 @@ class OrbitCtrl {
                     if(typeof propID!=='number') continue;
                     const prop=ifcAPI.GetLine(m2,propID,false);
                     const nm=prop?.Name?.value||'';
-                    const vl=prop?.NominalValue?.value
-                      ??prop?.LengthValue?.value??prop?.AreaValue?.value
-                      ??prop?.VolumeValue?.value??prop?.Value?.value??'-';
-                    if(nm) rows.push([nm,String(vl==null?'-':vl)]);
+                    const nomVal=prop?.NominalValue??prop?.LengthValue
+                      ??prop?.AreaValue??prop?.VolumeValue??prop?.Value??null;
+                    const rawVal=nomVal?.value??'-';
+                    const ifcType=nomVal?.name||''; // p.ej. "IFCLENGTHMEASURE"
+                    if(nm) rows.push([nm,rawVal==null?'-':rawVal,ifcType]);
                   }catch(_){}
                 }
                 if(rows.length) psGroups.push({title:psName,rows});
@@ -1069,6 +1090,38 @@ class OrbitCtrl {
       }
     }
 
+    // ── Mapa de unidades IFC → sufijo display ──
+    const IFC_UNITS={
+      IFCLENGTHMEASURE:       {s:' m',   d:3},
+      IFCAREAMEASURE:         {s:' m²',  d:2},
+      IFCVOLUMEMEASURE:       {s:' m³',  d:3},
+      IFCMASSMEASURE:         {s:' kg',  d:2},
+      IFCPOWERMEASURE:        {s:' W',   d:0},
+      IFCELECTRICVOLTAGEMEASURE:{s:' V', d:0},
+      IFCELECTRICCURRENTMEASURE:{s:' A', d:2},
+      IFCFREQUENCYMEASURE:    {s:' Hz',  d:0},
+      IFCTHERMODYNAMICTEMPERATUREMEASURE:{s:' °C',d:1},
+      IFCPRESSUREMEASURE:     {s:' Pa',  d:0},
+      IFCPLANEANGLEMEASURE:   {s:'°',    d:2},
+      IFCMOMENTOFINERTIAMEASURE:{s:' m⁴',d:4},
+      IFCLINEARFORCEMEASURE:  {s:' N/m', d:0},
+      IFCFORCEMEASURE:        {s:' N',   d:0},
+      IFCTIMEMEASURE:         {s:' s',   d:0},
+      IFCILLUMINANCEMEASURE:  {s:' lux', d:0},
+      IFCLUMINOUSFLUXMEASURE: {s:' lm',  d:0},
+    };
+
+    const URL_RE=/^https?:\/\//i;
+
+    function formatVal(rawVal,ifcType){
+      if(rawVal===null||rawVal===undefined||rawVal==='-') return {display:'-',unit:''};
+      const u=IFC_UNITS[ifcType?.toUpperCase()];
+      if(u&&typeof rawVal==='number'){
+        return {display:rawVal.toFixed(u.d),unit:u.s};
+      }
+      return {display:String(rawVal),unit:''};
+    }
+
     function mkGroup(title,rows,open){
       const grp=document.createElement('div');
       grp.className='prop-group';
@@ -1077,7 +1130,7 @@ class OrbitCtrl {
       hdr.innerHTML=`<span class="prop-group-arrow">${open?'▼':'▶'}</span><span>${title}</span><span style="margin-left:auto;font-size:9px;color:#334155;">${rows.length}</span>`;
       const body=document.createElement('div');
       body.className='prop-group-body'+(open?' open':'');
-      for(const [k,v] of rows) body.appendChild(mkRow(k,v));
+      for(const row of rows) body.appendChild(mkRow(...row));
       hdr.addEventListener('click',()=>{
         const isOpen=body.classList.toggle('open');
         hdr.querySelector('.prop-group-arrow').textContent=isOpen?'▼':'▶';
@@ -1085,7 +1138,80 @@ class OrbitCtrl {
       grp.appendChild(hdr);grp.appendChild(body);
       return grp;
     }
-    function mkRow(k,v){const d=document.createElement('div');d.className='prop-row';d.innerHTML=`<span class="prop-key" title="${k}">${k}</span><span class="prop-val" title="${v}">${v}</span>`;return d;}
+
+    function mkRow(k,rawVal,ifcType=''){
+      const d=document.createElement('div');
+      d.className='prop-row';
+      d.dataset.key=String(k).toLowerCase();
+
+      const {display,unit}=formatVal(rawVal,ifcType);
+      const keyEl=document.createElement('span');
+      keyEl.className='prop-key';keyEl.title=k;keyEl.textContent=k;
+
+      const valEl=document.createElement('span');
+      valEl.className='prop-val';
+
+      if(URL_RE.test(display)){
+        // Hipervínculo
+        valEl.innerHTML=`<a href="${display}" target="_blank" rel="noopener">🔗 Abrir enlace</a>`;
+        valEl.title=display;
+      } else {
+        // Valor con unidad opcional
+        valEl.title=display+(unit||'');
+        d.dataset.val=display.toLowerCase();
+        if(unit){
+          valEl.innerHTML=`${display}<span class="prop-unit">${unit}</span>`;
+        } else {
+          valEl.textContent=display;
+        }
+        // Copiar al portapapeles al hacer clic
+        valEl.addEventListener('click',()=>{
+          const txt=display+(unit||'');
+          if(navigator.clipboard){
+            navigator.clipboard.writeText(txt).then(()=>{
+              const prev=valEl.innerHTML;
+              valEl.classList.add('copied');
+              valEl.textContent='✓ Copiado';
+              setTimeout(()=>{valEl.classList.remove('copied');valEl.innerHTML=prev;},1200);
+            }).catch(()=>{});
+          }
+        });
+      }
+
+      d.appendChild(keyEl);d.appendChild(valEl);
+      return d;
+    }
+
+    // ── Buscador de propiedades ──
+    function applyPropSearch(q){
+      const content=document.getElementById('prop-content');
+      content.querySelectorAll('.prop-row').forEach(r=>{
+        if(!q){r.classList.remove('prop-hidden');return;}
+        const k=r.dataset.key||'';
+        const v=r.dataset.val||'';
+        const match=k.includes(q)||v.includes(q);
+        r.classList.toggle('prop-hidden',!match);
+      });
+      // Mostrar/ocultar grupos según si tienen filas visibles
+      content.querySelectorAll('.prop-group').forEach(g=>{
+        const body=g.querySelector('.prop-group-body');
+        if(!body) return;
+        const hasVisible=[...body.querySelectorAll('.prop-row')].some(r=>!r.classList.contains('prop-hidden'));
+        g.style.display=(!q||hasVisible)?'':'none';
+        if(q&&hasVisible){body.classList.add('open');g.querySelector('.prop-group-arrow').textContent='▼';}
+      });
+    }
+
+    const propSearchEl=document.getElementById('prop-search');
+    const propSearchClear=document.getElementById('prop-search-clear');
+    propSearchEl.addEventListener('input',()=>{
+      const q=propSearchEl.value.trim().toLowerCase();
+      propSearchClear.style.display=q?'block':'none';
+      applyPropSearch(q);
+    });
+    propSearchClear.addEventListener('click',()=>{
+      propSearchEl.value='';propSearchClear.style.display='none';applyPropSearch('');
+    });
 
     // ═══════════════════════════════════════════════════
     //  AISLAMIENTO

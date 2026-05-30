@@ -38,7 +38,7 @@ export function LoginForm() {
       setError("Credenciales incorrectas. Verifica tu email y contraseña.");
       setLoading(false);
     } else {
-      router.push("/dashboard");
+      router.push("/modulos");
       router.refresh();
     }
   }

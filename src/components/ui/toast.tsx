@@ -64,7 +64,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, [remove]);
 
   useEffect(() => {
-    return () => { timers.current.forEach(t => clearTimeout(t)); };
+    const ts = timers.current;
+    return () => { ts.forEach(t => clearTimeout(t)); };
   }, []);
 
   const ctx: ToastCtx = {

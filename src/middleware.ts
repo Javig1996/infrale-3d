@@ -32,9 +32,9 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = PUBLIC_ROUTES.some(r => path.startsWith(r));
   const isAuthRoute   = AUTH_ROUTES.some(r => path.startsWith(r));
 
-  // Usuario autenticado intentando acceder a login/register → redirigir al dashboard
+  // Usuario autenticado intentando acceder a login/register → pantalla de módulos
   if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/modulos", request.url));
   }
 
   // Usuario no autenticado en ruta protegida → redirigir al login

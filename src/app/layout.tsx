@@ -3,6 +3,7 @@ import "./globals.css";
 import { ToastProvider }    from "@/components/ui/toast";
 import { CommandProvider }  from "@/components/ui/command-provider";
 import { TooltipProvider }  from "@/components/ui/tooltip";
+import { ThemeProvider }    from "@/components/ui/theme-provider";
 
 export const metadata: Metadata = {
   title:       "Infrale 3D — Gestión de Infraestructuras",
@@ -14,13 +15,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className="dark">
       <body className="antialiased">
-        <TooltipProvider delayDuration={400}>
-          <ToastProvider>
-            <CommandProvider>
-              {children}
-            </CommandProvider>
-          </ToastProvider>
-        </TooltipProvider>
+        <ThemeProvider>
+          <TooltipProvider delayDuration={400}>
+            <ToastProvider>
+              <CommandProvider>
+                {children}
+              </CommandProvider>
+            </ToastProvider>
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

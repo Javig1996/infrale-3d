@@ -6,15 +6,16 @@ import { useEffect, useState }        from "react";
 import {
   LayoutDashboard, FolderKanban, CalendarRange, Clock4, Users,
   DollarSign, FileText, Flag, Activity, Bell, TrendingUp,
-  Calendar, Wrench, History, Database, X, ChevronRight,
+  Calendar, Wrench, History, Database, X, ChevronRight, Settings,
 } from "lucide-react";
 import { getModule, MODULE_KEY, type ModuleId } from "@/lib/modules";
+import { LogoFull }                   from "@/components/ui/logo";
 
 /* ── Icon map ─────────────────────────────────────────────── */
 const ICON_MAP: Record<string, React.ElementType> = {
   LayoutDashboard, FolderKanban, CalendarRange, Clock4, Users,
   DollarSign, FileText, Flag, Activity, Bell, TrendingUp,
-  Calendar, Wrench, History, Database,
+  Calendar, Wrench, History, Database, Settings,
 };
 
 /* ── NavItem ──────────────────────────────────────────────── */
@@ -94,23 +95,8 @@ function SidebarContent({
     <>
       {/* Logo + close */}
       <div className="px-4 py-4 border-b border-surface-border flex items-center justify-between gap-3">
-        <Link href="/dashboard" onClick={onClose} className="flex items-center gap-3 group min-w-0">
-          <div style={{
-            width: 28, height: 28,
-            display: "grid", gridTemplateColumns: "1fr 1fr",
-            gridTemplateRows: "1fr 1fr", gap: 3, flexShrink: 0,
-          }}>
-            <span style={{ background: "#2E6FD6", borderRadius: 3 }} />
-            <span style={{ background: "#6FA0DD", borderRadius: 3 }} />
-            <span style={{ background: "#06B6D4", borderRadius: 3 }} />
-            <span style={{ background: "#1257B4", borderRadius: 3 }} />
-          </div>
-          <div className="min-w-0">
-            <span className="text-sm font-bold block leading-tight" style={{ color: "#fff" }}>
-              INFRALE <span style={{ color: "#06B6D4", fontFamily: "JetBrains Mono, monospace", fontSize: 11 }}>3D</span>
-            </span>
-            <span className="text-[10px] font-mono tracking-wider" style={{ color: "#5E768F" }}>INFRAESTRUCTURA</span>
-          </div>
+        <Link href="/dashboard" onClick={onClose} className="min-w-0">
+          <LogoFull size={26} />
         </Link>
 
         {showCloseButton && (
@@ -165,20 +151,16 @@ function SidebarContent({
 
       {/* Footer */}
       <div className="px-4 py-3 border-t border-surface-border space-y-2">
+        {/* Configuración */}
+        <NavItem href="/configuracion" label="Configuración" iconName="Settings" onClick={onClose} />
+
         <button
           onClick={changeModule}
           className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs text-slate-500 hover:text-slate-300 hover:bg-surface-hover transition-colors"
         >
-          <div style={{
-            width: 14, height: 14,
-            display: "grid", gridTemplateColumns: "1fr 1fr",
-            gridTemplateRows: "1fr 1fr", gap: 2, flexShrink: 0,
-          }}>
-            <span style={{ background: "#2E6FD6", borderRadius: 1 }} />
-            <span style={{ background: "#6FA0DD", borderRadius: 1 }} />
-            <span style={{ background: "#06B6D4", borderRadius: 1 }} />
-            <span style={{ background: "#1257B4", borderRadius: 1 }} />
-          </div>
+          <svg width="14" height="14" viewBox="0 0 80 80" fill="none">
+            <path d="M40 4 L72 22 L72 58 L40 76 L8 58 L8 22 Z" stroke="#06B6D4" strokeWidth="5" fill="none" strokeLinejoin="round"/>
+          </svg>
           Cambiar módulo
           <ChevronRight className="w-3 h-3 ml-auto" />
         </button>

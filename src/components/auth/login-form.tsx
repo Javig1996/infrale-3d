@@ -6,8 +6,9 @@ import { zodResolver }         from "@hookform/resolvers/zod";
 import { z }                   from "zod";
 import Link                    from "next/link";
 import { useRouter }           from "next/navigation";
-import { Eye, EyeOff, Loader2, Zap } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { createClient }        from "@/lib/supabase/client";
+import { LogoFull }            from "@/components/ui/logo";
 
 const schema = z.object({
   email:    z.string().email("Email inválido"),
@@ -55,14 +56,8 @@ export function LoginForm() {
   return (
     <div className="glass-card p-8">
       {/* Logo */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-300 to-cyan-400 flex items-center justify-center shadow-glow-md">
-          <Zap className="w-5 h-5 text-white" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold glow-text">Infrale 3D</h1>
-          <p className="text-xs text-slate-500">Infraestructura Digital</p>
-        </div>
+      <div className="mb-8">
+        <LogoFull size={32} />
       </div>
 
       <h2 className="text-lg font-semibold text-slate-100 mb-1">Iniciar sesión</h2>

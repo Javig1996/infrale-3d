@@ -311,6 +311,65 @@ CREATE POLICY "maint_update" ON public.maintenance_records FOR UPDATE
   USING (EXISTS (SELECT 1 FROM public.model_elements e JOIN public.ifc_models m ON m.id = e.model_id WHERE e.id = element_id AND public.user_project_role(m.project_id) IN ('admin', 'editor')));
 
 -- ============================================================
+-- TABLA: schedule_members (miembros de equipo del cronograma por proyecto)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.schedule_members (
+  id          uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id  uuid        NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
+  name        text        NOT NULL,
+  role        text,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_schedule_members_project ON public.schedule_members(project_id);
+ALTER TABLE public.schedule_members ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "schedule_members_select" ON public.schedule_members FOR SELECT
+  USING (public.user_has_project_access(project_id));
+CREATE POLICY "schedule_members_insert" ON public.schedule_members FOR INSERT
+  WITH CHECK (public.user_project_role(project_id) IN ('admin', 'editor'));
+CREATE POLICY "schedule_members_update" ON public.schedule_members FOR UPDATE
+  USING (public.user_project_role(project_id) IN ('admin', 'editor'));
+CREATE POLICY "schedule_members_delete" ON public.schedule_members FOR DELETE
+  USING (public.user_project_role(project_id) IN ('admin', 'editor'));
+
+-- ============================================================
+-- TABLA: schedule_activities (actividades del diagrama de Gantt)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.schedule_activities (
+  id            uuid        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id    uuid        NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
+  name          text        NOT NULL,
+  start_date    date        NOT NULL,
+  end_date      date        NOT NULL,
+  member_id     uuid        REFERENCES public.schedule_members(id) ON DELETE SET NULL,
+  element_name  text,
+  predecessors  uuid[]      NOT NULL DEFAULT '{}',
+  parent_id     uuid        REFERENCES public.schedule_activities(id) ON DELETE SET NULL,
+  is_critical   boolean     NOT NULL DEFAULT false,
+  created_by    uuid        NOT NULL REFERENCES auth.users(id),
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  updated_at    timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TRIGGER schedule_activities_updated_at
+  BEFORE UPDATE ON public.schedule_activities
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE INDEX IF NOT EXISTS idx_schedule_activities_project ON public.schedule_activities(project_id);
+CREATE INDEX IF NOT EXISTS idx_schedule_activities_parent  ON public.schedule_activities(parent_id);
+ALTER TABLE public.schedule_activities ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "schedule_activities_select" ON public.schedule_activities FOR SELECT
+  USING (public.user_has_project_access(project_id));
+CREATE POLICY "schedule_activities_insert" ON public.schedule_activities FOR INSERT
+  WITH CHECK (public.user_project_role(project_id) IN ('admin', 'editor'));
+CREATE POLICY "schedule_activities_update" ON public.schedule_activities FOR UPDATE
+  USING (public.user_project_role(project_id) IN ('admin', 'editor'));
+CREATE POLICY "schedule_activities_delete" ON public.schedule_activities FOR DELETE
+  USING (public.user_project_role(project_id) IN ('admin', 'editor'));
+
+-- ============================================================
 -- STORAGE BUCKETS (ejecutar en Supabase Dashboard > Storage)
 -- O descomenta si usas supabase CLI:
 -- ============================================================

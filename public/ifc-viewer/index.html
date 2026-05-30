@@ -113,6 +113,10 @@ canvas{display:block;width:100%!important;height:100%!important;}
 /* search highlight */
 .elem-label.search-hl{color:#fbbf24!important;}
 
+/* ── Selection mode banner ── */
+#sel-mode-banner{display:none;position:absolute;top:0;left:0;right:0;z-index:100;background:#f59e0b;color:#000;font-size:12px;font-weight:700;text-align:center;padding:7px 12px;pointer-events:none;letter-spacing:.02em;}
+#sel-mode-banner.active{display:block;}
+
 /* ── Properties ── */
 #prop-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:#334155;font-size:11px;text-align:center;padding:16px;}
 #prop-elem-name{padding:8px 10px;font-size:11px;font-weight:600;color:#e2e8f0;border-bottom:1px solid #1e3a5f;background:#060f1c;word-break:break-word;line-height:1.4;}
@@ -348,6 +352,7 @@ body.light-theme .annot-list-txt{color:#64748b;}
     </div>
 
     <div id="canvas-wrap">
+      <div id="sel-mode-banner">🎯 Modo selección activo — haz clic en un elemento del modelo</div>
       <div id="overlay">
         <div class="spinner"></div>
         <p id="msg">Cargando visor...</p>
@@ -899,6 +904,14 @@ class OrbitCtrl {
       }
       updateSelBar();
       applyGhosting();
+      // Notificar al padre si está en modo selección (integración Gantt)
+      if(selectionModeActive&&!add){
+        const ename=elemNames.get(eid)||('#'+eid);
+        window.parent.postMessage({type:'ELEMENT_SELECTED',expressId:eid,name:ename},'*');
+        selectionModeActive=false;
+        selBanner.classList.remove('active');
+        renderer.domElement.style.cursor='default';
+      }
     }
 
     function updateSelBar(){
@@ -906,6 +919,28 @@ class OrbitCtrl {
       bar.style.display=selectedIDs.size>1?'flex':'none';
       document.getElementById('sel-count').textContent=selectedIDs.size+' seleccionados';
     }
+
+    // ── Integración postMessage para selección de elemento desde página padre ──
+    let selectionModeActive=false;
+    const selBanner=document.getElementById('sel-mode-banner');
+
+    window.addEventListener('message',e=>{
+      if(e.data?.type==='ENTER_SELECTION_MODE'){
+        selectionModeActive=true;
+        selBanner.classList.add('active');
+        renderer.domElement.style.cursor='crosshair';
+      } else if(e.data?.type==='EXIT_SELECTION_MODE'){
+        selectionModeActive=false;
+        selBanner.classList.remove('active');
+        renderer.domElement.style.cursor='default';
+      } else if(e.data?.type==='HIGHLIGHT_ELEMENT'){
+        const hname=e.data.name;
+        if(!hname){clearSelection();return;}
+        for(const [heid,hn] of elemNames){
+          if(hn===hname){selectElement(heid,false);return;}
+        }
+      }
+    });
 
     // Scroll árbol al nodo del elemento
     function scrollToElem(eid){

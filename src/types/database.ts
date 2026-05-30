@@ -131,6 +131,36 @@ export interface Database {
         Insert: Omit<Database["public"]["Tables"]["maintenance_records"]["Row"], "id" | "created_at">;
         Update: Partial<Database["public"]["Tables"]["maintenance_records"]["Insert"]>;
       };
+      schedule_members: {
+        Row: {
+          id:         string;
+          project_id: string;
+          name:       string;
+          role:       string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["schedule_members"]["Row"], "id" | "created_at">;
+        Update: Partial<Database["public"]["Tables"]["schedule_members"]["Insert"]>;
+      };
+      schedule_activities: {
+        Row: {
+          id:           string;
+          project_id:   string;
+          name:         string;
+          start_date:   string;
+          end_date:     string;
+          member_id:    string | null;
+          element_name: string | null;
+          predecessors: string[];
+          parent_id:    string | null;
+          is_critical:  boolean;
+          created_by:   string;
+          created_at:   string;
+          updated_at:   string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["schedule_activities"]["Row"], "id" | "created_at" | "updated_at">;
+        Update: Partial<Database["public"]["Tables"]["schedule_activities"]["Insert"]>;
+      };
     };
     Views:   Record<string, never>;
     Functions: Record<string, never>;
@@ -147,7 +177,9 @@ export type ModelElement   = Database["public"]["Tables"]["model_elements"]["Row
 export type ElementTechInfo= Database["public"]["Tables"]["element_technical_info"]["Row"];
 export type ElementProgress= Database["public"]["Tables"]["element_progress"]["Row"];
 export type ElementDocument= Database["public"]["Tables"]["element_documents"]["Row"];
-export type MaintenanceRecord = Database["public"]["Tables"]["maintenance_records"]["Row"];
+export type MaintenanceRecord  = Database["public"]["Tables"]["maintenance_records"]["Row"];
+export type ScheduleMember     = Database["public"]["Tables"]["schedule_members"]["Row"];
+export type ScheduleActivity   = Database["public"]["Tables"]["schedule_activities"]["Row"];
 
 export type ProjectWithMeta = Project & {
   member_count?: number;

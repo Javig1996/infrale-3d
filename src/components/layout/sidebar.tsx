@@ -4,7 +4,7 @@ import Link              from "next/link";
 import { usePathname }   from "next/navigation";
 import {
   LayoutDashboard, FolderKanban, Box, Wrench,
-  TrendingUp, Settings, X,
+  TrendingUp, Settings, Zap, X,
 } from "lucide-react";
 
 const NAV_MAIN = [
@@ -79,18 +79,12 @@ function SidebarContent({ onClose, showCloseButton = false }: { onClose: () => v
       {/* Logo + close button */}
       <div className="px-4 py-4 border-b border-surface-border flex items-center justify-between gap-3">
         <Link href="/dashboard" onClick={onClose} className="flex items-center gap-3 group min-w-0">
-          {/* Isotipo 2×2 */}
-          <div style={{ width: 28, height: 28, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 3, flexShrink: 0 }}>
-            <span style={{ background: "#2E6FD6", borderRadius: 3 }} />
-            <span style={{ background: "#6FA0DD", borderRadius: 3 }} />
-            <span style={{ background: "#06B6D4", borderRadius: 3 }} />
-            <span style={{ background: "#1257B4", borderRadius: 3 }} />
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-300 to-cyan-400 flex items-center justify-center shadow-glow-sm group-hover:shadow-glow-md transition-shadow shrink-0">
+            <Zap className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0">
-            <span className="text-sm font-bold block leading-tight" style={{ color: "#fff" }}>
-              INFRALE <span style={{ color: "#06B6D4", fontFamily: "JetBrains Mono, monospace", fontSize: 11 }}>3D</span>
-            </span>
-            <span className="text-[10px] font-mono tracking-wider" style={{ color: "#5E768F" }}>INFRAESTRUCTURA</span>
+            <span className="text-sm font-bold glow-text block leading-tight">Infrale 3D</span>
+            <span className="text-[10px] text-slate-600 font-mono tracking-wider">INFRAESTRUCTURA</span>
           </div>
         </Link>
 

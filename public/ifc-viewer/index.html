@@ -155,93 +155,6 @@ canvas{display:block;width:100%!important;height:100%!important;}
 /* ── Isolate banner ── */
 #isolate-banner{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#f59e0b22;border:1px solid #f59e0b55;border-radius:8px;padding:6px 14px;font-size:11px;color:#fbbf24;pointer-events:none;display:none;white-space:nowrap;z-index:10;}
 
-/* ════════════════════════════════════════════════
-   TEMA CLARO — Autodesk Viewer style
-   ════════════════════════════════════════════════ */
-body.light-theme{background:#f0f4f8;}
-body.light-theme #overlay{background:#eef2f7;}
-body.light-theme #overlay p{color:#64748b;}
-body.light-theme .spinner{border-color:#e2e8f0;border-top-color:#2563eb;}
-body.light-theme .pb{background:#dde4ed;}
-body.light-theme #err{background:#eef2f7;}
-body.light-theme #err h3{color:#dc2626;}
-body.light-theme #err p{color:#64748b;}
-body.light-theme #err button{background:#e2e8f0;border-color:#93c5fd55;color:#475569;}
-body.light-theme #err button:hover{color:#1e293b;background:#dce8f8;}
-/* Toolbar */
-body.light-theme #toolbar{background:#ffffff;border-color:#e2e8f0;}
-body.light-theme .tb{background:rgba(248,250,252,.95);border-color:#e2e8f0;color:#64748b;}
-body.light-theme .tb:hover{background:#f1f5f9;color:#1e293b;border-color:#94a3b8;}
-body.light-theme .tb.active{background:#eff6ff;border-color:#93c5fd;color:#2563eb;}
-body.light-theme .tb-sep{background:#e2e8f0;}
-body.light-theme #statusbar{color:#94a3b8;}
-body.light-theme .dot{background:#2563eb;}
-/* Section slider */
-body.light-theme #section-slider-wrap{background:#f8fafc;border-color:#e2e8f0;color:#64748b;}
-body.light-theme #section-slider-val{color:#2563eb;}
-body.light-theme #explode-wrap{color:#64748b;}
-/* Sidebar */
-body.light-theme #sidebar{background:#ffffff;border-color:#e2e8f0;}
-body.light-theme #sidebar-tabs{border-color:#e2e8f0;}
-body.light-theme .stab{color:#94a3b8;}
-body.light-theme .stab.active{color:#2563eb;border-color:#2563eb;}
-body.light-theme #tree-subtabs{border-color:#f1f5f9;}
-body.light-theme .tree-stab{color:#94a3b8;}
-body.light-theme .tree-stab.active{color:#2563eb;border-color:#2563eb;}
-body.light-theme .tree-stab:hover{color:#64748b;}
-body.light-theme #search-wrap{border-color:#f1f5f9;}
-body.light-theme #search-input{background:#f8fafc;border-color:#e2e8f0;color:#1e293b;}
-body.light-theme #search-input::placeholder{color:#94a3b8;}
-body.light-theme #search-clear{color:#94a3b8;}
-body.light-theme #sel-bar{background:#f8fafc;border-color:#e2e8f0;color:#64748b;}
-body.light-theme #sel-bar button{border-color:#e2e8f0;color:#64748b;}
-body.light-theme #sel-bar button:hover{color:#1e293b;border-color:#94a3b8;}
-body.light-theme .spanel::-webkit-scrollbar-track{background:#f8fafc;}
-body.light-theme .spanel::-webkit-scrollbar-thumb{background:#e2e8f0;}
-/* Árbol */
-body.light-theme .storey-row{border-color:#f1f5f9;}
-body.light-theme .storey-row:hover{background:#f8fafc;}
-body.light-theme .storey-arrow{color:#94a3b8;}
-body.light-theme .storey-icon{opacity:.7;}
-body.light-theme .storey-name{color:#334155;}
-body.light-theme .storey-count{color:#94a3b8;}
-body.light-theme .cat-row:hover{background:#f8fafc;}
-body.light-theme .cat-arrow{color:#94a3b8;}
-body.light-theme .cat-name{color:#64748b;}
-body.light-theme .cat-count{color:#cbd5e1;}
-body.light-theme .elem-row:hover{background:#f8fafc;}
-body.light-theme .elem-row.selected{background:#eff6ff;}
-body.light-theme .elem-row.multi-selected{background:#fffbeb;}
-body.light-theme .elem-label{color:#64748b;}
-body.light-theme .elem-row:hover .elem-label,
-body.light-theme .elem-row.selected .elem-label{color:#1e293b;}
-body.light-theme .eye-btn{color:#cbd5e1;}
-body.light-theme .eye-btn:hover{color:#2563eb!important;}
-body.light-theme .elem-label.search-hl{color:#d97706!important;}
-/* Propiedades */
-body.light-theme #prop-empty{color:#94a3b8;}
-body.light-theme #prop-elem-name{background:#f8fafc;border-color:#e2e8f0;color:#1e293b;}
-body.light-theme #prop-search-wrap{background:#f8fafc;border-color:#e2e8f0;}
-body.light-theme #prop-search{background:#ffffff;border-color:#e2e8f0;color:#1e293b;}
-body.light-theme #prop-search::placeholder{color:#94a3b8;}
-body.light-theme #prop-search-clear{color:#94a3b8;}
-body.light-theme .prop-group{border-color:#f1f5f9;}
-body.light-theme .prop-group-header{background:#f8fafc;color:#475569;}
-body.light-theme .prop-group-header:hover{background:#f1f5f9;}
-body.light-theme .prop-group-arrow{color:#cbd5e1;}
-body.light-theme .prop-row{border-color:#f1f5f9;}
-body.light-theme .prop-row:nth-child(odd){background:#ffffff;}
-body.light-theme .prop-row:nth-child(even){background:#f8fafc;}
-body.light-theme .prop-key{color:#94a3b8;}
-body.light-theme .prop-val{color:#1e293b;}
-body.light-theme .prop-val.copied{color:#059669!important;}
-body.light-theme .prop-val a{color:#2563eb;}
-body.light-theme .prop-unit{color:#94a3b8;}
-/* Anotaciones */
-body.light-theme .annot-list-item{border-color:#f1f5f9;}
-body.light-theme .annot-list-item:hover{background:#f8fafc;}
-body.light-theme .annot-list-txt{color:#64748b;}
-
 /* ── Section slider ── */
 #section-slider-wrap{display:none;align-items:center;gap:8px;padding:5px 12px;background:#060f1c;border-bottom:1px solid #1e3a5f;font-size:10px;color:#475569;flex-shrink:0;}
 #section-slider{flex:1;accent-color:#2563eb;cursor:pointer;height:3px;}
@@ -267,7 +180,7 @@ body.light-theme .annot-list-txt{color:#64748b;}
 .annot-list-txt{flex:1;line-height:1.4;overflow:hidden;text-overflow:ellipsis;}
 </style>
 </head>
-<body class="light-theme">
+<body>
 <div id="app">
   <div id="toolbar">
     <button class="tb" id="btn-panel">☰ Panel</button>
@@ -280,9 +193,7 @@ body.light-theme .annot-list-txt{color:#64748b;}
     <button class="tb" id="btn-sy">✂ Sección Y</button>
     <button class="tb" id="btn-sz">✂ Sección Z</button>
     <span class="tb-sep"></span>
-    <button class="tb" id="btn-measure">📏 Dist.</button>
-    <button class="tb" id="btn-angle">📐 Ángulo</button>
-    <button class="tb" id="btn-area">⬡ Área</button>
+    <button class="tb" id="btn-measure">📏 Medir</button>
     <button class="tb" id="btn-isolate">◎ Aislar</button>
     <button class="tb" id="btn-showall">⊕ Mostrar todo</button>
     <span class="tb-sep"></span>
@@ -296,8 +207,6 @@ body.light-theme .annot-list-txt{color:#64748b;}
     <span class="tb-sep"></span>
     <button class="tb" id="btn-walk">🚶 Walk</button>
     <button class="tb" id="btn-annot">📌 Anotar</button>
-    <span class="tb-sep"></span>
-    <button class="tb" id="btn-theme">🌙 Oscuro</button>
     <div id="statusbar"><span class="dot"></span><span id="lbl">Modelo IFC</span></div>
   </div>
   <div id="section-slider-wrap">
@@ -313,6 +222,10 @@ body.light-theme .annot-list-txt{color:#64748b;}
         <div class="stab" data-tab="props">Propiedades</div>
         <div class="stab" data-tab="annots">Notas</div>
       </div>
+      <div id="tree-subtabs">
+        <button class="tree-stab active" id="stab-hierarchy">Jerarquía</button>
+        <button class="tree-stab" id="stab-categories">Categorías</button>
+      </div>
       <div id="search-wrap">
         <input id="search-input" type="text" placeholder="🔍  Buscar elemento…" autocomplete="off"/>
         <span id="search-clear">✕</span>
@@ -325,7 +238,8 @@ body.light-theme .annot-list-txt{color:#64748b;}
       </div>
       <div id="sidebar-body">
         <div class="spanel active" id="tab-tree">
-          <div id="view-categories" style="padding:6px;"></div>
+          <div id="view-hierarchy"></div>
+          <div id="view-categories" style="display:none;padding:6px;"></div>
         </div>
         <div class="spanel" id="tab-props">
           <div id="prop-empty">
@@ -443,7 +357,7 @@ class OrbitCtrl {
     sun.shadow.camera.left=sun.shadow.camera.bottom=-500;
     sun.shadow.camera.right=sun.shadow.camera.top=500;
     scene.add(sun);
-    const grid=new THREE.GridHelper(1000,60,0x1e3a5f,0x0f2035);scene.add(grid);
+    scene.add(new THREE.GridHelper(1000,60,0x1e3a5f,0x0f2035));
 
     new ResizeObserver(()=>{
       camera.aspect=wrap.clientWidth/wrap.clientHeight;
@@ -493,25 +407,6 @@ class OrbitCtrl {
       IfcSite:0x064e3b,
       DEFAULT:0x3b82f6
     };
-    const COLORS_LIGHT={
-      IfcWall:0x1d4ed8,IfcWallStandardCase:0x1d4ed8,IfcCurtainWall:0x0369a1,
-      IfcSlab:0x2563eb,IfcColumn:0x1e3a8a,IfcBeam:0x1d4ed8,
-      IfcFooting:0x1e3a8a,IfcPile:0x172554,IfcPlate:0x2563eb,IfcMember:0x312e81,
-      IfcDoor:0xb45309,IfcWindow:0x0369a1,IfcRoof:0x3730a3,
-      IfcStair:0x5b21b6,IfcStairFlight:0x5b21b6,IfcRamp:0x6d28d9,
-      IfcRailing:0x334155,IfcFurnishingElement:0x5b21b6,IfcFurniture:0x5b21b6,
-      IfcFlowSegment:0x991b1b,IfcPipeSegment:0x991b1b,IfcDuctSegment:0xa16207,
-      IfcCableSegment:0x713f12,IfcFlowFitting:0x7f1d1d,IfcPipeFitting:0x7f1d1d,
-      IfcDuctFitting:0x92400e,IfcFlowTerminal:0x075985,IfcAirTerminal:0x075985,
-      IfcLamp:0x78350f,IfcSanitaryTerminal:0x065f46,IfcValve:0x7f1d1d,
-      IfcDamper:0x7c2d12,IfcPump:0x991b1b,IfcFan:0x9a3412,
-      IfcBoiler:0x7f1d1d,IfcChiller:0x1e3a8a,IfcTank:0x0c4a6e,
-      IfcElectricDistributionBoard:0x713f12,IfcElectricAppliance:0x78350f,
-      IfcDistributionElement:0x9a3412,IfcDistributionFlowElement:0x9a3412,
-      IfcBuildingElementProxy:0x1e293b,
-      IfcSite:0x14532d,
-      DEFAULT:0x1d4ed8
-    };
     const matCache={};
     const pbrCache={};
     let pbrMode=false;
@@ -522,21 +417,6 @@ class OrbitCtrl {
     function getPBRMat(type){
       if(!pbrCache[type]) pbrCache[type]=new THREE.MeshStandardMaterial({color:COLORS[type]||COLORS.DEFAULT,roughness:0.65,metalness:0.1,side:THREE.DoubleSide});
       return pbrCache[type];
-    }
-    // Materiales IFC reales (color extraído de IfcSurfaceStyle vía placed.color)
-    const ifcMatCache={};
-    function getIfcMat(colorHex,alpha){
-      const key=colorHex+'_'+Math.round(alpha*100);
-      if(!ifcMatCache[key]) ifcMatCache[key]=new THREE.MeshStandardMaterial({
-        color:colorHex,
-        opacity:alpha<0.99?alpha:1,
-        transparent:alpha<0.99,
-        roughness:0.6,
-        metalness:0.1,
-        side:THREE.DoubleSide,
-        depthWrite:alpha>=0.99
-      });
-      return ifcMatCache[key];
     }
 
     // ── Mapa inverso TypeCode → nombre IFC (cubre TODOS los tipos) ──
@@ -582,22 +462,18 @@ class OrbitCtrl {
         geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
         geo.setAttribute('normal',new THREE.BufferAttribute(nrm,3));
         geo.setIndex(new THREE.BufferAttribute(idx,1));
-        // Color real del IFC (IfcSurfaceStyle → RGBA 0-1)
-        const c=placed.color;
-        const colorHex=((Math.round(c.x*255))<<16)|((Math.round(c.y*255))<<8)|(Math.round(c.z*255));
-        const ifcMat=getIfcMat(colorHex,c.w);
         const mesh=new THREE.Mesh(geo,getMat(type));
         mesh.matrix.fromArray(placed.flatTransformation);
         mesh.matrixAutoUpdate=false;
         mesh.userData.expressID=eid;
-        mesh.userData.ifcMat=ifcMat;
-        mshList.push(mesh);allMeshes.push(mesh);n++;
+        group.add(mesh);mshList.push(mesh);allMeshes.push(mesh);n++;
         gd.delete();
       }
       if(mshList.length) meshMap.set(eid,mshList);
     });
 
     if(n===0) throw new Error('El modelo no contiene geometría visible.');
+    scene.add(group);
 
     // ── Pre-calcular centroides y matrices originales para Explode ──
     const elemCentroids=new Map();
@@ -615,36 +491,12 @@ class OrbitCtrl {
 
     // ── Cámara ──────────────────────────────────────────
     prog(82,'Ajustando cámara...');
-    const box=new THREE.Box3();
-    for(const [,meshes] of meshMap){
-      meshes.forEach(m=>{ box.union(m.geometry.boundingBox.clone().applyMatrix4(m.matrix)); });
-    }
+    const box=new THREE.Box3().setFromObject(group);
     const ctr=box.getCenter(new THREE.Vector3());
     const sz=box.getSize(new THREE.Vector3());
     const dist=Math.max(sz.x,sz.y,sz.z)*1.8;
     controls.setView(ctr,dist);
     initialCenter=ctr.clone();initialDist=dist;
-
-    // ── Entorno claro: sky gradient + shadow floor ──
-    const skyCvs=document.createElement('canvas');
-    skyCvs.width=2;skyCvs.height=512;
-    const skyCtx=skyCvs.getContext('2d');
-    const skyGrad=skyCtx.createLinearGradient(0,0,0,512);
-    skyGrad.addColorStop(0,'#93c5fd');
-    skyGrad.addColorStop(0.45,'#bfdbfe');
-    skyGrad.addColorStop(0.75,'#dbeafe');
-    skyGrad.addColorStop(1,'#f0f4f8');
-    skyCtx.fillStyle=skyGrad;skyCtx.fillRect(0,0,2,512);
-    const skyTex=new THREE.CanvasTexture(skyCvs);
-
-    const floorGeo=new THREE.PlaneGeometry(sz.x*5,sz.z*5);
-    const floorShadMat=new THREE.ShadowMaterial({opacity:0.15});
-    const floorMesh=new THREE.Mesh(floorGeo,floorShadMat);
-    floorMesh.rotation.x=-Math.PI/2;
-    floorMesh.position.y=box.min.y-0.01;
-    floorMesh.receiveShadow=true;
-    floorMesh.visible=false;
-    scene.add(floorMesh);
 
     // ── Nombres en español para tipos IFC (Opción A — universal) ──
     const IFC_TYPE_ES={
@@ -804,10 +656,6 @@ class OrbitCtrl {
     // ═══════════════════════════════════════════════════
     const H_SINGLE=new THREE.MeshLambertMaterial({color:0xfbbf24,side:THREE.DoubleSide,transparent:true,opacity:.85});
     const H_MULTI =new THREE.MeshLambertMaterial({color:0xf97316,side:THREE.DoubleSide,transparent:true,opacity:.75});
-    const H_SINGLE_LIGHT=new THREE.MeshLambertMaterial({color:0x7dd3fc,side:THREE.DoubleSide,transparent:true,opacity:.55,depthWrite:false});
-    const H_MULTI_LIGHT =new THREE.MeshLambertMaterial({color:0x38bdf8,side:THREE.DoubleSide,transparent:true,opacity:.45,depthWrite:false});
-    const ghostMat=new THREE.MeshLambertMaterial({color:0x8899aa,side:THREE.DoubleSide,transparent:true,opacity:0.12,depthWrite:false});
-    const ghostedMap=new Map(); // mesh → material original
     const raycaster=new THREE.Raycaster();
     const mouse=new THREE.Vector2();
 
@@ -818,42 +666,17 @@ class OrbitCtrl {
     const elemRowMap=new Map(); // expressID → .elem-row DOM element
 
     prog(98,'Renderizando árbol...');
+    buildHierarchyTree(treeData,storeyOrder);
     buildCategoriesView(treeData);
 
-    prog(100,'¡Modelo listo! ('+n+' elementos)');
-    // Renderizado progresivo: añadir mallas en lotes por frame
-    scene.add(group);
-    const BATCH_SIZE=500;
-    let batchIdx=0;
-    function addBatch(){
-      const end=Math.min(batchIdx+BATCH_SIZE,allMeshes.length);
-      for(let i=batchIdx;i<end;i++) group.add(allMeshes[i]);
-      batchIdx=end;
-      if(batchIdx<allMeshes.length) requestAnimationFrame(addBatch);
-    }
-    requestAnimationFrame(addBatch);
+    prog(100,'¡Modelo cargado! ('+n+' elementos)');
     setTimeout(()=>{
       document.getElementById('overlay').style.display='none';
       document.getElementById('toolbar').style.display='flex';
       document.getElementById('sidebar').style.display='flex';
     },300);
 
-    function clearGhosting(){
-      for(const [m,mat] of ghostedMap) m.material=mat;
-      ghostedMap.clear();
-    }
-    function applyGhosting(){
-      clearGhosting();
-      if(selectedIDs.size===0) return;
-      for(const m of allMeshes){
-        if(!m.visible||prevMats.has(m)) continue;
-        if(selectedIDs.has(m.userData.expressID)) continue;
-        ghostedMap.set(m,m.material);
-        m.material=ghostMat;
-      }
-    }
     function clearSelection(){
-      clearGhosting();
       for(const [mesh,mat] of prevMats) mesh.material=mat;
       prevMats.clear();selectedIDs.clear();
       document.querySelectorAll('.elem-row.selected,.elem-row.multi-selected').forEach(r=>r.classList.remove('selected','multi-selected'));
@@ -862,7 +685,7 @@ class OrbitCtrl {
 
     function applyHL(eid,multi=false){
       const meshes=meshMap.get(eid)||[];
-      const mat=lightTheme?(multi?H_MULTI_LIGHT:H_SINGLE_LIGHT):(multi?H_MULTI:H_SINGLE);
+      const mat=multi?H_MULTI:H_SINGLE;
       for(const m of meshes){if(!prevMats.has(m))prevMats.set(m,m.material);m.material=mat;}
     }
 
@@ -898,7 +721,6 @@ class OrbitCtrl {
         }
       }
       updateSelBar();
-      applyGhosting();
     }
 
     function updateSelBar(){
@@ -913,7 +735,7 @@ class OrbitCtrl {
       if(!row) return;
       // Expandir ancestros (cat-children, storey-children)
       let p=row.parentElement;
-      while(p&&p.id!=='view-categories'){
+      while(p&&p.id!=='view-hierarchy'){
         if(p.classList.contains('cat-children')||p.classList.contains('storey-children')){
           p.classList.remove('collapsed');
           const hdr=p.previousSibling;
@@ -983,6 +805,134 @@ class OrbitCtrl {
     }
 
     // ═══════════════════════════════════════════════════
+    //  ÁRBOL JERARQUÍA — Nivel → Categoría → Elemento
+    // ═══════════════════════════════════════════════════
+    function buildHierarchyTree(treeData,storeyOrder){
+      const root=document.getElementById('view-hierarchy');
+      root.innerHTML='';
+      if(treeData.size===0){
+        root.innerHTML='<div style="font-size:11px;color:#475569;padding:12px;">Sin datos de árbol disponibles</div>';
+        return;
+      }
+
+      // Ordenar: primero los storeys en orden encontrado, "Sin nivel" al final
+      const ordered=[
+        ...storeyOrder.filter(s=>treeData.has(s)),
+        ...[...treeData.keys()].filter(s=>!storeyOrder.includes(s))
+      ];
+
+      for(const storeyName of ordered){
+        const cats=treeData.get(storeyName);
+        if(!cats||cats.size===0) continue;
+
+        const totalElems=[...cats.values()].reduce((a,b)=>a+b.length,0);
+
+        // ── Storey wrapper ──
+        const storeyWrap=document.createElement('div');
+
+        // Storey header row
+        const storeyRow=document.createElement('div');
+        storeyRow.className='storey-row';
+        storeyRow.innerHTML=`<span class="storey-arrow">▼</span><span class="storey-icon">📐</span><span class="storey-name" title="${storeyName}">${storeyName}</span><span class="storey-count">${totalElems}</span><button class="eye-btn" title="Ocultar nivel">👁</button>`;
+
+        const storeyChildren=document.createElement('div');
+        storeyChildren.className='storey-children';
+
+        // Toggle colapso de storey
+        const storeyArrow=storeyRow.querySelector('.storey-arrow');
+        storeyRow.addEventListener('click',e=>{
+          if(e.target.classList.contains('eye-btn')) return;
+          const collapsed=storeyChildren.classList.toggle('collapsed');
+          storeyArrow.textContent=collapsed?'▶':'▼';
+        });
+
+        // Eye en storey → ocultar/mostrar todos sus elementos
+        const storeyEye=storeyRow.querySelector('.eye-btn');
+        let storeyVisible=true;
+        storeyEye.addEventListener('click',e=>{
+          e.stopPropagation();
+          storeyVisible=!storeyVisible;
+          const eids=collectEids(storeyChildren);
+          setVisible(eids,storeyVisible);
+          updateEyeBtn(storeyEye,storeyVisible);
+          // Sincronizar eyes de categorías
+          storeyChildren.querySelectorAll('.cat-row .eye-btn').forEach(b=>{
+            updateEyeBtn(b,storeyVisible);b._visible=storeyVisible;
+          });
+        });
+        storeyEye._visible=true;
+
+        // ── Categorías ──
+        const sortedCats=[...cats.entries()].sort((a,b)=>b[1].length-a[1].length);
+        for(const [catName,elems] of sortedCats){
+          const catWrap=document.createElement('div');
+
+          const catRow=document.createElement('div');
+          catRow.className='cat-row';
+          catRow.innerHTML=`<span class="cat-arrow">▼</span><span class="cat-icon">▪</span><span class="cat-name" title="${catName}">${catName}</span><span class="cat-count">${elems.length}</span><button class="eye-btn" title="Ocultar categoría">👁</button>`;
+
+          const catChildren=document.createElement('div');
+          catChildren.className='cat-children';
+
+          const catArrow=catRow.querySelector('.cat-arrow');
+          catRow.addEventListener('click',e=>{
+            if(e.target.classList.contains('eye-btn')) return;
+            const collapsed=catChildren.classList.toggle('collapsed');
+            catArrow.textContent=collapsed?'▶':'▼';
+          });
+
+          // Eye en categoría
+          const catEye=catRow.querySelector('.eye-btn');
+          catEye._visible=true;
+          catEye.addEventListener('click',e=>{
+            e.stopPropagation();
+            catEye._visible=!catEye._visible;
+            const eids=collectEids(catChildren);
+            setVisible(eids,catEye._visible);
+            updateEyeBtn(catEye,catEye._visible);
+          });
+
+          // ── Elementos ──
+          for(const {expressID,name} of elems){
+            const elemRow=document.createElement('div');
+            elemRow.className='elem-row';
+            elemRow.dataset.eid=String(expressID);
+            elemRow.dataset.label=name.toLowerCase();
+            elemRow.innerHTML=`<span class="elem-label" title="${name}">${name}</span><button class="eye-btn" title="Ocultar">👁</button>`;
+
+            // Seleccionar elemento
+            elemRow.addEventListener('click',e=>{
+              if(e.target.classList.contains('eye-btn')) return;
+              selectElement(expressID,e.ctrlKey||e.metaKey);
+            });
+            elemRow.addEventListener('dblclick',e=>{e.stopPropagation();focusElement(expressID);});
+
+            // Eye en elemento
+            const elemEye=elemRow.querySelector('.eye-btn');
+            elemEye._visible=true;
+            elemEye.addEventListener('click',e=>{
+              e.stopPropagation();
+              elemEye._visible=!elemEye._visible;
+              setVisible([expressID],elemEye._visible);
+              updateEyeBtn(elemEye,elemEye._visible);
+            });
+
+            catChildren.appendChild(elemRow);
+            elemRowMap.set(expressID,elemRow);
+          }
+
+          catWrap.appendChild(catRow);
+          catWrap.appendChild(catChildren);
+          storeyChildren.appendChild(catWrap);
+        }
+
+        storeyWrap.appendChild(storeyRow);
+        storeyWrap.appendChild(storeyChildren);
+        root.appendChild(storeyWrap);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
     //  ÁRBOL CATEGORÍAS (vista plana agrupada)
     // ═══════════════════════════════════════════════════
     function buildCategoriesView(treeData){
@@ -1033,7 +983,7 @@ class OrbitCtrl {
     // ═══════════════════════════════════════════════════
     //  BUSCADOR
     // ═══════════════════════════════════════════════════
-    let currentView='categories';
+    let currentView='hierarchy';
     const searchInput=document.getElementById('search-input');
     const searchClear=document.getElementById('search-clear');
 
@@ -1044,20 +994,67 @@ class OrbitCtrl {
     searchClear.addEventListener('click',()=>{searchInput.value='';searchClear.style.display='none';applySearch('');});
 
     function applySearch(q){
-      const viewEl=document.getElementById('view-categories');
-      viewEl.querySelectorAll('.elem-row').forEach(r=>{
-        const lbl=r.dataset.label||'';
-        const match=!q||lbl.includes(q);
-        r.style.display=match?'':'none';
-      });
-      viewEl.querySelectorAll('.cat-row').forEach(row=>{
-        const list=row.nextSibling;
-        if(!list) return;
-        const hasVisible=[...list.querySelectorAll('.elem-row')].some(r=>r.style.display!=='none');
-        row.parentElement.style.display=(!q||hasVisible)?'':'none';
-        if(q&&hasVisible){list.classList.remove('collapsed');row.querySelector('.cat-arrow').textContent='▼';}
-      });
+      if(currentView==='hierarchy'){
+        const viewEl=document.getElementById('view-hierarchy');
+        if(!q){
+          viewEl.querySelectorAll('.elem-row').forEach(r=>{r.style.display='';r.querySelector('.elem-label').classList.remove('search-hl');});
+          viewEl.querySelectorAll('.cat-children').forEach(c=>c.classList.remove('_force-open'));
+          viewEl.querySelectorAll('.storey-children').forEach(c=>c.classList.remove('_force-open'));
+          return;
+        }
+        viewEl.querySelectorAll('.elem-row').forEach(r=>{
+          const lbl=r.dataset.label||'';
+          const match=lbl.includes(q);
+          r.style.display=match?'':'none';
+          r.querySelector('.elem-label').classList.toggle('search-hl',match);
+          if(match){
+            let p=r.parentElement;
+            while(p&&p!==viewEl){
+              if(p.classList.contains('cat-children')||p.classList.contains('storey-children')){
+                p.classList.remove('collapsed');
+                const arr=p.previousSibling?.querySelector?.('.storey-arrow,.cat-arrow');
+                if(arr) arr.textContent='▼';
+              }
+              p=p.parentElement;
+            }
+          }
+        });
+      } else {
+        const viewEl=document.getElementById('view-categories');
+        viewEl.querySelectorAll('.elem-row').forEach(r=>{
+          const lbl=r.dataset.label||'';
+          const match=!q||lbl.includes(q);
+          r.style.display=match?'':'none';
+        });
+        viewEl.querySelectorAll('.cat-row').forEach(row=>{
+          const list=row.nextSibling;
+          if(!list) return;
+          const hasVisible=[...list.querySelectorAll('.elem-row')].some(r=>r.style.display!=='none');
+          row.parentElement.style.display=(!q||hasVisible)?'':'none';
+          if(q&&hasVisible){list.classList.remove('collapsed');row.querySelector('.cat-arrow').textContent='▼';}
+        });
+      }
     }
+
+    // ── Sub-tabs árbol ──
+    document.getElementById('stab-hierarchy').addEventListener('click',()=>{
+      currentView='hierarchy';
+      document.getElementById('stab-hierarchy').classList.add('active');
+      document.getElementById('stab-categories').classList.remove('active');
+      document.getElementById('view-hierarchy').style.display='block';
+      document.getElementById('view-categories').style.display='none';
+      searchInput.placeholder='🔍  Buscar en jerarquía…';
+      applySearch(searchInput.value.trim().toLowerCase());
+    });
+    document.getElementById('stab-categories').addEventListener('click',()=>{
+      currentView='categories';
+      document.getElementById('stab-categories').classList.add('active');
+      document.getElementById('stab-hierarchy').classList.remove('active');
+      document.getElementById('view-hierarchy').style.display='none';
+      document.getElementById('view-categories').style.display='block';
+      searchInput.placeholder='🔍  Buscar categoría…';
+      applySearch(searchInput.value.trim().toLowerCase());
+    });
 
     // ── Sidebar main tabs ──
     document.querySelectorAll('.stab').forEach(tab=>{
@@ -1067,6 +1064,7 @@ class OrbitCtrl {
       document.querySelectorAll('.stab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
       document.querySelectorAll('.spanel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+name));
       const inTree=name==='tree';
+      document.getElementById('tree-subtabs').style.display=inTree?'flex':'none';
       document.getElementById('search-wrap').style.display=inTree?'block':'none';
       document.getElementById('sel-bar').style.display=(inTree&&selectedIDs.size>1)?'flex':'none';
       // Buscador de propiedades solo en tab props
@@ -1390,21 +1388,17 @@ class OrbitCtrl {
     document.getElementById('btn-sz').onclick=()=>toggleSection('z');
 
     // ═══════════════════════════════════════════════════
-    //  MEDICIÓN AVANZADA — Dist. acumulada, Ángulo, Área
+    //  MEDICIÓN
     // ═══════════════════════════════════════════════════
-    let measureMode=false,measureType='dist';
+    let measureMode=false;
     const measurePoints=[],measureMarkers=[],measureLines=[];
     const MK_GEO=new THREE.SphereGeometry(0.08,8,8);
     const MK_MAT=new THREE.MeshBasicMaterial({color:0xfbbf24});
     const LN_MAT=new THREE.LineBasicMaterial({color:0xfbbf24});
-    const AREA_MAT=new THREE.MeshBasicMaterial({color:0xfbbf24,transparent:true,opacity:0.18,side:THREE.DoubleSide,depthWrite:false});
-    let areaMesh=null;
 
-    function setMeasure(on,type='dist'){
-      if(on) clearMeasure();
-      measureMode=on;if(on) measureType=type;
-      ['btn-measure','btn-angle','btn-area'].forEach(id=>{document.getElementById(id)?.classList.remove('active');});
-      if(on) document.getElementById(type==='dist'?'btn-measure':type==='angle'?'btn-angle':'btn-area')?.classList.add('active');
+    function setMeasure(on){
+      measureMode=on;
+      document.getElementById('btn-measure').classList.toggle('active',on);
       document.getElementById('crosshair').style.display=on?'block':'none';
       renderer.domElement.style.cursor=on?'crosshair':'default';
       if(!on) document.getElementById('measure-tip').style.display='none';
@@ -1414,89 +1408,28 @@ class OrbitCtrl {
       for(const m of measureMarkers) scene.remove(m);
       for(const l of measureLines) scene.remove(l);
       measureMarkers.length=0;measureLines.length=0;
-      if(areaMesh){scene.remove(areaMesh);areaMesh=null;}
       document.getElementById('measure-tip').style.display='none';
     }
-    function getRayPt(e){
+    function handleMeasureClick(e){
       const rect=renderer.domElement.getBoundingClientRect();
       mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
       mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
       raycaster.setFromCamera(mouse,camera);
       const hits=raycaster.intersectObjects(allMeshes.filter(m=>m.visible),false);
-      return hits.length?hits[0].point.clone():null;
-    }
-    function handleMeasureClick(e){
-      const pt=getRayPt(e);if(!pt) return;
+      if(!hits.length) return;
+      const pt=hits[0].point.clone();
       measurePoints.push(pt);
       const mk=new THREE.Mesh(MK_GEO,MK_MAT);mk.position.copy(pt);scene.add(mk);measureMarkers.push(mk);
-      const tip=document.getElementById('measure-tip');
-
-      if(measureType==='dist'){
-        if(measurePoints.length>=2){
-          const a=measurePoints[measurePoints.length-2],b=measurePoints[measurePoints.length-1];
-          const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),LN_MAT);
-          scene.add(ln);measureLines.push(ln);
-          const seg=a.distanceTo(b);
-          let total=0;for(let i=1;i<measurePoints.length;i++) total+=measurePoints[i-1].distanceTo(measurePoints[i]);
-          tip.textContent=measurePoints.length===2?('📏 '+seg.toFixed(3)+' m'):('📏 '+seg.toFixed(2)+' m  |  Total: '+total.toFixed(3)+' m');
-          tip.style.display='block';
-        }
-      } else if(measureType==='angle'){
-        if(measurePoints.length===3){
-          const [A,B,C]=measurePoints;
-          const BA=new THREE.Vector3().subVectors(A,B).normalize();
-          const BC=new THREE.Vector3().subVectors(C,B).normalize();
-          const ang=Math.acos(Math.max(-1,Math.min(1,BA.dot(BC))))*180/Math.PI;
-          [[A,B],[B,C]].forEach(([p,q])=>{const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints([p,q]),LN_MAT);scene.add(l);measureLines.push(l);});
-          tip.textContent='📐 '+ang.toFixed(2)+'°';tip.style.display='block';
-          setTimeout(()=>{clearMeasure();setMeasure(true,'angle');},2000);
-        } else {
-          const labels=['Punto vértice (2°)','Punto final (3°)'];
-          tip.textContent='📐 Selecciona '+labels[measurePoints.length-1]||'';tip.style.display='block';
-        }
-      } else if(measureType==='area'){
-        if(measurePoints.length>=2){
-          const a=measurePoints[measurePoints.length-2],b=measurePoints[measurePoints.length-1];
-          const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),LN_MAT);
-          scene.add(ln);measureLines.push(ln);
-        }
-        tip.textContent='⬡ '+measurePoints.length+' pt — Doble clic para cerrar';tip.style.display='block';
+      if(measurePoints.length>=2){
+        const a=measurePoints[measurePoints.length-2],b=measurePoints[measurePoints.length-1];
+        const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),LN_MAT);
+        scene.add(ln);measureLines.push(ln);
+        const tip=document.getElementById('measure-tip');
+        tip.textContent='📏 '+a.distanceTo(b).toFixed(3)+' m';
+        tip.style.display='block';
       }
     }
-
-    function closeArea(){
-      if(measureType!=='area'||measurePoints.length<3) return;
-      // Línea de cierre
-      const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([measurePoints[measurePoints.length-1],measurePoints[0]]),LN_MAT);
-      scene.add(ln);measureLines.push(ln);
-      // Área 3D vía producto vectorial acumulado
-      const n3=new THREE.Vector3();
-      for(let i=0;i<measurePoints.length;i++){
-        const a=measurePoints[i],b=measurePoints[(i+1)%measurePoints.length];
-        n3.x+=(a.y-b.y)*(a.z+b.z);n3.y+=(a.z-b.z)*(a.x+b.x);n3.z+=(a.x-b.x)*(a.y+b.y);
-      }
-      const area=n3.length()/2;
-      // Relleno triangular desde centroide
-      const cx=measurePoints.reduce((s,p)=>s+p.x,0)/measurePoints.length;
-      const cy=measurePoints.reduce((s,p)=>s+p.y,0)/measurePoints.length;
-      const cz=measurePoints.reduce((s,p)=>s+p.z,0)/measurePoints.length;
-      const pos=[];
-      for(let i=0;i<measurePoints.length;i++){
-        const a=measurePoints[i],b=measurePoints[(i+1)%measurePoints.length];
-        pos.push(cx,cy,cz,a.x,a.y,a.z,b.x,b.y,b.z);
-      }
-      const fg=new THREE.BufferGeometry();
-      fg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
-      areaMesh=new THREE.Mesh(fg,AREA_MAT);scene.add(areaMesh);
-      document.getElementById('measure-tip').textContent='⬡ Área: '+area.toFixed(2)+' m²';
-    }
-
-    renderer.domElement.addEventListener('dblclick',e=>{
-      if(measureMode&&measureType==='area'&&measurePoints.length>=3) closeArea();
-    });
-    document.getElementById('btn-measure').onclick=()=>{measureMode&&measureType==='dist'?setMeasure(false):setMeasure(true,'dist');};
-    document.getElementById('btn-angle').onclick=()=>{measureMode&&measureType==='angle'?setMeasure(false):setMeasure(true,'angle');};
-    document.getElementById('btn-area').onclick=()=>{measureMode&&measureType==='area'?setMeasure(false):setMeasure(true,'area');};
+    document.getElementById('btn-measure').onclick=()=>{if(measureMode){clearMeasure();setMeasure(false);}else setMeasure(true);};
 
     // ═══════════════════════════════════════════════════
     //  TOOLBAR — resto
@@ -1535,49 +1468,6 @@ class OrbitCtrl {
         for(const mat of Object.values(cache)) mat.wireframe=true;
       }
     };
-
-    // ═══════════════════════════════════════════════════
-    //  TEMA CLARO / OSCURO
-    // ═══════════════════════════════════════════════════
-    let lightTheme=true;
-    function applyTheme(light){
-      lightTheme=light;
-      clearGhosting();
-      if(selectedIDs.size>0) clearSelection();
-      document.body.classList.toggle('light-theme',light);
-      const btn=document.getElementById('btn-theme');
-      if(btn) btn.textContent=light?'🌙 Oscuro':'🌤 Entorno';
-      if(light){
-        scene.background=skyTex;
-        scene.fog=new THREE.FogExp2(0xdbeafe,0.0003);
-        grid.visible=false;
-        floorMesh.visible=true;
-        renderer.shadowMap.enabled=true;sun.castShadow=true;
-        for(const m of allMeshes){
-          m.material=m.userData.ifcMat||getIfcMat(0xa8b2be,1);
-          m.castShadow=true;m.receiveShadow=true;
-        }
-        pbrMode=true;
-        document.getElementById('btn-pbr').style.display='none';
-      }else{
-        scene.background=new THREE.Color(0x050d1a);
-        scene.fog=null;
-        grid.visible=true;
-        floorMesh.visible=false;
-        renderer.shadowMap.enabled=false;sun.castShadow=false;
-        for(const m of allMeshes){
-          const type=typeOfID.get(m.userData.expressID)||'DEFAULT';
-          m.material=getMat(type);
-          m.castShadow=false;m.receiveShadow=false;
-        }
-        pbrMode=false;
-        document.getElementById('btn-pbr').classList.remove('active');
-        document.getElementById('btn-pbr').style.display='';
-      }
-      if(wire){for(const m of allMeshes) m.material.wireframe=true;}
-    }
-    document.getElementById('btn-theme').onclick=()=>applyTheme(!lightTheme);
-    applyTheme(true);
 
     // ═══════════════════════════════════════════════════
     //  EXPLOSIÓN DE MODELO

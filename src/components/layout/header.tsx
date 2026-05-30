@@ -139,8 +139,7 @@ export function Header({ profile, onMenuClick }: HeaderProps) {
                 className="w-7 h-7 rounded-full object-cover border border-surface-border"
               />
             ) : (
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0"
-                style={{ background: "linear-gradient(135deg, #0E4DA4, #06B6D4)" }}>
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-300 to-cyan-400 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
                 {initials}
               </div>
             )}

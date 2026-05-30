@@ -6,7 +6,7 @@ import { zodResolver }         from "@hookform/resolvers/zod";
 import { z }                   from "zod";
 import Link                    from "next/link";
 import { useRouter }           from "next/navigation";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Zap } from "lucide-react";
 import { createClient }        from "@/lib/supabase/client";
 
 const schema = z.object({
@@ -53,25 +53,20 @@ export function LoginForm() {
   }
 
   return (
-    <div className="glass-panel p-8 w-full">
-      {/* Logo — isotipo 2×2 del design system */}
+    <div className="glass-card p-8">
+      {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
-        <div style={{ width: 32, height: 32, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 3.5 }}>
-          <span style={{ background: "#2E6FD6", borderRadius: 3 }} />
-          <span style={{ background: "#6FA0DD", borderRadius: 3 }} />
-          <span style={{ background: "#06B6D4", borderRadius: 3 }} />
-          <span style={{ background: "#1257B4", borderRadius: 3 }} />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-300 to-cyan-400 flex items-center justify-center shadow-glow-md">
+          <Zap className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#fff" }}>
-            INFRALE <span style={{ color: "#06B6D4", fontFamily: "JetBrains Mono, monospace", fontSize: 14 }}>3D</span>
-          </h1>
-          <p className="text-xs" style={{ color: "#5E768F" }}>Gestión de infraestructura BIM</p>
+          <h1 className="text-xl font-bold glow-text">Infrale 3D</h1>
+          <p className="text-xs text-slate-500">Infraestructura Digital</p>
         </div>
       </div>
 
-      <h2 className="text-lg font-semibold mb-1" style={{ color: "#E6EEF7" }}>Iniciar sesión</h2>
-      <p className="text-sm mb-6" style={{ color: "#93A7BD" }}>Plataforma de gestión BIM</p>
+      <h2 className="text-lg font-semibold text-slate-100 mb-1">Iniciar sesión</h2>
+      <p className="text-sm text-slate-500 mb-6">Accede a tu espacio de trabajo</p>
 
       {error && (
         <div className="mb-4 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
